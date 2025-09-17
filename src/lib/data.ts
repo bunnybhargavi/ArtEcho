@@ -1,0 +1,107 @@
+import type { Artisan, Product } from './types';
+
+export let artisans: Artisan[] = [
+  {
+    id: '1',
+    name: 'Elena Rodriguez',
+    craft: 'Ceramics',
+    location: 'Oaxaca, Mexico',
+    story: 'Elena grew up in a family of potters, learning the ancient techniques of Zapotec pottery from her grandmother. She finds inspiration in the natural landscapes of Oaxaca, incorporating traditional motifs with a modern aesthetic.',
+  },
+  {
+    id: '2',
+    name: 'Kenji Tanaka',
+    craft: 'Woodworking',
+    location: 'Kyoto, Japan',
+    story: 'A master carpenter, Kenji Tanaka has been perfecting the art of joinery for over 40 years. His minimalist designs emphasize the natural beauty of the wood, creating pieces that are both functional and timeless.',
+  },
+  {
+    id: '3',
+    name: 'Amina Yusuf',
+    craft: 'Textiles',
+    location: 'Marrakech, Morocco',
+    story: 'Amina leads a cooperative of female weavers who create stunning rugs and textiles using traditional Berber techniques passed down through generations. Each piece tells a story through its vibrant colors and symbolic patterns.',
+  },
+  {
+    id: '4',
+    name: 'Liam O\'Connell',
+    craft: 'Glassblowing',
+    location: 'Waterford, Ireland',
+    story: 'From a young age, Liam was fascinated by the dance of fire and molten glass. He now runs his own studio, creating contemporary glass art that pushes the boundaries of the medium while honoring Irish glassblowing traditions.',
+  },
+];
+
+export let products: Product[] = [
+  {
+    id: '1',
+    name: 'Terra Cotta Mug',
+    description: 'Hand-thrown terra cotta mug with a unique, unglazed exterior and a smooth, white-glazed interior. Perfect for your morning coffee or tea.',
+    price: 35,
+    tags: ['mug', 'ceramics', 'handmade'],
+    imageId: 'product-1',
+    artisanId: '1',
+  },
+  {
+    id: '2',
+    name: 'Indigo Shibori Blanket',
+    description: 'A beautiful hand-dyed blanket using the Japanese shibori technique with natural indigo. This soft cotton throw adds a touch of artisanal charm to any room.',
+    price: 120,
+    tags: ['textile', 'blanket', 'dyed'],
+    imageId: 'product-2',
+    artisanId: '3',
+  },
+  {
+    id: '3',
+    name: 'Celtic Knot Pendant',
+    description: 'A sterling silver pendant featuring an intricate Celtic knot design, handcrafted by a skilled jeweler. A timeless piece of wearable art.',
+    price: 95,
+    tags: ['jewelry', 'silver', 'celtic'],
+    imageId: 'product-3',
+    artisanId: '4', // This should be a jeweler, let's assume Liam also does some metalwork or add a new artisan. For now, we'll map to him.
+  },
+  {
+    id: '4',
+    name: 'Hinoki Wood Cutting Board',
+    description: 'A durable and aromatic cutting board made from a single piece of Japanese Hinoki cypress. Known for its gentle effect on knives and natural antibacterial properties.',
+    price: 75,
+    tags: ['woodwork', 'kitchen', 'hinoki'],
+    imageId: 'product-4',
+    artisanId: '2',
+  },
+  {
+    id: '5',
+    name: 'Zapotec Clay Planter',
+    description: 'A large, hand-built clay planter featuring traditional Zapotec carvings. This statement piece is perfect for showcasing a beloved plant, indoors or out.',
+    price: 180,
+    tags: ['ceramics', 'planter', 'garden'],
+    imageId: 'product-5',
+    artisanId: '1',
+  },
+  {
+    id: '6',
+    name: 'Murano Swirl Tumblers',
+    description: 'Set of two hand-blown glass tumblers, each with a unique swirl of color. Made with techniques from Murano, these glasses are as beautiful as they are functional.',
+    price: 80,
+    tags: ['glass', 'kitchen', 'drinkware'],
+    imageId: 'product-6',
+    artisanId: '4',
+  },
+  {
+    id: '7',
+    name: 'Ash Wood Bento Box',
+    description: 'An elegant two-tiered bento box crafted from Japanese ash wood. The expert joinery and smooth finish make for a sophisticated and eco-friendly lunch container.',
+    price: 110,
+    tags: ['woodwork', 'bento', 'kitchen'],
+    imageId: 'product-7',
+    artisanId: '2',
+  },
+  {
+    id: '8',
+    name: 'Berber Wool Cushion',
+    description: 'A plush and comfortable cushion cover handwoven from 100% natural wool. The geometric Berber patterns bring a touch of Moroccan warmth to your home.',
+    price: 65,
+    tags: ['textile', 'cushion', 'home'],
+    imageId: 'product-8',
+    artisanId: '3',
+  },
+];

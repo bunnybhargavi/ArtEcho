@@ -1,3 +1,58 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero",
+      "description": "An artisan's hands carefully shaping clay on a potter's wheel.",
+      "imageUrl": "https://picsum.photos/seed/100/1920/1080",
+      "imageHint": "artisan hands"
+    },
+    {
+      "id": "product-1",
+      "description": "A handmade terracotta mug on a rustic wooden table.",
+      "imageUrl": "https://picsum.photos/seed/101/600/600",
+      "imageHint": "terracotta mug"
+    },
+    {
+      "id": "product-2",
+      "description": "A colorful handwoven blanket with intricate patterns.",
+      "imageUrl": "https://picsum.photos/seed/102/600/600",
+      "imageHint": "woven blanket"
+    },
+    {
+      "id": "product-3",
+      "description": "A delicate silver necklace with a unique pendant.",
+      "imageUrl": "https://picsum.photos/seed/103/600/600",
+      "imageHint": "silver necklace"
+    },
+    {
+      "id": "product-4",
+      "description": "A hand-carved wooden bowl with a smooth finish.",
+      "imageUrl": "https://picsum.photos/seed/104/600/600",
+      "imageHint": "wooden bowl"
+    },
+    {
+      "id": "product-5",
+      "description": "A vibrant abstract painting on canvas.",
+      "imageUrl": "https://picsum.photos/seed/105/600/600",
+      "imageHint": "abstract painting"
+    },
+    {
+      "id": "product-6",
+      "description": "A set of hand-blown glass tumblers.",
+      "imageUrl": "https://picsum.photos/seed/106/600/600",
+      "imageHint": "glass tumblers"
+    },
+    {
+      "id": "product-7",
+      "description": "A leather-bound journal with embossed details.",
+      "imageUrl": "https://picsum.photos/seed/107/600/600",
+      "imageHint": "leather journal"
+    },
+    {
+      "id": "product-8",
+      "description": "A naturally dyed silk scarf with soft textures.",
+      "imageUrl": "https://picsum.photos/seed/108/600/600",
+      "imageHint": "silk scarf"
+    }
+  ]
 }
