@@ -68,9 +68,9 @@ export default function LoginPage() {
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-6">
-                        <Button 
-                            variant="outline" 
-                            className="w-full" 
+                        <Button
+                            variant="outline"
+                            className="w-full"
                             onClick={handleGoogleSignIn}
                             disabled={!!isLoading}
                             loading={isLoading === 'google'}
@@ -79,7 +79,7 @@ export default function LoginPage() {
                                 <GoogleIcon /> <span>Sign in with Google</span>
                            </div>
                         </Button>
-                        
+
                         <div className="flex items-center">
                             <Separator className="flex-grow" />
                             <span className="mx-4 text-xs text-muted-foreground">OR CONTINUE WITH</span>
@@ -114,8 +114,8 @@ export default function LoginPage() {
                                         </FormItem>
                                     )}
                                 />
-                                <Button 
-                                    type="submit" 
+                                <Button
+                                    type="submit"
                                     className="w-full"
                                     disabled={!!isLoading}
                                     loading={isLoading === 'email'}

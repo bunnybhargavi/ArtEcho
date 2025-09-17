@@ -39,10 +39,10 @@ const Header = () => {
             </nav>
             <Button asChild>
                 <Link href="/login">
-                    <>
+                    <div className="flex items-center justify-center">
                         <User className="mr-2" />
                         Login / Sign Up
-                    </>
+                    </div>
                 </Link>
             </Button>
         </div>
