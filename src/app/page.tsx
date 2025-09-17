@@ -1,9 +1,14 @@
+
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { products, artisans } from '@/lib/data';
 import { ProductCard } from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { motion } from 'framer-motion';
+
 
 export default function Home() {
   const heroImage = PlaceHolderImages.find((img) => img.id === 'hero');
@@ -22,17 +27,23 @@ export default function Home() {
           />
         )}
         <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-center p-4">
-          <h1 className="font-headline text-5xl md:text-7xl font-bold tracking-tight">
-            ArtEcho
-          </h1>
-          <p className="mt-4 max-w-2xl text-lg md:text-xl">
-            Discover the story behind every creation.
-          </p>
-          <Link href="/#featured-creations">
-            <Button size="lg" className="mt-8 bg-primary hover:bg-primary/90">
-              Explore Artisan Crafts
-            </Button>
-          </Link>
+           <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
+            <h1 className="font-headline text-5xl md:text-7xl font-bold tracking-tight">
+              ArtEcho
+            </h1>
+            <p className="mt-4 max-w-2xl text-lg md:text-xl">
+              Where Local Art Finds a Global Echo.
+            </p>
+            <Link href="/#featured-creations">
+              <Button size="lg" className="mt-8 bg-primary hover:bg-primary/90">
+                Explore Artisan Crafts
+              </Button>
+            </Link>
+          </motion.div>
         </div>
       </section>
 

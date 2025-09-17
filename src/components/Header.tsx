@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Palette } from 'lucide-react';
+import { Palette, User } from 'lucide-react';
+import { Button } from './ui/button';
 
 const Header = () => {
   return (
@@ -9,32 +10,40 @@ const Header = () => {
           <Palette className="h-6 w-6 text-primary" />
           <span className="font-headline text-2xl font-bold">ArtEcho</span>
         </Link>
-        <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-          <Link
-            href="/products"
-            className="transition-colors hover:text-primary"
-          >
-            Browse
-          </Link>
-          <Link
-            href="/dashboard"
-            className="transition-colors hover:text-primary"
-          >
-            Artisan Dashboard
-          </Link>
-          <Link
-            href="/dashboard/buyer"
-            className="transition-colors hover:text-primary"
-          >
-            Buyer Dashboard
-          </Link>
-          <Link
-            href="/dashboard/brand"
-            className="transition-colors hover:text-primary"
-          >
-            Brand Dashboard
-          </Link>
-        </nav>
+        <div className="flex items-center space-x-4">
+            <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
+            <Link
+                href="/products"
+                className="transition-colors hover:text-primary"
+            >
+                Browse
+            </Link>
+            <Link
+                href="/dashboard"
+                className="transition-colors hover:text-primary"
+            >
+                Artisan Dashboard
+            </Link>
+            <Link
+                href="/dashboard/buyer"
+                className="transition-colors hover:text-primary"
+            >
+                Buyer Dashboard
+            </Link>
+            <Link
+                href="/dashboard/brand"
+                className="transition-colors hover:text-primary"
+            >
+                Brand Dashboard
+            </Link>
+            </nav>
+            <Button asChild>
+                <Link href="/login">
+                    <User className="mr-2" />
+                    Login / Sign Up
+                </Link>
+            </Button>
+        </div>
       </div>
     </header>
   );
