@@ -22,6 +22,18 @@ const Header = () => {
           >
             Artisan Dashboard
           </Link>
+          <Link
+            href="/dashboard/buyer"
+            className="transition-colors hover:text-primary"
+          >
+            Buyer Dashboard
+          </Link>
+          <Link
+            href="/dashboard/brand"
+            className="transition-colors hover:text-primary"
+          >
+            Brand Dashboard
+          </Link>
         </nav>
       </div>
     </header>
