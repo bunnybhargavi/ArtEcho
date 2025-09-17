@@ -39,8 +39,10 @@ const Header = () => {
             </nav>
             <Button asChild>
                 <Link href="/login">
-                    <User className="mr-2" />
-                    Login / Sign Up
+                    <>
+                        <User className="mr-2" />
+                        Login / Sign Up
+                    </>
                 </Link>
             </Button>
         </div>

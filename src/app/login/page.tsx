@@ -22,7 +22,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 // This is a placeholder icon. You can replace it with a real Google icon.
 const GoogleIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-1.5c-1.1 0-1.5.7-1.5 1.5V12h3l-.5 3h-2.5v6.8c4.56-.93 8-4.96 8-9.8z"/>
     </svg>
 );
@@ -75,7 +75,9 @@ export default function LoginPage() {
                             disabled={!!isLoading}
                             loading={isLoading === 'google'}
                         >
-                           <GoogleIcon /> Sign in with Google
+                           <div className="flex items-center justify-center">
+                                <GoogleIcon /> <span>Sign in with Google</span>
+                           </div>
                         </Button>
                         
                         <div className="flex items-center">
