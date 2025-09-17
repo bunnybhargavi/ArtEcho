@@ -1,3 +1,7 @@
+
+'use client';
+
+import { useState, useEffect } from 'react';
 import { products, artisans } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
@@ -5,11 +9,24 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { MapPin, User, VenetianMask } from 'lucide-react';
+import { MapPin, User, VenetianMask, Layers } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import StoryCardModal from '@/components/dashboard/StoryCardModal';
 
 export default function ProductPage({ params }: { params: { id: string } }) {
   const product = products.find((p) => p.id === params.id);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // To avoid hydration mismatch, we ensure this page is client-rendered from the start
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+
+  if (!isClient) {
+    return null; // Or a loading spinner
+  }
 
   if (!product) {
     notFound();
@@ -75,21 +92,37 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             {artisan && (
               <div className="mt-6">
                  <h2 className="font-headline text-xl font-semibold mb-2">The Artisan's Story</h2>
-                 <p className="text-foreground/80 leading-relaxed italic">
+                 <p className="text-foreground/80 leading-relaxed italic line-clamp-4">
                   "{artisan.story}"
                  </p>
               </div>
             )}
             
-            <div className="mt-auto pt-8 flex items-center justify-between">
+            <div className="mt-auto pt-8 flex items-center justify-between gap-4">
               <span className="font-headline text-3xl font-bold text-primary">
                 ${product.price.toFixed(2)}
               </span>
-              <Button size="lg">Connect with Artisan</Button>
+              <div className="flex gap-2">
+                <Button size="lg" onClick={() => setIsModalOpen(true)}>
+                  <Layers className="mr-2" />
+                  View Story Card
+                </Button>
+                <Button size="lg" variant="outline">Connect</Button>
+              </div>
             </div>
           </div>
         </div>
       </Card>
+      
+      {artisan && (
+        <StoryCardModal 
+          product={product}
+          artisan={artisan}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
     </div>
   );
 }
+
