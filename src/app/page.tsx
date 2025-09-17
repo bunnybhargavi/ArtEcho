@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { products, artisans } from '@/lib/data';
 import { ProductCard } from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
@@ -27,13 +28,15 @@ export default function Home() {
           <p className="mt-4 max-w-2xl text-lg md:text-xl">
             Discover the story behind every creation.
           </p>
-          <Button size="lg" className="mt-8 bg-primary hover:bg-primary/90">
-            Explore Artisan Crafts
-          </Button>
+          <Link href="/#featured-creations">
+            <Button size="lg" className="mt-8 bg-primary hover:bg-primary/90">
+              Explore Artisan Crafts
+            </Button>
+          </Link>
         </div>
       </section>
 
-      <section className="w-full py-12 md:py-24">
+      <section id="featured-creations" className="w-full py-12 md:py-24 scroll-mt-20">
         <div className="container mx-auto px-4">
           <h2 className="font-headline text-3xl md:text-4xl font-bold text-center mb-12">
             Featured Creations

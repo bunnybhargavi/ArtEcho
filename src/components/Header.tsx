@@ -11,7 +11,7 @@ const Header = () => {
         </Link>
         <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
           <Link
-            href="/"
+            href="/products"
             className="transition-colors hover:text-primary"
           >
             Browse
