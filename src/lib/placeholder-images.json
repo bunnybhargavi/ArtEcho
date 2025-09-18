@@ -3,55 +3,55 @@
     {
       "id": "hero",
       "description": "An artisan's hands carefully shaping clay on a potter's wheel.",
-      "imageUrl": "https://picsum.photos/seed/100/1920/1080",
+      "imageUrl": "https://thumbs.dreamstime.com/b/square-design-authentic-handmade-crafts-wooden-background-upscaled-clean-composition-featuring-neutral-commercial-friendly-400343106.jpg",
       "imageHint": "artisan hands"
     },
     {
       "id": "product-1",
       "description": "A handmade terracotta mug on a rustic wooden table.",
-      "imageUrl": "https://picsum.photos/seed/101/600/600",
+      "imageUrl": "https://craftzone.in/backend/uploads/products/SKU0000003492/5c4817a844dfb496d586b901e52367a5.webp",
       "imageHint": "terracotta mug"
     },
     {
       "id": "product-2",
       "description": "A colorful handwoven blanket with intricate patterns.",
-      "imageUrl": "https://picsum.photos/seed/102/600/600",
+      "imageUrl": "https://thumbs.dreamstime.com/b/handwoven-blankets-embroidered-floral-patterns-multitude-colors-displayed-shelf-gorgeous-array-vibrant-312687495.jpg",
       "imageHint": "woven blanket"
     },
     {
       "id": "product-3",
       "description": "A delicate silver necklace with a unique pendant.",
-      "imageUrl": "https://picsum.photos/seed/103/600/600",
+      "imageUrl": "https://i.etsystatic.com/38474703/r/il/9ba18c/5072309291/il_570xN.5072309291_b4gz.jpg",
       "imageHint": "silver necklace"
     },
     {
       "id": "product-4",
       "description": "A hand-carved wooden bowl with a smooth finish.",
-      "imageUrl": "https://picsum.photos/seed/104/600/600",
+      "imageUrl": "https://a.1stdibscdn.com/unique-lee-swennes-studio-set-of-two-large-bowl-and-cup-in-walnut-us-1960s-for-sale-picture-3/f_15912/f_114405531706276817459/Ao_ob_LeeSwennesBowl_v_1803a_Ao_ob_LeeSwennesCup_2_master.jpg?width=768",
       "imageHint": "wooden bowl"
     },
     {
       "id": "product-5",
       "description": "A vibrant abstract painting on canvas.",
-      "imageUrl": "https://picsum.photos/seed/105/600/600",
+      "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8T5FwS9OwjQLlXOdhR6mW_oDtoS_aW6vQmQ&s",
       "imageHint": "abstract painting"
     },
     {
       "id": "product-6",
       "description": "A set of hand-blown glass tumblers.",
-      "imageUrl": "https://picsum.photos/seed/106/600/600",
+      "imageUrl": "https://hudsonandvine.com/cdn/shop/products/bp_glassware-303_FINAL_43c0de6d-0424-4809-ad0d-43ce6ae65725.jpg?v=1588131175&width=720",
       "imageHint": "glass tumblers"
     },
     {
       "id": "product-7",
       "description": "A leather-bound journal with embossed details.",
-      "imageUrl": "https://picsum.photos/seed/107/600/600",
+      "imageUrl": "https://www.grasslanders.com.au/cdn/shop/files/il_fullxfull.6379042420_85s0_600x.webp?v=1756966799",
       "imageHint": "leather journal"
     },
     {
       "id": "product-8",
       "description": "A naturally dyed silk scarf with soft textures.",
-      "imageUrl": "https://picsum.photos/seed/108/600/600",
+      "imageUrl": "https://cdn.shopify.com/s/files/1/1150/2764/files/Organic_dyes_1024x1024.jpg?v=1668769188",
       "imageHint": "silk scarf"
     }
   ]
