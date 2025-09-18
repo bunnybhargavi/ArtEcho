@@ -1,4 +1,5 @@
 
+
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
@@ -74,6 +75,12 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'cdn.shopify.com',
+        port: '',
+        pathname: '/**',
+      },
+       {
+        protocol: 'https',
+        hostname: 'mybageecha.com',
         port: '',
         pathname: '/**',
       },

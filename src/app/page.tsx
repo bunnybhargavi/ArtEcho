@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import Image from 'next/image';
@@ -58,11 +59,12 @@ export default function Home() {
                 (art) => art.id === product.artisanId
               );
               return (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  artisan={artisan}
-                />
+                 <Link href={`/products/${product.id}`} key={product.id}>
+                  <ProductCard
+                    product={product}
+                    artisan={artisan}
+                  />
+                </Link>
               );
             })}
           </div>
