@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import { User } from 'lucide-react';
 import { Button } from './ui/button';
@@ -8,7 +9,7 @@ const Header = () => {
     <header className="bg-card/80 backdrop-blur-sm sticky top-0 z-40 w-full border-b">
       <div className="container mx-auto flex h-16 items-center space-x-4 px-4 sm:justify-between sm:space-x-0">
         <Link href="/" className="flex items-center space-x-2">
-          <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={140} height={35} priority />
+          <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={120} height={30} priority />
         </Link>
         <div className="flex items-center space-x-4">
             <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
