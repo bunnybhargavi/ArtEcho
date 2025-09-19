@@ -4,8 +4,6 @@
 
 ArtEcho is a modern web application designed to bridge the gap between local artisans and a global audience. It empowers craftspeople by providing them with powerful AI tools to tell their stories, market their products, and connect with brands that align with their style.
 
-![ArtEcho Hero](https://i.postimg.cc/HWX44zYk/logo.jpg)
-
 ## About The Project
 
 In a world of mass production, the unique stories behind handmade crafts are often lost. ArtEcho was created to solve this problem by giving artisans a platform to shine. By leveraging generative AI, the platform helps artisans create compelling marketing materials, generate audio stories for their products, and find the right buyers—all without needing any technical expertise.
