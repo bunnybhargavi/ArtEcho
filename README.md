@@ -4,7 +4,7 @@
 
 ArtEcho is a modern web application designed to bridge the gap between local artisans and a global audience. It empowers craftspeople by providing them with powerful AI tools to tell their stories, market their products, and connect with brands that align with their style.
 
-![ArtEcho Hero](https://i.postimg.cc/HWX44zYk/logo.jpg)
+![ArtEcho App Screenshot](https://i.postimg.cc/HWX44zYk/logo.jpg)
 
 ## About The Project
 
@@ -14,13 +14,28 @@ This creates a richer, more meaningful connection between the creator and the co
 
 ## Key Features
 
-- **AI Story Card Generator**: Artisans can input details about themselves and their products, and the AI will generate a beautiful, engaging story card. It also creates an audio version of the story, making it accessible to everyone.
+ArtEcho provides a suite of AI-powered tools designed to elevate artisans and connect them with the right audience.
 
-- **AI Brand Matchmaker**: Brands can describe their style and desired market trends (e.g., "minimalist, sustainable"), and the AI will analyze the available artisans and products to recommend the perfect partners.
+---
 
-- **Virtual Exhibition**: Buyers can explore a curated gallery of unique products. Clicking on an item opens a "Story Card Modal," which uses AI to generate a fresh narrative and audio story on the spot.
+### AI Story Card Generator
+Artisans can input details about themselves and their products, and the AI will generate a beautiful, engaging story card. It also creates an audio version of the story, making it accessible to everyone.
 
-- **Artisan & Product Profiles**: Clean, detailed pages for each product and artisan, highlighting their craft, location, and personal journey.
+*![AI Story Card Generator Screenshot](https://placehold.co/600x400?text=Story+Generator+Screenshot)*
+
+---
+
+### AI Brand Matchmaker
+Brands can describe their style and desired market trends (e.g., "minimalist, sustainable"), and the AI will analyze the available artisans and products to recommend the perfect partners.
+
+*![AI Brand Matchmaker Screenshot](https://placehold.co/600x400?text=Brand+Matcher+Screenshot)*
+
+---
+
+### Virtual Exhibition
+Buyers can explore a curated gallery of unique products. Clicking on an item opens a "Story Card Modal," which uses AI to generate a fresh narrative and audio story on the spot.
+
+*![Virtual Exhibition Screenshot](https://placehold.co/600x400?text=Exhibition+Screenshot)*
 
 ## How ArtEcho Empowers Local Artisans
 
