@@ -12,28 +12,18 @@ This creates a richer, more meaningful connection between the creator and the co
 
 ## Key Features
 
-ArtEcho provides a suite of AI-powered tools designed to elevate artisans and connect them with the right audience.
+- **AI Story Card Generator**: Artisans can input details about themselves and their products, and the AI will generate a beautiful, engaging story card. It also creates an audio version of the story, making it accessible to everyone.
 
----
+- **AI Brand Matchmaker**: Brands can describe their style and desired market trends (e.g., "minimalist, sustainable"), and the AI will analyze the available artisans and products to recommend the perfect partners.
 
-### AI Story Card Generator
-Artisans can input details about themselves and their products, and the AI will generate a beautiful, engaging story card. It also creates an audio version of the story, making it accessible to everyone.
+- **Virtual Exhibition**: Buyers can explore a curated gallery of unique products. Clicking on an item opens a "Story Card Modal," which uses AI to generate a fresh narrative and audio story on the spot.
 
----
-
-### AI Brand Matchmaker
-Brands can describe their style and desired market trends (e.g., "minimalist, sustainable"), and the AI will analyze the available artisans and products to recommend the perfect partners.
-
----
-
-### Virtual Exhibition
-Buyers can explore a curated gallery of unique products. Clicking on an item opens a "Story Card Modal," which uses AI to generate a fresh narrative and audio story on the spot.
+- **Artisan & Product Profiles**: Clean, detailed pages for each product and artisan, highlighting their craft, location, and personal journey.
 
 ## How ArtEcho Empowers Local Artisans
 
 ArtEcho is more than just a marketplace; it's a digital partner for artisans.
 
-- **Global Reach**: It provides a platform to showcase their work to an international audience.
 - **Effortless Marketing**: It automates the creation of high-quality marketing content, saving artisans time and effort.
 - **Authentic Storytelling**: It helps translate the artisan's personal story and cultural heritage into a format that resonates with modern consumers.
 - **Increased Discovery**: The AI matchmaking tool helps artisans get discovered by brands and buyers who are actively looking for their unique style.
@@ -52,4 +42,4 @@ ArtEcho is built with a modern, full-stack technology set designed for performan
 
 ---
 
-This project was bootstrapped with Firebase Studio.
+This project was made with the help of Firebase Studio.
