@@ -16,7 +16,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      <section className="relative w-full h-[60vh] text-white">
+      <section className="relative w-full h-[60vh] md:h-[80vh] text-white">
         {heroImage && (
           <Image
             src={heroImage.imageUrl}
@@ -33,10 +33,10 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            <h1 className="font-headline text-5xl md:text-7xl font-bold tracking-tight">
+            <h1 className="font-headline text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight">
               ArtEcho
             </h1>
-            <p className="mt-4 max-w-2xl text-lg md:text-xl">
+            <p className="mt-4 max-w-2xl text-md sm:text-lg md:text-xl">
               Where Local Art Finds a Global Echo.
             </p>
             <Link href="/#featured-creations">
@@ -53,13 +53,13 @@ export default function Home() {
           <h2 className="font-headline text-3xl md:text-4xl font-bold text-center mb-12">
             Featured Creations
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            {products.map((product) => {
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
+            {products.slice(0, 4).map((product) => {
               const artisan = artisans.find(
                 (art) => art.id === product.artisanId
               );
               return (
-                 <Link href={`/products/${product.id}`} key={product.id}>
+                 <Link href={`/products/${product.id}`} key={product.id} className="h-full">
                   <ProductCard
                     product={product}
                     artisan={artisan}
@@ -68,6 +68,11 @@ export default function Home() {
               );
             })}
           </div>
+           <div className="text-center mt-12">
+              <Button asChild size="lg">
+                <Link href="/products">View All Creations</Link>
+              </Button>
+           </div>
         </div>
       </section>
     </div>

@@ -39,10 +39,10 @@ export default function ProductPage() {
   const image = PlaceHolderImages.find((img) => img.id === product.imageId);
 
   return (
-    <div className="container mx-auto py-12 px-4">
+    <div className="container mx-auto py-8 md:py-12 px-4">
       <Card className="overflow-hidden shadow-lg">
         <div className="grid md:grid-cols-2">
-          <div className="relative min-h-[300px] md:min-h-[500px]">
+          <div className="relative min-h-[300px] sm:min-h-[400px] md:min-h-[500px]">
             {image ? (
               <Image
                 src={image.imageUrl}
@@ -58,7 +58,7 @@ export default function ProductPage() {
             )}
           </div>
           <div className="p-6 md:p-10 flex flex-col">
-            <h1 className="font-headline text-3xl md:text-5xl font-bold">
+            <h1 className="font-headline text-3xl md:text-4xl lg:text-5xl font-bold">
               {product.name}
             </h1>
             
@@ -68,12 +68,10 @@ export default function ProductPage() {
                   <User className="w-5 h-5 text-muted-foreground" />
                   <span>{artisan.name}</span>
                 </div>
-                 <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-                  <VenetianMask className="w-4 h-4" />
-                  <span>{artisan.craft}</span>
-                  <span className="text-muted-foreground/50">|</span>
-                   <MapPin className="w-4 h-4" />
-                  <span>{artisan.location}</span>
+                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mt-1">
+                  <span className="flex items-center gap-2"><VenetianMask className="w-4 h-4" />{artisan.craft}</span>
+                  <span className="hidden sm:inline text-muted-foreground/50">|</span>
+                   <span className="flex items-center gap-2"><MapPin className="w-4 h-4" />{artisan.location}</span>
                 </div>
               </div>
             )}
@@ -101,16 +99,16 @@ export default function ProductPage() {
               </div>
             )}
             
-            <div className="mt-auto pt-8 flex items-center justify-between gap-4">
-              <span className="font-headline text-3xl font-bold text-primary">
+            <div className="mt-auto pt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <span className="font-headline text-3xl font-bold text-primary order-2 sm:order-1">
                 ${product.price.toFixed(2)}
               </span>
-              <div className="flex gap-2">
-                <Button size="lg" onClick={() => setIsModalOpen(true)}>
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto order-1 sm:order-2">
+                <Button size="lg" onClick={() => setIsModalOpen(true)} className="w-full sm:w-auto">
                   <Layers className="mr-2" />
                   View Story Card
                 </Button>
-                <Button size="lg" variant="outline">Connect</Button>
+                <Button size="lg" variant="outline" className="w-full sm:w-auto">Connect</Button>
               </div>
             </div>
           </div>

@@ -8,10 +8,10 @@ import { Button } from "@/components/ui/button";
 
 export default function DashboardPage() {
   return (
-    <div className="container mx-auto py-12 px-4">
-      <h1 className="font-headline text-4xl md:text-5xl font-bold mb-8">Artisan Dashboard</h1>
+    <div className="container mx-auto py-8 md:py-12 px-4">
+      <h1 className="font-headline text-3xl md:text-5xl font-bold mb-8">Artisan Dashboard</h1>
       <Tabs defaultValue="story-generator" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full max-w-md grid-cols-1 sm:grid-cols-3 h-auto sm:h-10">
           <TabsTrigger value="story-generator">AI Story Generator</TabsTrigger>
           <TabsTrigger value="products">Manage Products</TabsTrigger>
           <TabsTrigger value="profile">Manage Profile</TabsTrigger>

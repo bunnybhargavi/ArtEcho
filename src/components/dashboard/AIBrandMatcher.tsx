@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -124,9 +125,9 @@ export default function AIBrandMatcher() {
       </Card>
 
       <div className="lg:col-span-2">
-         <h2 className="font-headline text-3xl font-bold mb-4">Recommended For You</h2>
+         <h2 className="font-headline text-2xl md:text-3xl font-bold mb-4">Recommended For You</h2>
         {isLoading && (
-            <div className="flex flex-col items-center justify-center gap-4 text-muted-foreground min-h-[400px]">
+            <div className="flex flex-col items-center justify-center gap-4 text-muted-foreground rounded-lg border-2 border-dashed p-12 min-h-[400px]">
                 <Loader2 className="h-10 w-10 animate-spin text-primary" />
                 <p>Analyzing trends and finding matches...</p>
             </div>
@@ -145,18 +146,18 @@ export default function AIBrandMatcher() {
 
               return (
                 <Card key={index} className="overflow-hidden">
-                    <div className="grid md:grid-cols-3 items-center">
-                        <div className="md:col-span-2 p-6">
-                            <h3 className="font-headline text-xl font-semibold mb-2">Recommendation</h3>
+                    <div className="grid md:grid-cols-3 items-stretch">
+                        <div className="md:col-span-2 p-6 flex flex-col">
+                            <h3 className="font-headline text-lg md:text-xl font-semibold mb-2">Recommendation</h3>
                             <p className="text-foreground/80 leading-relaxed italic">"{rec.reason}"</p>
                         </div>
                          {product && (
-                            <div className="p-4 bg-muted/50 h-full">
+                            <div className="p-4 bg-muted/50 h-full border-t md:border-t-0 md:border-l">
                                 <ProductCard product={product} artisan={artisan} />
                             </div>
                         )}
                         {!product && artisan && (
-                            <div className="p-4 bg-muted/50 h-full flex items-center justify-center text-center">
+                            <div className="p-4 bg-muted/50 h-full flex items-center justify-center text-center border-t md:border-t-0 md:border-l">
                                 <div className="space-y-2">
                                     <h4 className="font-semibold">Featured Artisan</h4>
                                     <p className="font-headline text-lg">{artisan.name}</p>

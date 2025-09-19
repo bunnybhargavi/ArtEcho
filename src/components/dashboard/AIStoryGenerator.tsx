@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -98,7 +99,7 @@ export default function AIStoryGenerator() {
   };
 
   return (
-    <div className="grid md:grid-cols-2 gap-8">
+    <div className="grid lg:grid-cols-2 gap-8 items-start">
       <Card>
         <CardHeader>
           <CardTitle>Generate Story Card</CardTitle>
@@ -215,7 +216,7 @@ export default function AIStoryGenerator() {
         </Form>
       </Card>
 
-      <Card className="flex flex-col">
+      <Card className="flex flex-col min-h-[400px]">
         <CardHeader>
           <CardTitle>Generated Story Card</CardTitle>
           <CardDescription>
@@ -230,12 +231,12 @@ export default function AIStoryGenerator() {
             </div>
           )}
           {!isLoading && !result && (
-            <div className="text-center text-muted-foreground">
+            <div className="text-center text-muted-foreground p-8">
               <p>Your result will be displayed here.</p>
             </div>
           )}
           {result && (
-            <div className="space-y-6">
+            <div className="space-y-6 w-full">
               <div>
                 <h3 className="font-headline text-xl font-semibold mb-2">Story Description</h3>
                 <p className="text-foreground/80 leading-relaxed italic">
