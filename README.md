@@ -4,8 +4,6 @@
 
 ArtEcho is a modern web application designed to bridge the gap between local artisans and a global audience. It empowers craftspeople by providing them with powerful AI tools to tell their stories, market their products, and connect with brands that align with their style.
 
-![ArtEcho App Screenshot](https://i.postimg.cc/HWX44zYk/logo.jpg)
-
 ## About The Project
 
 In a world of mass production, the unique stories behind handmade crafts are often lost. ArtEcho was created to solve this problem by giving artisans a platform to shine. By leveraging generative AI, the platform helps artisans create compelling marketing materials, generate audio stories for their products, and find the right buyers—all without needing any technical expertise.
@@ -21,21 +19,15 @@ ArtEcho provides a suite of AI-powered tools designed to elevate artisans and co
 ### AI Story Card Generator
 Artisans can input details about themselves and their products, and the AI will generate a beautiful, engaging story card. It also creates an audio version of the story, making it accessible to everyone.
 
-*![AI Story Card Generator Screenshot](https://placehold.co/600x400?text=Story+Generator+Screenshot)*
-
 ---
 
 ### AI Brand Matchmaker
 Brands can describe their style and desired market trends (e.g., "minimalist, sustainable"), and the AI will analyze the available artisans and products to recommend the perfect partners.
 
-*![AI Brand Matchmaker Screenshot](https://placehold.co/600x400?text=Brand+Matcher+Screenshot)*
-
 ---
 
 ### Virtual Exhibition
 Buyers can explore a curated gallery of unique products. Clicking on an item opens a "Story Card Modal," which uses AI to generate a fresh narrative and audio story on the spot.
-
-*![Virtual Exhibition Screenshot](https://placehold.co/600x400?text=Exhibition+Screenshot)*
 
 ## How ArtEcho Empowers Local Artisans
 
