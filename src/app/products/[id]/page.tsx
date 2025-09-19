@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { products, artisans } from '@/lib/data';
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Badge } from '@/components/ui/badge';
@@ -13,8 +13,11 @@ import { MapPin, User, VenetianMask, Layers } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import StoryCardModal from '@/components/dashboard/StoryCardModal';
 
-export default function ProductPage({ params }: { params: { id: string } }) {
-  const product = products.find((p) => p.id === params.id);
+export default function ProductPage() {
+  const params = useParams();
+  const { id } = params;
+  
+  const product = products.find((p) => p.id === id);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   // To avoid hydration mismatch, we ensure this page is client-rendered from the start
@@ -125,4 +128,3 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     </div>
   );
 }
-
