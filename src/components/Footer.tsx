@@ -14,9 +14,6 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Logo and Newsletter */}
           <div className="space-y-4">
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={80} height={10} />
-            </Link>
             <p className="text-sm">
               Subscribe to our newsletter for updates on new artisans and exclusive offers.
             </p>

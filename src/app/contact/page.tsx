@@ -140,7 +140,7 @@ export default function ContactPage() {
             </CardContent>
           </Card>
            <div className="relative h-64 md:h-80 rounded-lg overflow-hidden shadow-lg">
-             <img src="https://images.unsplash.com/photo-1516553174826-d0a22e338c1a?q=80&w=2070&auto=format&fit=crop" alt="Artisan tools" className="w-full h-full object-cover"/>
+             <img src="https://thumbs.dreamstime.com/b/hand-made-quotes-support-art-buy-handmade-poster-drawn-vector-lettering-unique-motivational-quote-festival-145564663.jpg" alt="Artisan tools" className="w-full h-full object-cover"/>
              <div className="absolute inset-0 bg-black/20"></div>
           </div>
         </div>

@@ -44,7 +44,7 @@ export default function AboutPage() {
             </p>
           </div>
           <div className="relative h-64 md:h-96 rounded-lg overflow-hidden shadow-lg">
-             <img src="https://images.unsplash.com/photo-1528461231221-3b567504a5ac?q=80&w=2070&auto=format&fit=crop" alt="Artisan working" className="w-full h-full object-cover"/>
+             <img src="https://www.shutterstock.com/image-photo/hands-young-potter-molding-pot-260nw-2207473365.jpg" alt="Artisan working" className="w-full h-full object-cover"/>
              <div className="absolute inset-0 bg-black/20"></div>
           </div>
         </div>
