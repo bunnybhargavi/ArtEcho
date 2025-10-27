@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Menu, User, Search } from 'lucide-react';
+import { Menu, User, Search, ShoppingCart } from 'lucide-react';
 import { Button } from './ui/button';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -39,7 +39,7 @@ const Header = () => {
     <header className="bg-card/80 backdrop-blur-sm sticky top-0 z-40 w-full border-b">
       <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={15.75} height={2} priority />
+          <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={78.75} height={10} priority />
         </Link>
         
         {/* Desktop Navigation */}
@@ -72,6 +72,14 @@ const Header = () => {
                     <span className="sr-only">Login</span>
                 </Link>
             </Button>
+            
+            <Button asChild variant="ghost" size="icon" className="relative hidden sm:inline-flex">
+              <Link href="/cart">
+                <ShoppingCart />
+                <span className="sr-only">Shopping Cart</span>
+                <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-primary rounded-full">3</span>
+              </Link>
+            </Button>
              
             {/* Mobile Navigation */}
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
@@ -84,7 +92,7 @@ const Header = () => {
                 <SheetContent side="left" className="flex flex-col">
                      <div className="border-b pb-4">
                          <Link href="/" onClick={() => setIsSheetOpen(false)}>
-                            <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={15.75} height={2} />
+                            <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={78.75} height={10} />
                         </Link>
                     </div>
 
@@ -110,11 +118,17 @@ const Header = () => {
                             </Link>
                         ))}
                     </nav>
-                    <div className="mt-auto border-t pt-4">
+                    <div className="mt-auto border-t pt-4 flex items-center gap-2">
                          <Button asChild className="w-full">
                             <Link href="/login" onClick={() => setIsSheetOpen(false)}>
                                 <User className="mr-2" />
                                 Login / Sign Up
+                            </Link>
+                        </Button>
+                         <Button asChild variant="outline" className="w-full">
+                            <Link href="/cart" onClick={() => setIsSheetOpen(false)}>
+                                <ShoppingCart className="mr-2" />
+                                Cart (3)
                             </Link>
                         </Button>
                     </div>
