@@ -60,3 +60,4 @@ export async function submitContactFormAction(formData: {
     return { success: false, error: 'Failed to submit message.' };
   }
 }
+    

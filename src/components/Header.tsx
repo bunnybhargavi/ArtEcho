@@ -39,7 +39,7 @@ const Header = () => {
     <header className="bg-card/80 backdrop-blur-sm sticky top-0 z-40 w-full border-b">
       <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={78.75} height={10} priority />
+          <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={39.375} height={5} priority />
         </Link>
         
         {/* Desktop Navigation */}
@@ -92,7 +92,7 @@ const Header = () => {
                 <SheetContent side="left" className="flex flex-col">
                      <div className="border-b pb-4">
                          <Link href="/" onClick={() => setIsSheetOpen(false)}>
-                            <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={78.75} height={10} />
+                            <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={39.375} height={5} />
                         </Link>
                     </div>
 
@@ -141,3 +141,5 @@ const Header = () => {
 };
 
 export default Header;
+
+    
