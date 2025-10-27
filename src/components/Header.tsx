@@ -27,9 +27,11 @@ const Header = () => {
     const [isCartInitialized, setIsCartInitialized] = useState(false);
 
     useEffect(() => {
-        initializeCart();
-        setIsCartInitialized(true);
-    }, [initializeCart]);
+        if (!isCartInitialized) {
+            initializeCart();
+            setIsCartInitialized(true);
+        }
+    }, [initializeCart, isCartInitialized]);
 
     const handleSearch = (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
@@ -45,9 +47,9 @@ const Header = () => {
 
   return (
     <header className="bg-card/80 backdrop-blur-sm sticky top-0 z-40 w-full border-b">
-      <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
+      <div className="container mx-auto flex h-20 items-center justify-between gap-4 px-4">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={15.75} height={2} priority />
+          <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={63} height={8} priority />
         </Link>
         
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
@@ -100,7 +102,7 @@ const Header = () => {
                 <SheetContent side="left" className="flex flex-col">
                      <div className="border-b pb-4">
                          <Link href="/" onClick={() => setIsSheetOpen(false)}>
-                            <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={15.75} height={2} />
+                            <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={63} height={8} />
                         </Link>
                     </div>
 

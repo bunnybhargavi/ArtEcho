@@ -30,9 +30,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pt-12">
             {/* About & Social */}
             <div className="col-span-1 md:col-span-2">
-                 <Link href="/" className="flex items-center gap-2 mb-4">
-                    <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={15.75} height={2} priority />
-                </Link>
+                 <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={94.5} height={12} className="mb-4" />
                 <p className="max-w-md text-muted-foreground mb-6">
                     Discover unique, handcrafted pieces from independent artisans around the world. One-of-a-kind creations made with love.
                 </p>
