@@ -165,7 +165,7 @@
         },
         "timestamp": {
           "type": "string",
-          "description": "Timestamp of when the message was submitted.",
+description": "Timestamp of when the message was submitted.",
           "format": "date-time"
         }
       },
@@ -219,6 +219,36 @@
         "rating",
         "reviewText",
         "reviewDate"
+      ]
+    },
+    "CartItem": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CartItem",
+      "type": "object",
+      "description": "Represents an item in a user's shopping cart.",
+      "properties": {
+        "productId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "price": {
+          "type": "number"
+        },
+        "imageUrl": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "productId",
+        "name",
+        "price",
+        "imageUrl",
+        "quantity"
       ]
     }
   },
@@ -325,9 +355,28 @@
             }
           ]
         }
+      },
+      {
+        "path": "/users/{userId}/cart/{cartItemId}",
+        "definition": {
+          "entityName": "CartItem",
+          "schema": {
+            "$ref": "#/backend/entities/CartItem"
+          },
+          "description": "Stores items in a user's shopping cart. The 'userId' corresponds to the authenticated user's ID, and 'cartItemId' is the product ID.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "cartItemId",
+              "description": "The unique identifier of the cart item (usually the product ID)."
+            }
+          ]
+        }
       }
     ],
     "reasoning": "This Firestore data structure is designed to support the ArtEcho application, focusing on artisan profiles, products, and customer engagement features like reviews and contact messages. It prioritizes authorization independence through structural segregation and denormalization where necessary. The structure includes collections for artisans, products, tags, story cards, contact messages, and customer reviews. The design ensures secure data access and efficient querying while adhering to the principles of Authorization Independence (CRITICAL), Clarity of Intent (Debuggability), DBAC (No Custom Claims), QAPs (Rules are not Filters), and Invariants.\n\nSpecifically, the `contactMessages` and `customerReviews` collections are designed to support the newly requested features, \"About Us\" and \"Contact Us\" sections. The `contactMessages` collection directly stores contact form submissions. The `customerReviews` are stored to show customer feedback and maintain QAPs, these reviews can be listed and filtered as needed.\n\nAuthorization Independence:\n\nThe structure avoids hierarchical authorization dependencies (`get()`). For instance, access to a product does not depend on fetching data from the artisan's profile. While a `artisanId` field exists in the `products` collection, this is for data relationship purposes and not authorization. The QAPs are supported by the structural segregation - each collection has clear security requirements.\n\n"
   }
 }
-    

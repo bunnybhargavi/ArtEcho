@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingCart } from 'lucide-react';
+import { useCartStore } from '@/lib/cart-store';
+import { useToast } from '@/hooks/use-toast';
 
 interface QuickViewModalProps {
   product: Product;
@@ -19,6 +21,30 @@ interface QuickViewModalProps {
 
 export default function QuickViewModal({ product, artisan, isOpen, onClose }: QuickViewModalProps) {
   const image = PlaceHolderImages.find((img) => img.id === product.imageId);
+  const { addToCart } = useCartStore();
+  const { toast } = useToast();
+
+  const handleAddToCart = () => {
+    if (image) {
+      addToCart({
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        imageUrl: image.imageUrl,
+        quantity: 1,
+      });
+      toast({
+        title: "Added to cart ✅",
+        description: `${product.name} has been added to your cart.`,
+      });
+    } else {
+       toast({
+        variant: "destructive",
+        title: "Could not add to cart",
+        description: `Image URL not found for ${product.name}.`,
+      });
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -65,7 +91,7 @@ export default function QuickViewModal({ product, artisan, isOpen, onClose }: Qu
             <Button asChild variant="outline">
                 <Link href={`/products/${product.id}`}>View Full Details</Link>
             </Button>
-            <Button>
+            <Button onClick={handleAddToCart}>
                 <ShoppingCart className="mr-2 h-4 w-4" />
                 Add to Cart
             </Button>

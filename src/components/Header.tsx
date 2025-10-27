@@ -6,9 +6,10 @@ import { Menu, User, Search, ShoppingCart } from 'lucide-react';
 import { Button } from './ui/button';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input } from './ui/input';
+import { useCartStore } from '@/lib/cart-store';
 
 const navLinks = [
     { href: "/products", label: "Creations" },
@@ -22,27 +23,33 @@ const navLinks = [
 const Header = () => {
     const [isSheetOpen, setIsSheetOpen] = useState(false);
     const router = useRouter();
+    const { items, initializeCart } = useCartStore();
+    const [isCartInitialized, setIsCartInitialized] = useState(false);
+
+    useEffect(() => {
+        initializeCart();
+        setIsCartInitialized(true);
+    }, [initializeCart]);
 
     const handleSearch = (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       const formData = new FormData(event.currentTarget);
       const searchQuery = formData.get('search') as string;
       router.push(`/products?q=${searchQuery}`);
-      // Close sheet on mobile after search
       if (isSheetOpen) {
         setIsSheetOpen(false);
       }
     };
 
+    const cartCount = isCartInitialized ? items.reduce((total, item) => total + item.quantity, 0) : 0;
 
   return (
     <header className="bg-card/80 backdrop-blur-sm sticky top-0 z-40 w-full border-b">
       <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={39.375} height={5} priority />
+          <Image src="https://i.postimg.cc/d1G5n1m5/logo.jpg" alt="ArtEcho Logo" width={19.6875} height={2.5} priority />
         </Link>
         
-        {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
             {navLinks.map(link => (
                  <Link
@@ -77,11 +84,12 @@ const Header = () => {
               <Link href="/cart">
                 <ShoppingCart />
                 <span className="sr-only">Shopping Cart</span>
-                <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-primary rounded-full">3</span>
+                {cartCount > 0 && (
+                    <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-primary rounded-full">{cartCount}</span>
+                )}
               </Link>
             </Button>
              
-            {/* Mobile Navigation */}
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                 <SheetTrigger asChild>
                     <Button variant="outline" size="icon" className="md:hidden">
@@ -92,7 +100,7 @@ const Header = () => {
                 <SheetContent side="left" className="flex flex-col">
                      <div className="border-b pb-4">
                          <Link href="/" onClick={() => setIsSheetOpen(false)}>
-                            <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={39.375} height={5} />
+                            <Image src="https://i.postimg.cc/d1G5n1m5/logo.jpg" alt="ArtEcho Logo" width={19.6875} height={2.5} />
                         </Link>
                     </div>
 
@@ -128,7 +136,7 @@ const Header = () => {
                          <Button asChild variant="outline" className="w-full">
                             <Link href="/cart" onClick={() => setIsSheetOpen(false)}>
                                 <ShoppingCart className="mr-2" />
-                                Cart (3)
+                                Cart {cartCount > 0 ? `(${cartCount})` : ''}
                             </Link>
                         </Button>
                     </div>
@@ -141,5 +149,3 @@ const Header = () => {
 };
 
 export default Header;
-
-    
