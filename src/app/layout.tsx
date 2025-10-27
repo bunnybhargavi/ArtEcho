@@ -4,7 +4,6 @@ import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { AuthCartSync } from '@/components/AuthCartSync';
 
@@ -68,7 +67,6 @@ export default function RootLayout({
           <AuthCartSync />
           <Header />
           <main className="flex-grow">{children}</main>
-          <Footer />
           <Toaster />
         </FirebaseClientProvider>
       </body>

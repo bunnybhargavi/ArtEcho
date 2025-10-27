@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/firebase';
-import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address.'),
@@ -22,7 +22,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
     const { toast } = useToast();
-    const [isLoading, setIsLoading] = useState<null | 'google' | 'email'>(null);
+    const [isLoading, setIsLoading] = useState<null | 'email'>(null);
     const auth = useAuth();
 
     const form = useForm<LoginFormValues>({
@@ -35,6 +35,11 @@ export default function LoginPage() {
 
     const onEmailSubmit = async (values: LoginFormValues) => {
         setIsLoading('email');
+        if (!auth) {
+            toast({ variant: "destructive", title: "Login Failed", description: "Authentication service is not available." });
+            setIsLoading(null);
+            return;
+        }
         signInWithEmailAndPassword(auth, values.email, values.password)
             .then((userCredential) => {
                 toast({ title: "Login Successful", description: "Welcome back!" });
@@ -47,24 +52,9 @@ export default function LoginPage() {
             });
     };
 
-    const handleGoogleSignIn = async () => {
-        setIsLoading('google');
-        const provider = new GoogleAuthProvider();
-        signInWithPopup(auth, provider)
-            .then((result) => {
-                toast({ title: "Sign-In Successful", description: `Welcome, ${result.user.displayName}!` });
-            })
-            .catch((error) => {
-                toast({ variant: "destructive", title: "Google Sign-In Failed", description: error.message });
-            })
-            .finally(() => {
-                setIsLoading(null);
-            });
-    };
-
     return (
-        <div className="container mx-auto py-12 px-4 flex items-center justify-center min-h-[calc(100vh-8rem)]">
-            <Card className="w-full max-w-md">
+        <div className="container mx-auto py-12 px-4 flex items-center justify-center min-h-[calc(100vh-5rem)]">
+            <Card className="w-full max-w-md shadow-lg">
                 <CardHeader className="text-center">
                     <CardTitle className="text-2xl font-headline">Welcome Back</CardTitle>
                     <CardDescription>Sign in to continue to ArtEcho</CardDescription>
