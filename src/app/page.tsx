@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { products, artisans } from '@/lib/data';
@@ -8,10 +9,20 @@ import { ProductCard } from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { motion } from 'framer-motion';
-
+import QuickViewModal from '@/components/QuickViewModal';
+import type { Product, Artisan } from '@/lib/types';
 
 export default function Home() {
   const heroImage = PlaceHolderImages.find((img) => img.id === 'hero');
+  const [selectedProduct, setSelectedProduct] = useState<{ product: Product, artisan?: Artisan } | null>(null);
+
+  const handleProductClick = (product: Product, artisan?: Artisan) => {
+    setSelectedProduct({ product, artisan });
+  };
+
+  const handleCloseModal = () => {
+    setSelectedProduct(null);
+  };
 
   return (
     <div className="flex flex-col">
@@ -58,12 +69,13 @@ export default function Home() {
                 (art) => art.id === product.artisanId
               );
               return (
-                 <Link href={`/products/${product.id}`} key={product.id} className="h-full">
-                  <ProductCard
-                    product={product}
-                    artisan={artisan}
-                  />
-                </Link>
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  artisan={artisan}
+                  onImageClick={handleProductClick}
+                  className="[&:nth-child(n+5)]:hidden lg:[&:nth-child(n+5)]:block"
+                />
               );
             })}
           </div>
@@ -74,6 +86,15 @@ export default function Home() {
            </div>
         </div>
       </section>
+
+      {selectedProduct && selectedProduct.artisan && (
+        <QuickViewModal
+          product={selectedProduct.product}
+          artisan={selectedProduct.artisan}
+          isOpen={!!selectedProduct}
+          onClose={handleCloseModal}
+        />
+      )}
     </div>
   );
 }

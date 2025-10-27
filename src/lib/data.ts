@@ -39,7 +39,11 @@ export let products: Product[] = [
     price: 35,
     tags: ['mug', 'ceramics', 'handmade'],
     imageId: 'product-1',
+    imageHoverId: 'product-1-hover',
     artisanId: '1',
+    badge: 'Best Seller',
+    rating: 4.8,
+    reviews: 124,
   },
   {
     id: '2',
@@ -49,6 +53,9 @@ export let products: Product[] = [
     tags: ['textile', 'blanket', 'dyed'],
     imageId: 'product-2',
     artisanId: '3',
+    badge: 'New',
+    rating: 4.9,
+    reviews: 32,
   },
   {
     id: '3',
@@ -57,7 +64,10 @@ export let products: Product[] = [
     price: 95,
     tags: ['jewelry', 'silver', 'celtic'],
     imageId: 'product-3',
-    artisanId: '4', // This should be a jeweler, let's assume Liam also does some metalwork or add a new artisan. For now, we'll map to him.
+    artisanId: '4', 
+    badge: 'Handcrafted',
+    rating: 4.7,
+    reviews: 88,
   },
   {
     id: '4',
@@ -67,6 +77,8 @@ export let products: Product[] = [
     tags: ['woodwork', 'kitchen', 'hinoki'],
     imageId: 'product-4',
     artisanId: '2',
+    rating: 5.0,
+    reviews: 215,
   },
   {
     id: '5',
@@ -76,6 +88,9 @@ export let products: Product[] = [
     tags: ['painting', 'culture', 'vibrant'],
     imageId: 'product-5',
     artisanId: '1',
+    badge: 'New',
+    rating: 4.6,
+    reviews: 18,
   },
   {
     id: '6',
@@ -85,6 +100,9 @@ export let products: Product[] = [
     tags: ['glass', 'kitchen', 'drinkware'],
     imageId: 'product-6',
     artisanId: '4',
+    badge: 'Made to Order',
+    rating: 4.8,
+    reviews: 45,
   },
   {
     id: '7',
@@ -94,6 +112,8 @@ export let products: Product[] = [
     tags: ['woodwork', 'bento', 'kitchen'],
     imageId: 'product-7',
     artisanId: '2',
+    rating: 4.9,
+    reviews: 72,
   },
   {
     id: '8',
@@ -103,6 +123,9 @@ export let products: Product[] = [
     tags: ['textile', 'cushion', 'home'],
     imageId: 'product-8',
     artisanId: '3',
+    badge: 'Best Seller',
+    rating: 4.7,
+    reviews: 98,
   },
   {
     id: '9',
@@ -112,5 +135,7 @@ export let products: Product[] = [
     tags: ['pottery', 'cushion', 'home'],
     imageId: 'product-9',
     artisanId: '3',
+    rating: 4.5,
+    reviews: 55,
   },
 ];
