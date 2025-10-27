@@ -8,7 +8,7 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Share2 } from 'lucide-react';
 import { useCartStore } from '@/lib/cart-store';
 import { useToast } from '@/hooks/use-toast';
 
@@ -43,6 +43,38 @@ export default function QuickViewModal({ product, artisan, isOpen, onClose }: Qu
         title: "Could not add to cart",
         description: `Image URL not found for ${product.name}.`,
       });
+    }
+  };
+
+  const handleShare = async () => {
+    const productUrl = `${window.location.origin}/products/${product.id}`;
+    const shareData = {
+      title: product.name,
+      text: product.description,
+      url: productUrl,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (error) {
+        console.error('Error sharing:', error);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(productUrl);
+        toast({
+          title: "Link copied!",
+          description: "Product link copied to your clipboard.",
+        });
+      } catch (error) {
+        console.error('Error copying to clipboard:', error);
+        toast({
+          variant: "destructive",
+          title: "Failed to copy",
+          description: "Could not copy link to clipboard.",
+        });
+      }
     }
   };
 
@@ -90,6 +122,10 @@ export default function QuickViewModal({ product, artisan, isOpen, onClose }: Qu
         <DialogFooter className="p-6 bg-muted/50 border-t flex items-center justify-end gap-2">
             <Button asChild variant="outline">
                 <Link href={`/products/${product.id}`}>View Full Details</Link>
+            </Button>
+            <Button onClick={handleShare} variant="outline">
+                <Share2 className="mr-2 h-4 w-4" />
+                Share
             </Button>
             <Button onClick={handleAddToCart}>
                 <ShoppingCart className="mr-2 h-4 w-4" />
