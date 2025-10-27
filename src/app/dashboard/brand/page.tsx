@@ -48,15 +48,6 @@ export default function BrandDashboardPage() {
                     <div className="p-1">
                       <Card className="overflow-hidden">
                         <CardContent className="flex flex-col items-center justify-center p-6 space-y-4">
-                          <div className="relative h-24 w-24">
-                             <Image
-                              src={artisanImage?.imageUrl ?? `https://picsum.photos/seed/${artisan.id}/100/100`}
-                              alt={`Portrait of ${artisan.name}, a master of ${artisan.craft}`}
-                              fill
-                              className="rounded-full object-cover"
-                              data-ai-hint="portrait person"
-                            />
-                          </div>
                           <div className="text-center">
                             <h3 className="font-headline text-xl font-semibold">{artisan.name}</h3>
                             <p className="text-sm text-muted-foreground">{artisan.craft}</p>
