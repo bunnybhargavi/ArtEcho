@@ -57,7 +57,7 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
           {mainImage ? (
             <Image
               src={mainImage.imageUrl}
-              alt={product.name}
+              alt={artisan ? `Photo of ${product.name}, a piece of ${artisan.craft} by ${artisan.name}` : `Photo of ${product.name}`}
               fill
               className={`object-cover transition-opacity duration-300 ${hoverImage ? 'group-hover:opacity-0' : ''}`}
               data-ai-hint={mainImage.imageHint}
@@ -72,7 +72,7 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
           {hoverImage && (
             <Image
               src={hoverImage.imageUrl}
-              alt={`${product.name} (hover)`}
+              alt={`Alternate view of ${product.name}`}
               fill
               className="object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
               data-ai-hint={hoverImage.imageHint}

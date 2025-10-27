@@ -8,8 +8,33 @@ import Footer from '@/components/Footer';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 
 export const metadata: Metadata = {
-  title: 'ArtEcho',
-  description: 'Connecting artisans and buyers through stories.',
+  title: {
+    default: 'ArtEcho | Discover Unique Artisan Creations',
+    template: '%s | ArtEcho',
+  },
+  description: 'Explore and purchase one-of-a-kind, handcrafted pieces from independent artisans around the world. One-of-a-kind creations made with love.',
+  openGraph: {
+    title: 'ArtEcho | Discover Unique Artisan Creations',
+    description: 'Explore and purchase one-of-a-kind, handcrafted pieces from independent artisans around the world.',
+    url: 'https://artecho.com', // Replace with your actual domain
+    siteName: 'ArtEcho',
+    images: [
+      {
+        url: 'https://thumbs.dreamstime.com/b/square-design-authentic-handmade-crafts-wooden-background-upscaled-clean-composition-featuring-neutral-commercial-friendly-400343106.jpg', // Replace with a high-quality OG image URL
+        width: 1200,
+        height: 630,
+        alt: 'A collection of beautiful, handcrafted artisan products on a rustic table.',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'ArtEcho | Discover Unique Artisan Creations',
+    description: 'Explore and purchase one-of-a-kind, handcrafted pieces from independent artisans around the world.',
+    images: ['https://thumbs.dreamstime.com/b/square-design-authentic-handmade-crafts-wooden-background-upscaled-clean-composition-featuring-neutral-commercial-friendly-400343106.jpg'], // Replace with your Twitter card image
+  },
 };
 
 export default function RootLayout({

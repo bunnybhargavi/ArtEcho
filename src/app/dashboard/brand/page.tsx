@@ -51,7 +51,7 @@ export default function BrandDashboardPage() {
                           <div className="relative h-24 w-24">
                              <Image
                               src={artisanImage?.imageUrl ?? `https://picsum.photos/seed/${artisan.id}/100/100`}
-                              alt={artisan.name}
+                              alt={`Portrait of ${artisan.name}, a master of ${artisan.craft}`}
                               fill
                               className="rounded-full object-cover"
                               data-ai-hint="portrait person"

@@ -102,7 +102,13 @@ export default function StoryCardModal({ product, artisan, isOpen, onClose }: St
         <div className="grid md:grid-cols-2 gap-6 px-6 pb-6 overflow-y-auto max-h-[70vh]">
           <div className="relative aspect-square">
             {image && (
-                <Image src={image.imageUrl} alt={product.name} fill className="object-cover rounded-md" data-ai-hint={image.imageHint} />
+                <Image 
+                  src={image.imageUrl} 
+                  alt={`AI Story card image for ${product.name} by ${artisan.name}`}
+                  fill 
+                  className="object-cover rounded-md" 
+                  data-ai-hint={image.imageHint}
+                />
             )}
           </div>
           

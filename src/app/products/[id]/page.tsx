@@ -46,7 +46,7 @@ export default function ProductPage() {
             {image ? (
               <Image
                 src={image.imageUrl}
-                alt={product.name}
+                alt={`High-quality photo of ${product.name}, a piece of ${artisan?.craft} by ${artisan?.name}`}
                 fill
                 className="object-cover"
                 data-ai-hint={image.imageHint}

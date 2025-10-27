@@ -30,7 +30,12 @@ export default function QuickViewModal({ product, artisan, isOpen, onClose }: Qu
         <div className="grid md:grid-cols-2 gap-6 p-6 overflow-y-auto max-h-[70vh]">
           <div className="relative aspect-square">
             {image ? (
-                <Image src={image.imageUrl} alt={product.name} fill className="object-cover rounded-md" data-ai-hint={image.imageHint} />
+                <Image 
+                  src={image.imageUrl} 
+                  alt={`Quick view of ${product.name}, a piece of ${artisan.craft} by ${artisan.name}`} 
+                  fill 
+                  className="object-cover rounded-md" data-ai-hint={image.imageHint} 
+                />
             ): (
                  <div className="w-full h-full bg-muted flex items-center justify-center rounded-md">
                     <span className="text-muted-foreground text-sm">No Image</span>

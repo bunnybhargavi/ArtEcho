@@ -43,7 +43,7 @@ export default function ArtisanPage() {
         <div className="relative h-48 md:h-64 bg-muted">
             <Image 
                 src={`https://picsum.photos/seed/${artisan.id}b/1200/400`} 
-                alt={`${artisan.name}'s workshop`}
+                alt={`${artisan.name}'s workshop, a creative space for ${artisan.craft}`}
                 fill
                 className="object-cover"
                 data-ai-hint="artisan workshop"
@@ -55,7 +55,7 @@ export default function ArtisanPage() {
             <div className="relative h-32 w-32 md:h-40 md:w-40 rounded-full border-4 border-card shadow-md shrink-0">
                <Image
                 src={artisanImage?.imageUrl ?? `https://picsum.photos/seed/${artisan.id}/160/160`}
-                alt={artisan.name}
+                alt={`Portrait of ${artisan.name}, a master of ${artisan.craft}`}
                 fill
                 className="rounded-full object-cover"
                 data-ai-hint="portrait person"
