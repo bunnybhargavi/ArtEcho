@@ -9,7 +9,6 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useState } from 'react';
 
 const navLinks = [
-    { href: "/products", label: "Browse" },
     { href: "/about", label: "About" },
     { href: "/contact", label: "Contact Us" },
     { href: "/dashboard", label: "Artisan Dashboard" },
@@ -24,7 +23,7 @@ const Header = () => {
     <header className="bg-card/80 backdrop-blur-sm sticky top-0 z-40 w-full border-b">
       <div className="container mx-auto flex h-16 items-center justify-between space-x-4 px-4">
         <Link href="/" className="flex items-center space-x-2">
-          <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={63} height={8} priority />
+          <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={31.5} height={4} priority />
         </Link>
         
         {/* Desktop Navigation */}
@@ -60,7 +59,7 @@ const Header = () => {
                      <div className="flex flex-col h-full">
                         <div className="border-b pb-4">
                              <Link href="/" className="flex items-center space-x-2">
-                                <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={63} height={8} />
+                                <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={31.5} height={4} />
                             </Link>
                         </div>
                         <nav className="flex flex-col gap-4 py-4">
