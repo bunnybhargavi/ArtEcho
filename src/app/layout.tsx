@@ -68,7 +68,7 @@ export default function RootLayout({
           <AuthCartSync />
           <Header />
           <main className="flex-grow">{children}</main>
-          <Footer />
+          
           <Toaster />
         </FirebaseClientProvider>
       </body>
