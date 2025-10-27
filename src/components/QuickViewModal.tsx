@@ -58,7 +58,10 @@ export default function QuickViewModal({ product, artisan, isOpen, onClose }: Qu
       try {
         await navigator.share(shareData);
       } catch (error) {
-        console.error('Error sharing:', error);
+        // Silently ignore AbortError which is triggered when the user cancels the share action
+        if ((error as DOMException).name !== 'AbortError') {
+          console.error('Error sharing:', error);
+        }
       }
     } else {
       try {
