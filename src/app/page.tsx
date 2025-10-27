@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import Image from 'next/image';
@@ -34,10 +33,10 @@ export default function Home() {
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
             <h1 className="font-headline text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight">
-              ArtEcho
+             Discover Unique Artisan Creations
             </h1>
             <p className="mt-4 max-w-2xl text-md sm:text-lg md:text-xl">
-              Where Local Art Finds a Global Echo.
+              One-of-a-kind pieces made with love.
             </p>
             <Link href="/#featured-creations">
               <Button size="lg" className="mt-8 bg-primary hover:bg-primary/90">
