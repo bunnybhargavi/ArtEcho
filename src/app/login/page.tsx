@@ -11,6 +11,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/firebase';
+import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from 'firebase/auth';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address.'),
@@ -19,9 +21,8 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-// This is a placeholder icon. You can replace it with a real Google icon.
 const GoogleIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-1.5c-1.1 0-1.5.7-1.5 1.5V12h3l-.5 3h-2.5v6.8c4.56-.93 8-4.96 8-9.8z"/>
     </svg>
 );
@@ -30,6 +31,7 @@ const GoogleIcon = () => (
 export default function LoginPage() {
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState<null | 'google' | 'email'>(null);
+    const auth = useAuth();
 
     const form = useForm<LoginFormValues>({
         resolver: zodResolver(loginSchema),
@@ -41,21 +43,31 @@ export default function LoginPage() {
 
     const onEmailSubmit = async (values: LoginFormValues) => {
         setIsLoading('email');
-        // NOTE: Firebase logic would go here.
-        console.log(values);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        toast({ title: "Email login is not implemented.", description: "This is a placeholder." });
-        setIsLoading(null);
+        signInWithEmailAndPassword(auth, values.email, values.password)
+            .then((userCredential) => {
+                toast({ title: "Login Successful", description: "Welcome back!" });
+            })
+            .catch((error) => {
+                toast({ variant: "destructive", title: "Login Failed", description: error.message });
+            })
+            .finally(() => {
+                setIsLoading(null);
+            });
     };
 
     const handleGoogleSignIn = async () => {
         setIsLoading('google');
-        // NOTE: Firebase logic would go here.
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        toast({ title: "Google sign-in is not implemented.", description: "This is a placeholder." });
-        setIsLoading(null);
+        const provider = new GoogleAuthProvider();
+        signInWithPopup(auth, provider)
+            .then((result) => {
+                toast({ title: "Sign-In Successful", description: `Welcome, ${result.user.displayName}!` });
+            })
+            .catch((error) => {
+                toast({ variant: "destructive", title: "Google Sign-In Failed", description: error.message });
+            })
+            .finally(() => {
+                setIsLoading(null);
+            });
     };
 
     return (
@@ -74,7 +86,7 @@ export default function LoginPage() {
                             disabled={!!isLoading}
                             loading={isLoading === 'google'}
                         >
-                           <div className="flex items-center justify-center">
+                           <div className="flex items-center justify-center gap-2">
                                 <GoogleIcon /> <span>Sign in with Google</span>
                            </div>
                         </Button>
