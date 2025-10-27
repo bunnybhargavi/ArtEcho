@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/toaster';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
+import { AuthCartSync } from '@/components/AuthCartSync';
 
 export const metadata: Metadata = {
   title: {
@@ -63,6 +64,7 @@ export default function RootLayout({
         )}
       >
         <FirebaseClientProvider>
+          <AuthCartSync />
           <Header />
           <main className="flex-grow">{children}</main>
           <Footer />
