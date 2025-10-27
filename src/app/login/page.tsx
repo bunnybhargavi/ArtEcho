@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/firebase';
 import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from 'firebase/auth';
@@ -20,13 +19,6 @@ const loginSchema = z.object({
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
-
-const GoogleIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-1.5c-1.1 0-1.5.7-1.5 1.5V12h3l-.5 3h-2.5v6.8c4.56-.93 8-4.96 8-9.8z"/>
-    </svg>
-);
-
 
 export default function LoginPage() {
     const { toast } = useToast();
@@ -79,24 +71,6 @@ export default function LoginPage() {
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-6">
-                        <Button
-                            variant="outline"
-                            className="w-full"
-                            onClick={handleGoogleSignIn}
-                            disabled={!!isLoading}
-                            loading={isLoading === 'google'}
-                        >
-                           <div className="flex items-center justify-center gap-2">
-                                <GoogleIcon /> <span>Sign in with Google</span>
-                           </div>
-                        </Button>
-
-                        <div className="flex items-center">
-                            <Separator className="flex-grow" />
-                            <span className="mx-4 text-xs text-muted-foreground">OR CONTINUE WITH</span>
-                            <Separator className="flex-grow" />
-                        </div>
-
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onEmailSubmit)} className="space-y-4">
                                 <FormField
