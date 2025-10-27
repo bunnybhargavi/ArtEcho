@@ -47,7 +47,7 @@ const Header = () => {
     <header className="bg-card/80 backdrop-blur-sm sticky top-0 z-40 w-full border-b">
       <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="https://i.postimg.cc/d1G5n1m5/logo.jpg" alt="ArtEcho Logo" width={19.6875} height={2.5} priority />
+          <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={15.75} height={2} priority />
         </Link>
         
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
@@ -100,7 +100,7 @@ const Header = () => {
                 <SheetContent side="left" className="flex flex-col">
                      <div className="border-b pb-4">
                          <Link href="/" onClick={() => setIsSheetOpen(false)}>
-                            <Image src="https://i.postimg.cc/d1G5n1m5/logo.jpg" alt="ArtEcho Logo" width={19.6875} height={2.5} />
+                            <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={15.75} height={2} />
                         </Link>
                     </div>
 
