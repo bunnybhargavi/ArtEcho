@@ -1,7 +1,8 @@
 
 import { create } from 'zustand';
 import { doc, getDoc, setDoc, deleteDoc, collection, getDocs, writeBatch } from 'firebase/firestore';
-import { getSdks, useFirebase } from '@/firebase';
+import { getSdks, initializeFirebase } from '@/firebase';
+import { useFirebase } from '@/firebase';
 
 export interface CartItem {
   productId: string;
@@ -22,7 +23,7 @@ interface CartState {
 }
 
 const getCartRef = (userId: string) => {
-    const { firestore } = getSdks(null as any); // SDKs are initialized on the client
+    const { firestore } = initializeFirebase();
     return collection(firestore, 'users', userId, 'cart');
 };
 
@@ -37,23 +38,19 @@ export const useCartStore = create<CartState>((set, get) => ({
   items: [],
   isCartInitialized: false,
 
-  initializeCart: async () => {
-    // Avoid re-initializing if already done
+  initializeCart: () => {
     if (get().isCartInitialized) return;
 
-    const { auth, firestore } = getSdks(null as any); // This is safe on the client
+    const { auth, firestore } = initializeFirebase();
     
-    // We need to wait for auth to be initialized
     auth.onAuthStateChanged(async (user) => {
       if (user) {
-        // User is logged in, fetch from Firestore
         const cartRef = getCartRef(user.uid);
         const snapshot = await getDocs(cartRef);
         const firestoreItems = snapshot.docs.map(doc => doc.data() as CartItem);
         
         let finalItems = [...firestoreItems];
 
-        // Check for and merge guest cart from localStorage
         const guestCartJson = typeof window !== 'undefined' ? localStorage.getItem('guestCart') : null;
         if (guestCartJson) {
           const guestItems = JSON.parse(guestCartJson) as CartItem[];
@@ -79,7 +76,6 @@ export const useCartStore = create<CartState>((set, get) => ({
         }
         set({ items: finalItems, isCartInitialized: true });
       } else {
-        // User is a guest, fetch from localStorage
         const guestCartJson = typeof window !== 'undefined' ? localStorage.getItem('guestCart') : null;
         const items = guestCartJson ? JSON.parse(guestCartJson) : [];
         set({ items, isCartInitialized: true });
@@ -88,7 +84,8 @@ export const useCartStore = create<CartState>((set, get) => ({
   },
 
   addToCart: async (itemToAdd) => {
-    const { user } = useFirebase.getState();
+    const { auth } = initializeFirebase();
+    const user = auth.currentUser;
     const items = get().items;
     const existingItem = items.find(item => item.productId === itemToAdd.productId);
     const quantityToAdd = itemToAdd.quantity || 1;
@@ -115,7 +112,8 @@ export const useCartStore = create<CartState>((set, get) => ({
   },
 
   removeFromCart: async (productId) => {
-    const { user } = useFirebase.getState();
+    const { auth } = initializeFirebase();
+    const user = auth.currentUser;
     const newItems = get().items.filter(item => item.productId !== productId);
     set({ items: newItems });
 
@@ -132,8 +130,9 @@ export const useCartStore = create<CartState>((set, get) => ({
       get().removeFromCart(productId);
       return;
     }
-
-    const { user } = useFirebase.getState();
+    
+    const { auth } = initializeFirebase();
+    const user = auth.currentUser;
     const newItems = get().items.map(item =>
       item.productId === productId ? { ...item, quantity } : item
     );
@@ -149,7 +148,8 @@ export const useCartStore = create<CartState>((set, get) => ({
   },
 
   clearCart: async () => {
-    const { user, firestore } = getSdks(null as any);
+    const { auth, firestore } = initializeFirebase();
+    const user = auth.currentUser;
     if (user) {
         const cartRef = getCartRef(user.uid);
         const snapshot = await getDocs(cartRef);
