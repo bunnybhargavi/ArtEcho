@@ -58,6 +58,7 @@ export default function RootLayout({
         />
       </head>
       <body
+        suppressHydrationWarning={true}
         className={cn(
           'font-body antialiased',
           'min-h-screen bg-background flex flex-col'
