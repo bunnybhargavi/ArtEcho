@@ -66,7 +66,7 @@ export default function BrandDashboardPage() {
                             "{artisan.story}"
                           </p>
                           <Button asChild>
-                            <Link href={`/artisans/${artisan.id}`}>Connect</Link>
+                            <Link href={`/artisans/${artisan.id}`}>View Profile</Link>
                           </Button>
                         </CardContent>
                       </Card>
