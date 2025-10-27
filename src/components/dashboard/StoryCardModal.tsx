@@ -31,19 +31,11 @@ export default function StoryCardModal({ product, artisan, isOpen, onClose }: St
       const generateStory = async () => {
         setIsLoading(true);
 
-        if (!image) {
-           toast({
-            variant: 'destructive',
-            title: 'Missing Image',
-            description: 'Cannot generate story without a product image.',
-          });
-          setIsLoading(false);
-          return;
-        }
+        const imageUrl = image?.imageUrl ?? `https://picsum.photos/seed/${product.id}/600/400`;
 
         // Fetch the image and convert to data URI
         try {
-          const response = await fetch(image.imageUrl);
+          const response = await fetch(imageUrl);
           const blob = await response.blob();
           const reader = new FileReader();
           reader.readAsDataURL(blob);
@@ -101,13 +93,21 @@ export default function StoryCardModal({ product, artisan, isOpen, onClose }: St
         
         <div className="grid md:grid-cols-2 gap-6 px-6 pb-6 overflow-y-auto max-h-[70vh]">
           <div className="relative aspect-square">
-            {image && (
+            {image ? (
                 <Image 
                   src={image.imageUrl} 
                   alt={`AI Story card image for ${product.name} by ${artisan.name}`}
                   fill 
                   className="object-cover rounded-md" 
                   data-ai-hint={image.imageHint}
+                />
+            ) : (
+                 <Image 
+                  src={`https://picsum.photos/seed/${product.id}/600/400`}
+                  alt={`AI Story card image for ${product.name} by ${artisan.name}`}
+                  fill 
+                  className="object-cover rounded-md" 
+                  data-ai-hint="product photo"
                 />
             )}
           </div>
