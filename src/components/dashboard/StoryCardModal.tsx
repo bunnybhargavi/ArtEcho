@@ -30,46 +30,40 @@ export default function StoryCardModal({ product, artisan, isOpen, onClose }: St
     if (isOpen) {
       const generateStory = async () => {
         setIsLoading(true);
+        setStoryResult(null);
 
         const imageUrl = image?.imageUrl ?? `https://picsum.photos/seed/${product.id}/600/400`;
 
-        // Fetch the image and convert to data URI
+        // Fetch the image via the server-side proxy
         try {
-          const response = await fetch(imageUrl);
+          const response = await fetch(`/api/proxy-image?url=${encodeURIComponent(imageUrl)}`);
           if (!response.ok) {
-            throw new Error(`Failed to fetch image: ${response.statusText}`);
+            const errorText = await response.text();
+            throw new Error(`Failed to fetch image via proxy: ${response.status} ${errorText}`);
           }
-          const blob = await response.blob();
-          const reader = new FileReader();
-          reader.readAsDataURL(blob);
-          reader.onloadend = async () => {
-            const productPhotoDataUri = reader.result as string;
+          const { dataUri: productPhotoDataUri } = await response.json();
             
-            try {
-              const result = await generateArtisanStoryCardAction({
-                artisanName: artisan.name,
-                craft: artisan.craft,
-                location: artisan.location,
-                artisanStory: artisan.story,
-                productName: product.name,
-                productDescription: product.description,
-                productPhotoDataUri,
-              });
-              setStoryResult(result);
-            } catch (error) {
-              console.error('Error generating story card:', error);
-              toast({
-                variant: 'destructive',
-                title: 'AI Story Generation Failed',
-                description: 'Could not generate the artisan story. Please try again later.',
-              });
-            } finally {
-              setIsLoading(false);
-            }
-          };
-           reader.onerror = () => {
-            throw new Error('Failed to read image as Data URL');
-          };
+          try {
+            const result = await generateArtisanStoryCardAction({
+              artisanName: artisan.name,
+              craft: artisan.craft,
+              location: artisan.location,
+              artisanStory: artisan.story,
+              productName: product.name,
+              productDescription: product.description,
+              productPhotoDataUri,
+            });
+            setStoryResult(result);
+          } catch (error) {
+            console.error('Error generating story card:', error);
+            toast({
+              variant: 'destructive',
+              title: 'AI Story Generation Failed',
+              description: 'Could not generate the artisan story. Please try again later.',
+            });
+          } finally {
+            setIsLoading(false);
+          }
         } catch (error) {
            console.error('Error fetching or processing image for story generation:', error);
            toast({
