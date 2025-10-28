@@ -59,12 +59,6 @@ const supportLinks = [
     { href: "/contact", label: "Report an Issue" },
 ];
 
-const socialLinks = [
-  { href: "#", icon: Instagram, label: "Instagram" },
-  { href: "#", icon: Facebook, label: "Facebook" },
-  { href: "#", icon: Twitter, label: "Twitter" },
-];
-
 export default function Footer() {
   const { toast } = useToast();
 
@@ -104,15 +98,6 @@ export default function Footer() {
                     <Input type="email" name="email" placeholder="Enter your email" required />
                     <Button type="submit">Subscribe</Button>
                 </form>
-                 <div className="mt-4">
-                    <p className="text-sm font-semibold text-muted-foreground mb-2">Secure Payments</p>
-                    <div className="flex items-center gap-4">
-                       <VisaIcon />
-                       <MastercardIcon />
-                       <PayPalIcon />
-                       <UpiIcon />
-                    </div>
-                 </div>
             </div>
 
              <div>
@@ -163,21 +148,20 @@ export default function Footer() {
         <Separator />
         
         <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            {socialLinks.map((link) => (
-              <Button key={link.label} asChild variant="ghost" size="icon">
-                <Link href={link.href} aria-label={link.label}>
-                  <link.icon className="h-5 w-5" />
-                </Link>
-              </Button>
-            ))}
-          </div>
-          <div className="text-center md:text-right text-xs text-muted-foreground">
-            <p>&copy; {new Date().getFullYear()} ArtEcho. All Rights Reserved.</p>
-            <p className="mt-1">A platform for celebrating and discovering authentic craftsmanship.</p>
-          </div>
+            <div className="flex items-center gap-4">
+                <p className="text-sm font-semibold text-muted-foreground">Secure Payments</p>
+                <VisaIcon />
+                <MastercardIcon />
+                <PayPalIcon />
+                <UpiIcon />
+            </div>
+            <div className="text-center md:text-right text-xs text-muted-foreground">
+                <p>&copy; {new Date().getFullYear()} ArtEcho. All Rights Reserved.</p>
+                <p className="mt-1">A platform for celebrating and discovering authentic craftsmanship.</p>
+            </div>
         </div>
       </div>
     </footer>
   );
 }
+
