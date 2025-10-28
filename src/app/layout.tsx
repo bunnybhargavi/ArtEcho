@@ -57,6 +57,7 @@ export default function RootLayout({
         />
       </head>
       <body
+        suppressHydrationWarning
         className={cn(
           'font-body antialiased',
           'min-h-screen bg-background flex flex-col'
@@ -65,7 +66,7 @@ export default function RootLayout({
         <FirebaseClientProvider>
           <AuthCartSync />
           <Header />
-          <main className="flex-grow" suppressHydrationWarning>{children}</main>
+          <main className="flex-grow">{children}</main>
           
           <Toaster />
         </FirebaseClientProvider>
