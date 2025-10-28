@@ -62,8 +62,8 @@ export default function Footer() {
         
         <Separator />
         
-        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-8 py-12">
-            <div className="lg:col-span-2 space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 py-12">
+            <div className="md:col-span-2 lg:col-span-1 space-y-4">
                 <h3 className="font-headline text-lg font-semibold">Stay updated on new arrivals and artisan stories.</h3>
                 <form className="flex gap-2" onSubmit={handleNewsletterSubmit}>
                     <Input type="email" name="email" placeholder="Enter your email" required />
@@ -71,7 +71,7 @@ export default function Footer() {
                 </form>
             </div>
 
-             <div>
+             <div className="md:col-start-1 lg:col-start-auto">
                 <h3 className="font-headline text-lg font-semibold mb-4">Quick Links</h3>
                 <ul className="space-y-2">
                     {quickLinks.map(link => (
