@@ -6,7 +6,6 @@ import { Toaster } from '@/components/ui/toaster';
 import Header from '@/components/Header';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { AuthCartSync } from '@/components/AuthCartSync';
-import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
   title: {
@@ -58,7 +57,6 @@ export default function RootLayout({
         />
       </head>
       <body
-        suppressHydrationWarning={true}
         className={cn(
           'font-body antialiased',
           'min-h-screen bg-background flex flex-col'
@@ -67,7 +65,7 @@ export default function RootLayout({
         <FirebaseClientProvider>
           <AuthCartSync />
           <Header />
-          <main className="flex-grow">{children}</main>
+          <main className="flex-grow" suppressHydrationWarning>{children}</main>
           
           <Toaster />
         </FirebaseClientProvider>

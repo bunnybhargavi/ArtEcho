@@ -1,4 +1,3 @@
-
 export type CustomerReview = {
   id: string;
   name: string;
@@ -9,50 +8,50 @@ export type CustomerReview = {
 export const customerReviews: CustomerReview[] = [
   {
     id: '1',
-    name: 'Sarah L.',
+    name: 'Ananya S.',
     rating: 5,
-    review: 'The terra cotta mug is my new favorite! The craftsmanship is impeccable, and it feels so rustic and authentic. Highly recommend!',
+    review: 'The terracotta chai cups are absolutely lovely! They keep my tea warm and remind me of my hometown. Beautiful craftsmanship by Rama Devi!',
   },
   {
     id: '2',
-    name: 'Michael B.',
+    name: 'Rahul M.',
     rating: 5,
-    review: 'Absolutely stunned by the beauty of the Indigo Shibori Blanket. The colors are so vibrant and it adds the perfect touch to my living room.',
+    review: 'The Jaipur Handloom Throw is stunning. The block print design and soft cotton texture make it perfect for my living room. Truly handmade excellence.',
   },
   {
     id: '3',
-    name: 'Jessica P.',
+    name: 'Sneha K.',
     rating: 4,
-    review: 'The Celtic Knot Pendant is beautiful and very detailed. It\'s a little smaller than I expected, but the quality is top-notch.',
+    review: 'The Silver Tribal Pendant is so detailed and elegant. It’s slightly smaller than I imagined, but the quality is exceptional.',
   },
   {
     id: '4',
-    name: 'David C.',
+    name: 'Arvind R.',
     rating: 5,
-    review: 'I love my Hinoki cutting board. It looks great in my kitchen and you can really feel the quality of the wood. Worth every penny.',
+    review: 'The Teak Wood Cutting Board is solid and looks premium. It fits perfectly in my kitchen setup — you can feel the love that went into making it.',
   },
   {
     id: '5',
-    name: 'Emily R.',
+    name: 'Divya N.',
     rating: 5,
-    review: 'The Murano Swirl Tumblers are a work of art. Each one is unique and they feel so special to drink from. I get compliments on them all the time.',
+    review: 'The Firozabad glass tumblers are pure art! Each has its own unique swirl pattern. Guests keep asking where I got them.',
   },
   {
     id: '6',
-    name: 'James T.',
+    name: 'Karthik P.',
     rating: 5,
-    review: 'The Ash Wood Bento Box is not only beautiful but also incredibly functional. It makes my lunches feel like a special occasion. The craftsmanship is amazing.',
+    review: 'The Rosewood Lunch Box is a masterpiece. It’s functional, eco-friendly, and makes my meals feel extra special every day.',
   },
   {
     id: '7',
-    name: 'Linda K.',
+    name: 'Priya D.',
     rating: 4,
-    review: 'The Berber Wool Cushion is so cozy and adds a lovely Moroccan vibe to my home. It sheds a little bit, but that\'s expected with natural wool.',
+    review: 'The Kutch embroidered cushion cover is so vibrant and cozy. It brightens up my sofa instantly. There’s slight thread fraying, but still gorgeous!',
   },
   {
     id: '8',
-    name: 'Robert H.',
+    name: 'Neha G.',
     rating: 5,
-    review: 'I purchased a beautiful piece of pottery from Elena Rodriguez. The story behind the piece makes it even more special. A true treasure.',
+    review: 'I bought a Clay Matka Pot from ArtEcho — and it’s perfect! Keeps water cool naturally and adds a rustic charm to my kitchen.',
   },
 ];
