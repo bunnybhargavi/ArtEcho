@@ -11,6 +11,7 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { motion } from 'framer-motion';
 import QuickViewModal from '@/components/QuickViewModal';
 import type { Product, Artisan } from '@/lib/types';
+import Footer from '@/components/Footer';
 
 export default function Home() {
   const heroImage = PlaceHolderImages.find((img) => img.id === 'hero');
@@ -95,6 +96,7 @@ export default function Home() {
           onClose={handleCloseModal}
         />
       )}
+      <Footer />
     </div>
   );
 }
