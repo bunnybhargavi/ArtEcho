@@ -42,4 +42,8 @@ ArtEcho is built with a modern, full-stack technology set designed for performan
 
 ---
 
+## 🌐 Live Demo
+Check out the live version here: [InternLink Live Demo](https://inquisitive-lollipop-d5ae22.netlify.app/)
+
+
 This project was made with the help of Firebase Studio.
