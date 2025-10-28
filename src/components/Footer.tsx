@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Instagram, Facebook, Twitter, ShieldCheck, PackageCheck, Star, Truck, Mail, Phone, MapPin } from 'lucide-react';
+import { ShieldCheck, PackageCheck, Star, Truck, Mail, Phone, MapPin } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { useToast } from '@/hooks/use-toast';
@@ -118,8 +118,8 @@ export default function Footer() {
         
         <Separator />
         
-        <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="text-center md:text-right text-xs text-muted-foreground">
+        <div className="pt-8 flex flex-col items-center justify-center text-center">
+            <div className="text-xs text-muted-foreground">
                 <p>&copy; {new Date().getFullYear()} ArtEcho. All Rights Reserved.</p>
                 <p className="mt-1">A platform for celebrating and discovering authentic craftsmanship.</p>
             </div>
