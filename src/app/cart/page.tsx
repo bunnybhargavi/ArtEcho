@@ -50,7 +50,7 @@ export default function CartPage() {
                   </div>
                   <div className="flex-grow">
                     <h3 className="font-semibold">{item.name}</h3>
-                    <p className="text-sm text-muted-foreground">${item.price.toFixed(2)}</p>
+                    <p className="text-sm text-muted-foreground">Rs.{item.price}</p>
                   </div>
                   <div className="flex items-center gap-2">
                      <Button variant="outline" size="icon" onClick={() => updateQuantity(item.productId, item.quantity - 1)}>
@@ -67,7 +67,7 @@ export default function CartPage() {
                     </Button>
                   </div>
                   <div>
-                    <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
+                    <p className="font-semibold">Rs.{(item.price * item.quantity)}</p>
                   </div>
                   <div>
                     <Button variant="ghost" size="icon" onClick={() => removeFromCart(item.productId)}>
@@ -92,7 +92,7 @@ export default function CartPage() {
             <div className="w-full md:max-w-sm space-y-4">
               <div className="flex justify-between font-semibold text-lg">
                 <span>Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
+                <span>Rs.{subtotal}</span>
               </div>
               <p className="text-sm text-muted-foreground">Shipping and taxes will be calculated at checkout.</p>
               <Button className="w-full" size="lg" disabled={items.length === 0}>

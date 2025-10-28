@@ -116,7 +116,7 @@ export default function QuickViewModal({ product, artisan, isOpen, onClose }: Qu
               </div>
               <div className="pt-4 mt-auto">
                  <span className="font-headline text-3xl font-bold text-primary">
-                    ${product.price.toFixed(2)}
+                    Rs.{product.price}
                 </span>
               </div>
           </div>

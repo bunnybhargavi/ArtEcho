@@ -105,7 +105,7 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
       </CardContent>
       <CardFooter className="p-4 pt-0">
         <Badge variant="secondary" className="font-mono text-sm">
-          ${product.price.toFixed(2)}
+          Rs.{product.price}
         </Badge>
       </CardFooter>
     </Card>

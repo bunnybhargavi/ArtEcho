@@ -36,6 +36,9 @@ export default function StoryCardModal({ product, artisan, isOpen, onClose }: St
         // Fetch the image and convert to data URI
         try {
           const response = await fetch(imageUrl);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch image: ${response.statusText}`);
+          }
           const blob = await response.blob();
           const reader = new FileReader();
           reader.readAsDataURL(blob);
@@ -64,11 +67,14 @@ export default function StoryCardModal({ product, artisan, isOpen, onClose }: St
               setIsLoading(false);
             }
           };
+           reader.onerror = () => {
+            throw new Error('Failed to read image as Data URL');
+          };
         } catch (error) {
-           console.error('Error fetching image for story generation:', error);
+           console.error('Error fetching or processing image for story generation:', error);
            toast({
             variant: 'destructive',
-            title: 'Image Fetch Failed',
+            title: 'Image Processing Failed',
             description: 'Could not load the product image to generate the story.',
           });
           setIsLoading(false);
@@ -154,7 +160,7 @@ export default function StoryCardModal({ product, artisan, isOpen, onClose }: St
 
         <DialogFooter className="p-6 bg-muted/50 border-t flex items-center justify-between">
            <span className="font-headline text-3xl font-bold text-primary">
-              ${product.price.toFixed(2)}
+              Rs.{product.price}
             </span>
           <div className="flex gap-2">
             <Button variant="outline" onClick={onClose}>Close</Button>

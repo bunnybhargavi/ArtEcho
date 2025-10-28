@@ -101,7 +101,7 @@ export default function ProductPage() {
             
             <div className="mt-auto pt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <span className="font-headline text-3xl font-bold text-primary order-2 sm:order-1">
-                ${product.price.toFixed(2)}
+                Rs.{product.price}
               </span>
               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto order-1 sm:order-2">
                 <Button size="lg" onClick={() => setIsModalOpen(true)} className="w-full sm:w-auto">
