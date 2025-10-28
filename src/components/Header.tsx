@@ -12,12 +12,12 @@ import { Input } from './ui/input';
 import { useCartStore } from '@/lib/cart-store';
 
 const navLinks = [
-    { href: "/products", label: "Creations" },
     { href: "/about", label: "About" },
-    { href: "/contact", label: "Contact Us" },
+    { href: "/products", label: "Creations" },
     { href: "/dashboard", label: "Artisan Dashboard" },
     { href: "/dashboard/buyer", label: "Buyer Dashboard" },
     { href: "/dashboard/brand", label: "Brand Dashboard" },
+    { href: "/contact", label: "Contact Us" },
 ];
 
 const Header = () => {
