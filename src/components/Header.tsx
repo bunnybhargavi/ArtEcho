@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ThemeToggle } from './ThemeToggle';
 
 const navLinks = [
+    { href: "/", label: "Home", icon: Home },
     { href: "/about", label: "About" },
     { href: "/products", label: "Creations" },
     { href: "/dashboard", label: "Artisan Dashboard" },
@@ -25,7 +26,6 @@ const navLinks = [
 ];
 
 const mobileNavLinks = [
-    { href: "/", label: "Home", icon: Home },
     ...navLinks
 ];
 
@@ -66,9 +66,11 @@ const Header = () => {
   return (
     <header className="bg-card/80 backdrop-blur-sm sticky top-0 z-40 w-full border-b">
       <div className="container mx-auto flex h-20 items-center justify-between gap-4 px-4">
-        <Link href="/" className="flex items-center gap-2">
-          <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={63} height={8} priority />
-        </Link>
+        <div className="flex items-center gap-4">
+            <Link href="/" className="flex items-center gap-2">
+            <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={63} height={8} priority />
+            </Link>
+        </div>
         
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
             {navLinks.map(link => (
