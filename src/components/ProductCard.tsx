@@ -11,11 +11,14 @@ import {
 } from '@/components/ui/card';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Badge } from './ui/badge';
-import { Star, ShoppingCart } from 'lucide-react';
+import { Star, ShoppingCart, Loader2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { useCartStore } from '@/lib/cart-store';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { placeSingleItemOrderAction } from '@/app/actions';
+import { useState } from 'react';
+import { useUser } from '@/firebase';
 
 interface ProductCardProps {
   product: Product;
@@ -37,12 +40,20 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
   const { addToCart } = useCartStore();
   const { toast } = useToast();
   const router = useRouter();
+  const [isBuying, setIsBuying] = useState(false);
+  const { user } = useUser();
 
 
   const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Prevent navigation if a button was clicked
+    if ((e.target as HTMLElement).closest('button')) {
+      return;
+    }
     if (onImageClick && (e.target as HTMLElement).closest('.product-image-container')) {
       e.preventDefault();
       onImageClick(product, artisan);
+    } else {
+        router.push(`/products/${product.id}`);
     }
   };
 
@@ -63,31 +74,57 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
     }
   };
   
-  const handleBuyNow = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleBuyNow = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    if (mainImage) {
-      addToCart({
-        productId: product.id,
-        name: product.name,
-        price: product.price,
-        imageUrl: mainImage.imageUrl,
-        quantity: 1,
-      });
+    if (!user) {
       toast({
-        title: "Added to cart ✅",
-        description: `${product.name} has been added. Redirecting to cart...`,
+        variant: 'destructive',
+        title: 'Authentication Required',
+        description: 'Please log in to place an order.',
       });
-      router.push('/cart');
+      router.push('/login');
+      return;
+    }
+
+    if (mainImage) {
+      setIsBuying(true);
+      try {
+        const result = await placeSingleItemOrderAction({
+          productId: product.id,
+          name: product.name,
+          price: product.price,
+          imageUrl: mainImage.imageUrl,
+          quantity: 1,
+        });
+
+        if (result.success && result.orderId) {
+          toast({
+            title: 'Order Placed!',
+            description: 'Your order has been successfully placed.',
+          });
+          router.push(`/tracking/${result.orderId}`);
+        } else {
+          throw new Error(result.error || 'Failed to place order.');
+        }
+      } catch (error: any) {
+        toast({
+          variant: 'destructive',
+          title: 'Checkout Failed',
+          description: error.message || 'There was a problem placing your order.',
+        });
+      } finally {
+        setIsBuying(false);
+      }
     }
   };
 
   return (
     <Card
-      className={`overflow-hidden h-full flex flex-col group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${className}`}
+      className={`overflow-hidden h-full flex flex-col group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer ${className}`}
       onClick={handleCardClick}
     >
       <CardHeader className="p-0">
-        <div className="relative aspect-square product-image-container cursor-pointer">
+        <div className="relative aspect-square product-image-container">
           {product.badge && (
             <Badge className={`absolute top-2 left-2 z-10 border-none ${badgeColorClasses[product.badge] || 'bg-gray-100 text-gray-800'}`}>
               {product.badge}
@@ -119,12 +156,12 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
           )}
            <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <div className="flex justify-evenly">
-                    <Button variant="secondary" size="sm" onClick={handleAddToCart}>
+                    <Button variant="secondary" size="sm" onClick={handleAddToCart} disabled={isBuying}>
                         <ShoppingCart className="mr-2 h-4 w-4" />
                         Add to Cart
                     </Button>
-                     <Button size="sm" onClick={handleBuyNow}>
-                        Buy Now
+                     <Button size="sm" onClick={handleBuyNow} disabled={isBuying}>
+                        {isBuying ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Buy Now'}
                     </Button>
                 </div>
             </div>

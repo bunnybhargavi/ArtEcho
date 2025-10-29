@@ -9,11 +9,13 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { MapPin, User, VenetianMask, Layers, ShoppingCart, ArrowRight } from 'lucide-react';
+import { MapPin, User, VenetianMask, Layers, ShoppingCart, ArrowRight, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import StoryCardModal from '@/components/dashboard/StoryCardModal';
 import { useCartStore } from '@/lib/cart-store';
 import { useToast } from '@/hooks/use-toast';
+import { placeSingleItemOrderAction } from '@/app/actions';
+import { useUser } from '@/firebase';
 
 export default function ProductPage() {
   const params = useParams();
@@ -21,6 +23,7 @@ export default function ProductPage() {
   
   const product = products.find((p) => p.id === id);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isBuying, setIsBuying] = useState(false);
   
   const [isClient, setIsClient] = useState(false);
   useEffect(() => {
@@ -30,6 +33,7 @@ export default function ProductPage() {
   const { addToCart } = useCartStore();
   const { toast } = useToast();
   const router = useRouter();
+  const { user } = useUser();
 
   if (!isClient) {
     return null;
@@ -58,20 +62,46 @@ export default function ProductPage() {
     }
   };
 
-  const handleBuyNow = () => {
-    if (image) {
-      addToCart({
-        productId: product.id,
-        name: product.name,
-        price: product.price,
-        imageUrl: image.imageUrl,
-        quantity: 1,
-      });
+  const handleBuyNow = async () => {
+    if (!user) {
       toast({
-        title: "Added to cart ✅",
-        description: `Redirecting to cart...`,
+        variant: 'destructive',
+        title: 'Authentication Required',
+        description: 'Please log in to place an order.',
       });
-      router.push('/cart');
+      router.push('/login');
+      return;
+    }
+
+    if (image) {
+      setIsBuying(true);
+      try {
+        const result = await placeSingleItemOrderAction({
+          productId: product.id,
+          name: product.name,
+          price: product.price,
+          imageUrl: image.imageUrl,
+          quantity: 1,
+        });
+
+        if (result.success && result.orderId) {
+          toast({
+            title: 'Order Placed!',
+            description: 'Your order has been successfully placed.',
+          });
+          router.push(`/tracking/${result.orderId}`);
+        } else {
+          throw new Error(result.error || 'Failed to place order.');
+        }
+      } catch (error: any) {
+        toast({
+          variant: 'destructive',
+          title: 'Checkout Failed',
+          description: error.message || 'There was a problem placing your order.',
+        });
+      } finally {
+        setIsBuying(false);
+      }
     }
   };
 
@@ -149,11 +179,11 @@ export default function ProductPage() {
                 )}
               </div>
               <div className="flex flex-col sm:flex-row gap-2 w-full">
-                <Button size="lg" onClick={handleBuyNow} className="w-full sm:w-auto">
+                <Button size="lg" onClick={handleBuyNow} className="w-full sm:w-auto" disabled={isBuying}>
+                  {isBuying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRight className="mr-2" />}
                   Buy Now
-                  <ArrowRight className="ml-2" />
                 </Button>
-                 <Button size="lg" variant="outline" onClick={handleAddToCart} className="w-full sm:w-auto">
+                 <Button size="lg" variant="outline" onClick={handleAddToCart} className="w-full sm:w-auto" disabled={isBuying}>
                   <ShoppingCart className="mr-2" />
                   Add to Cart
                 </Button>

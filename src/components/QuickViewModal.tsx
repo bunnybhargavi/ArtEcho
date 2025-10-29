@@ -8,10 +8,13 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, Share2, ArrowRight } from 'lucide-react';
+import { ShoppingCart, Share2, ArrowRight, Loader2 } from 'lucide-react';
 import { useCartStore } from '@/lib/cart-store';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { placeSingleItemOrderAction } from '@/app/actions';
+import { useUser } from '@/firebase';
 
 interface QuickViewModalProps {
   product: Product;
@@ -25,6 +28,8 @@ export default function QuickViewModal({ product, artisan, isOpen, onClose }: Qu
   const { addToCart } = useCartStore();
   const { toast } = useToast();
   const router = useRouter();
+  const [isBuying, setIsBuying] = useState(false);
+  const { user } = useUser();
 
 
   const handleAddToCart = () => {
@@ -49,21 +54,47 @@ export default function QuickViewModal({ product, artisan, isOpen, onClose }: Qu
     }
   };
 
-  const handleBuyNow = () => {
-    if (image) {
-      addToCart({
-        productId: product.id,
-        name: product.name,
-        price: product.price,
-        imageUrl: image.imageUrl,
-        quantity: 1,
-      });
+  const handleBuyNow = async () => {
+     if (!user) {
       toast({
-        title: "Added to cart ✅",
-        description: `Redirecting to cart...`,
+        variant: 'destructive',
+        title: 'Authentication Required',
+        description: 'Please log in to place an order.',
       });
-      onClose(); // Close modal before redirecting
-      router.push('/cart');
+      router.push('/login');
+      return;
+    }
+    
+    if (image) {
+      setIsBuying(true);
+      try {
+        const result = await placeSingleItemOrderAction({
+          productId: product.id,
+          name: product.name,
+          price: product.price,
+          imageUrl: image.imageUrl,
+          quantity: 1,
+        });
+
+        if (result.success && result.orderId) {
+          toast({
+            title: 'Order Placed!',
+            description: 'Your order has been successfully placed.',
+          });
+          onClose(); // Close modal before redirecting
+          router.push(`/tracking/${result.orderId}`);
+        } else {
+          throw new Error(result.error || 'Failed to place order.');
+        }
+      } catch (error: any) {
+         toast({
+          variant: 'destructive',
+          title: 'Checkout Failed',
+          description: error.message || 'There was a problem placing your order.',
+        });
+      } finally {
+        setIsBuying(false);
+      }
     }
   };
 
@@ -156,12 +187,13 @@ export default function QuickViewModal({ product, artisan, isOpen, onClose }: Qu
               </Button>
             </div>
             <div className="flex gap-2 w-full sm:w-auto">
-               <Button onClick={handleAddToCart} variant="secondary" className="w-full">
+               <Button onClick={handleAddToCart} variant="secondary" className="w-full" disabled={isBuying}>
                   <ShoppingCart className="mr-2 h-4 w-4" />
                   Add to Cart
               </Button>
-              <Button onClick={handleBuyNow} className="w-full">
-                  Buy Now <ArrowRight className="ml-2 h-4 w-4" />
+              <Button onClick={handleBuyNow} className="w-full" disabled={isBuying}>
+                {isBuying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRight className="mr-2 h-4 w-4" />}
+                  Buy Now
               </Button>
             </div>
         </DialogFooter>
