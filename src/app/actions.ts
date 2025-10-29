@@ -1,3 +1,4 @@
+
 'use server';
 
 import {
@@ -19,6 +20,7 @@ import {
   writeBatch,
   getDocs,
   doc,
+  setDoc,
 } from 'firebase/firestore';
 import { CartItem } from '@/lib/cart-store';
 import { headers } from 'next/headers';
@@ -138,3 +140,27 @@ export async function placeSingleItemOrderAction(item: CartItem): Promise<{ succ
     return { success: false, error: error.message || 'Failed to place order.' };
   }
 }
+
+export async function updateUserThemeAction(theme: 'light' | 'dark' | 'system') {
+  try {
+    const headersList = headers();
+    const userId = headersList.get('x-user-id');
+
+    if (!userId) {
+      // Not an error, just means a guest is changing themes.
+      return { success: true };
+    }
+
+    const { firestore } = initializeFirebase();
+    const userDocRef = doc(firestore, 'users', userId);
+
+    await setDoc(userDocRef, { theme }, { merge: true });
+
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error updating user theme:', error);
+    return { success: false, error: error.message || 'Failed to update theme.' };
+  }
+}
+
+    

@@ -13,6 +13,7 @@ import { useCartStore } from '@/lib/cart-store';
 import { useUser, useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
+import { ThemeToggle } from './ThemeToggle';
 
 const navLinks = [
     { href: "/about", label: "About" },
@@ -86,6 +87,8 @@ const Header = () => {
                 className="pl-9"
               />
             </form>
+
+            <ThemeToggle />
 
             {!isUserLoading && (
                 user ? (
@@ -182,3 +185,5 @@ const Header = () => {
 };
 
 export default Header;
+
+    

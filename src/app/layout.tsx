@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/toaster';
 import Header from '@/components/Header';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { AuthCartSync } from '@/components/AuthCartSync';
+import { ThemeProvider } from '@/context/theme-provider';
 
 export const metadata: Metadata = {
   title: {
@@ -43,7 +44,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -63,13 +64,20 @@ export default function RootLayout({
         )}
       >
         <FirebaseClientProvider>
-          <AuthCartSync />
-          <Header />
-          <main className="flex-grow">{children}</main>
-          
-          <Toaster />
+            <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+            >
+                <AuthCartSync />
+                <Header />
+                <main className="flex-grow">{children}</main>
+                <Toaster />
+            </ThemeProvider>
         </FirebaseClientProvider>
       </body>
     </html>
   );
 }
+
+    
