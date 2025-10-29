@@ -15,20 +15,6 @@ import { signOut } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { ThemeToggle } from './ThemeToggle';
 
-const navLinks = [
-    { href: "/", label: "Home" },
-    { href: "/about", label: "About" },
-    { href: "/products", label: "Creations" },
-    { href: "/dashboard", label: "Artisan Dashboard" },
-    { href: "/dashboard/buyer", label: "Buyer Dashboard" },
-    { href: "/dashboard/brand", label: "Brand Dashboard" },
-    { href: "/contact", label: "Contact Us" },
-];
-
-const mobileNavLinks = [
-    ...navLinks
-];
-
 const Header = () => {
     const [isSheetOpen, setIsSheetOpen] = useState(false);
     const router = useRouter();
@@ -36,6 +22,18 @@ const Header = () => {
     const { user, isUserLoading } = useUser();
     const auth = useAuth();
     const { toast } = useToast();
+    
+    const navLinks = [
+        { href: "/", label: "Home" },
+        { href: "/about", label: "About" },
+        { href: "/products", label: "Creations" },
+        { href: "/dashboard", label: "Artisan Dashboard" },
+        { href: "/dashboard/buyer", label: "Buyer Dashboard" },
+        { href: "/dashboard/brand", label: "Brand Dashboard" },
+        { href: "/contact", label: "Contact Us" },
+    ];
+
+    const mobileNavLinks = [...navLinks];
 
     useEffect(() => {
         // This is a failsafe if AuthCartSync doesn't run for some reason.
