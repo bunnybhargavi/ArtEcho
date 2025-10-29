@@ -1,5 +1,19 @@
 {
   "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user's profile information.",
+      "properties": {
+        "uid": { "type": "string", "description": "The user's unique ID." },
+        "displayName": { "type": "string", "description": "The user's display name." },
+        "email": { "type": "string", "format": "email", "description": "The user's email address." },
+        "avatarUrl": { "type": "string", "format": "uri", "description": "URL of the user's avatar image." },
+        "online": { "type": "boolean", "description": "Indicates if the user is currently online." }
+      },
+      "required": ["uid", "email"]
+    },
     "ArtisanProfile": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "ArtisanProfile",
@@ -80,7 +94,7 @@
         "id",
         "artisanId",
         "name",
-        "description",
+"description",
         "price",
         "photoUrls"
       ]
@@ -297,6 +311,22 @@
   "firestore": {
     "structure": [
       {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores user profile information, including display name, email, avatar URL, and online status. The `userId` is the same as the Firebase Auth UID.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user, matching the Firebase Auth UID."
+            }
+          ]
+        }
+      },
+      {
         "path": "/artisanProfiles/{artisanId}",
         "definition": {
           "entityName": "ArtisanProfile",
@@ -434,5 +464,10 @@
       }
     ],
     "reasoning": "This Firestore data structure is designed to support the ArtEcho application, focusing on artisan profiles, products, and customer engagement features like reviews and contact messages. It prioritizes authorization independence through structural segregation and denormalization where necessary. The structure includes collections for artisans, products, tags, story cards, contact messages, and customer reviews. The design ensures secure data access and efficient querying while adhering to the principles of Authorization Independence (CRITICAL), Clarity of Intent (Debuggability), DBAC (No Custom Claims), QAPs (Rules are not Filters), and Invariants.\n\nSpecifically, the `contactMessages` and `customerReviews` collections are designed to support the newly requested features, \"About Us\" and \"Contact Us\" sections. The `contactMessages` collection directly stores contact form submissions. The `customerReviews` are stored to show customer feedback and maintain QAPs, these reviews can be listed and filtered as needed.\n\nAuthorization Independence:\n\nThe structure avoids hierarchical authorization dependencies (`get()`). For instance, access to a product does not depend on fetching data from the artisan's profile. While a `artisanId` field exists in the `products` collection, this is for data relationship purposes and not authorization. The QAPs are supported by the structural segregation - each collection has clear security requirements.\n\n"
+  },
+  "storage": {
+    "rules": "rules_version = '2';\nservice firebase.storage {\n  match /b/{bucket}/o {\n    match /users/{userId}/avatar {\n      // Allow reads by anyone, including unauthenticated users\n      allow read;\n\n      // Allow authenticated users to write only to their own avatar path\n      allow write: if request.auth != null && request.auth.uid == userId;\n    }\n  }\n}\n"
   }
 }
+
+    
