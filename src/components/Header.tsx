@@ -32,6 +32,8 @@ const Header = () => {
     const { toast } = useToast();
 
     useEffect(() => {
+        // This is a failsafe if AuthCartSync doesn't run for some reason.
+        // The primary initialization logic is in AuthCartSync.
         initializeCart();
     }, [initializeCart]);
 

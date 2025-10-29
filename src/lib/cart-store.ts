@@ -1,8 +1,7 @@
 
 import { create } from 'zustand';
 import { doc, getDoc, setDoc, deleteDoc, collection, getDocs, writeBatch } from 'firebase/firestore';
-import { getSdks, initializeFirebase } from '@/firebase';
-import { useFirebase } from '@/firebase';
+import { initializeFirebase } from '@/firebase';
 
 export interface CartItem {
   productId: string;
