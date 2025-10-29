@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Menu, User, Search, ShoppingCart, LogOut } from 'lucide-react';
+import { Menu, User, Search, ShoppingCart, LogOut, Home } from 'lucide-react';
 import { Button } from './ui/button';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -16,7 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ThemeToggle } from './ThemeToggle';
 
 const navLinks = [
-    { href: "/", label: "Home" },
+    { href: "/", label: "Home", icon: Home },
     { href: "/about", label: "About" },
     { href: "/products", label: "Creations" },
     { href: "/dashboard", label: "Artisan Dashboard" },
@@ -71,8 +71,9 @@ const Header = () => {
                  <Link
                     key={link.href}
                     href={link.href}
-                    className="transition-colors hover:text-primary"
+                    className="flex items-center gap-1.5 transition-colors hover:text-primary"
                 >
+                    {link.icon && <link.icon className="h-4 w-4" />}
                     {link.label}
                 </Link>
             ))}
@@ -147,9 +148,10 @@ const Header = () => {
                             <Link
                                 key={link.href}
                                 href={link.href}
-                                className="text-lg font-medium transition-colors hover:text-primary"
+                                className="flex items-center gap-2 text-lg font-medium transition-colors hover:text-primary"
                                 onClick={() => setIsSheetOpen(false)}
                             >
+                                {link.icon && <link.icon className="h-5 w-5" />}
                                 {link.label}
                             </Link>
                         ))}
