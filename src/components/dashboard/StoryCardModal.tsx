@@ -165,3 +165,4 @@ export default function StoryCardModal({ product, artisan, isOpen, onClose }: St
     </Dialog>
   );
 }
+

@@ -12,7 +12,7 @@ import {
   type MatchArtisansToBrandOutput,
 } from '@/ai/flows/match-artisans-to-brand-flow';
 import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
-import { getSdks } from '@/firebase';
+import { initializeFirebase } from '@/firebase';
 import {
   collection,
   addDoc,
@@ -22,20 +22,6 @@ import {
 } from 'firebase/firestore';
 import { CartItem } from '@/lib/cart-store';
 import { headers } from 'next/headers';
-import { getAuth } from 'firebase/auth';
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { firebaseConfig } from '@/firebase/config';
-
-// Helper to get user server-side
-async function getUserId() {
-  const auth = getAuth(
-    getApps().length ? getApp() : initializeApp(firebaseConfig)
-  );
-  // This is a placeholder. In a real app, you'd get the user from the session/token.
-  // The most reliable way to get user on server is not straightforward in Next.js App Router without a dedicated library.
-  // We will proceed assuming the client will pass the user ID, or handle auth state on client before calling.
-  return auth.currentUser?.uid;
-}
 
 export async function generateArtisanStoryCardAction(
   input: GenerateArtisanStoryCardInput
@@ -67,7 +53,7 @@ export async function submitContactFormAction(formData: {
   message: string;
 }) {
   try {
-    const { firestore } = getSdks(null as any); // SDKs are initialized on the client
+    const { firestore } = initializeFirebase();
     const contactMessagesRef = collection(firestore, 'contactMessages');
 
     await addDocumentNonBlocking(contactMessagesRef, {
@@ -94,7 +80,7 @@ export async function placeOrderAction(data: {
       return { success: false, error: 'User not authenticated.' };
     }
 
-    const { firestore } = getSdks(getApp());
+    const { firestore } = initializeFirebase();
     const ordersRef = collection(firestore, 'users', userId, 'orders');
 
     const newOrder = {
@@ -133,7 +119,7 @@ export async function placeSingleItemOrderAction(item: CartItem): Promise<{ succ
       return { success: false, error: 'User not authenticated.' };
     }
 
-    const { firestore } = getSdks(getApp());
+    const { firestore } = initializeFirebase();
     const ordersRef = collection(firestore, 'users', userId, 'orders');
     
     const newOrder = {

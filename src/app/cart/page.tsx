@@ -118,7 +118,7 @@ export default function CartPage() {
                         </Button>
                       </div>
                       <div className="font-semibold self-center sm:self-auto">
-                        <span>Rs.{(item.price * item.quantity)}</span>
+                        <span>Rs.{item.price * item.quantity}</span>
                       </div>
                       <div className="self-center sm:self-auto">
                         <Button variant="ghost" size="icon" onClick={() => removeFromCart(item.productId)}>
@@ -187,3 +187,4 @@ export default function CartPage() {
     </div>
   );
 }
+

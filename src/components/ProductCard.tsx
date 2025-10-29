@@ -205,3 +205,4 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
     </Card>
   );
 }
+

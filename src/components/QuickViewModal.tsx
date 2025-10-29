@@ -201,3 +201,4 @@ export default function QuickViewModal({ product, artisan, isOpen, onClose }: Qu
     </Dialog>
   );
 }
+
