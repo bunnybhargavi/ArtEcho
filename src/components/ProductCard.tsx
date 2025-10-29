@@ -11,7 +11,11 @@ import {
 } from '@/components/ui/card';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Badge } from './ui/badge';
-import { Star } from 'lucide-react';
+import { Star, ShoppingCart } from 'lucide-react';
+import { Button } from './ui/button';
+import { useCartStore } from '@/lib/cart-store';
+import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 interface ProductCardProps {
   product: Product;
@@ -30,13 +34,50 @@ const badgeColorClasses = {
 export function ProductCard({ product, artisan, onImageClick, className }: ProductCardProps) {
   const mainImage = PlaceHolderImages.find((img) => img.id === product.imageId);
   const hoverImage = product.imageHoverId ? PlaceHolderImages.find((img) => img.id === product.imageHoverId) : null;
+  const { addToCart } = useCartStore();
+  const { toast } = useToast();
+  const router = useRouter();
+
 
   const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    // We only trigger the quick view if the user clicks the image area.
-    // This allows other elements on the card (like a link) to be clickable.
     if (onImageClick && (e.target as HTMLElement).closest('.product-image-container')) {
       e.preventDefault();
       onImageClick(product, artisan);
+    }
+  };
+
+  const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    if (mainImage) {
+      addToCart({
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        imageUrl: mainImage.imageUrl,
+        quantity: 1,
+      });
+      toast({
+        title: "Added to cart ✅",
+        description: `${product.name} has been added to your cart.`,
+      });
+    }
+  };
+  
+  const handleBuyNow = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    if (mainImage) {
+      addToCart({
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        imageUrl: mainImage.imageUrl,
+        quantity: 1,
+      });
+      toast({
+        title: "Added to cart ✅",
+        description: `${product.name} has been added. Redirecting to cart...`,
+      });
+      router.push('/cart');
     }
   };
 
@@ -53,7 +94,6 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
             </Badge>
           )}
 
-          {/* Main Image */}
           {mainImage ? (
             <Image
               src={mainImage.imageUrl}
@@ -68,7 +108,6 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
             </div>
           )}
 
-          {/* Hover Image */}
           {hoverImage && (
             <Image
               src={hoverImage.imageUrl}
@@ -78,6 +117,17 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
               data-ai-hint={hoverImage.imageHint}
             />
           )}
+           <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="flex justify-evenly">
+                    <Button variant="secondary" size="sm" onClick={handleAddToCart}>
+                        <ShoppingCart className="mr-2 h-4 w-4" />
+                        Add to Cart
+                    </Button>
+                     <Button size="sm" onClick={handleBuyNow}>
+                        Buy Now
+                    </Button>
+                </div>
+            </div>
         </div>
       </CardHeader>
       <CardContent className="p-4 flex-grow flex flex-col">
@@ -104,9 +154,16 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
 
       </CardContent>
       <CardFooter className="p-4 pt-0">
-        <Badge variant="secondary" className="font-mono text-sm">
-          Rs.{product.price}
-        </Badge>
+         <div className="flex items-baseline gap-2">
+           <Badge variant="secondary" className="font-mono text-sm">
+              Rs.{product.price}
+            </Badge>
+            {product.originalPrice && (
+                <span className="text-sm text-muted-foreground line-through">
+                    Rs.{product.originalPrice}
+                </span>
+            )}
+        </div>
       </CardFooter>
     </Card>
   );

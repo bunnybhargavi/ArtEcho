@@ -1,8 +1,10 @@
+
 export interface Product {
   id: string;
   name: string;
   description: string;
   price: number;
+  originalPrice?: number; // Previous price, for showing discounts
   tags: string[];
   imageId: string;
   imageHoverId?: string; // Optional secondary image for hover

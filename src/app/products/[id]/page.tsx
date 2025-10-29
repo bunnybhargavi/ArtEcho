@@ -3,15 +3,17 @@
 
 import { useState, useEffect } from 'react';
 import { products, artisans } from '@/lib/data';
-import { notFound, useParams } from 'next/navigation';
+import { notFound, useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { MapPin, User, VenetianMask, Layers } from 'lucide-react';
+import { MapPin, User, VenetianMask, Layers, ShoppingCart, ArrowRight } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import StoryCardModal from '@/components/dashboard/StoryCardModal';
+import { useCartStore } from '@/lib/cart-store';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ProductPage() {
   const params = useParams();
@@ -20,15 +22,17 @@ export default function ProductPage() {
   const product = products.find((p) => p.id === id);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  // To avoid hydration mismatch, we ensure this page is client-rendered from the start
   const [isClient, setIsClient] = useState(false);
   useEffect(() => {
     setIsClient(true);
   }, []);
-
+  
+  const { addToCart } = useCartStore();
+  const { toast } = useToast();
+  const router = useRouter();
 
   if (!isClient) {
-    return null; // Or a loading spinner
+    return null;
   }
 
   if (!product) {
@@ -37,6 +41,40 @@ export default function ProductPage() {
 
   const artisan = artisans.find((a) => a.id === product.artisanId);
   const image = PlaceHolderImages.find((img) => img.id === product.imageId);
+  
+  const handleAddToCart = () => {
+    if (image) {
+      addToCart({
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        imageUrl: image.imageUrl,
+        quantity: 1,
+      });
+      toast({
+        title: "Added to cart ✅",
+        description: `${product.name} has been added to your cart.`,
+      });
+    }
+  };
+
+  const handleBuyNow = () => {
+    if (image) {
+      addToCart({
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        imageUrl: image.imageUrl,
+        quantity: 1,
+      });
+      toast({
+        title: "Added to cart ✅",
+        description: `Redirecting to cart...`,
+      });
+      router.push('/cart');
+    }
+  };
+
 
   return (
     <div className="container mx-auto py-8 md:py-12 px-4">
@@ -99,17 +137,31 @@ export default function ProductPage() {
               </div>
             )}
             
-            <div className="mt-auto pt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <span className="font-headline text-3xl font-bold text-primary order-2 sm:order-1">
-                Rs.{product.price}
-              </span>
-              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto order-1 sm:order-2">
-                <Button size="lg" onClick={() => setIsModalOpen(true)} className="w-full sm:w-auto">
-                  <Layers className="mr-2" />
-                  View Story Card
-                </Button>
-                <Button size="lg" variant="outline" className="w-full sm:w-auto">Connect</Button>
+            <div className="mt-auto pt-8 flex flex-col gap-4">
+              <div className="flex items-baseline gap-2">
+                <span className="font-headline text-3xl font-bold text-primary">
+                  Rs.{product.price}
+                </span>
+                 {product.originalPrice && (
+                  <span className="text-xl text-muted-foreground line-through">
+                    Rs.{product.originalPrice}
+                  </span>
+                )}
               </div>
+              <div className="flex flex-col sm:flex-row gap-2 w-full">
+                <Button size="lg" onClick={handleBuyNow} className="w-full sm:w-auto">
+                  Buy Now
+                  <ArrowRight className="ml-2" />
+                </Button>
+                 <Button size="lg" variant="outline" onClick={handleAddToCart} className="w-full sm:w-auto">
+                  <ShoppingCart className="mr-2" />
+                  Add to Cart
+                </Button>
+              </div>
+              <Button size="sm" variant="ghost" onClick={() => setIsModalOpen(true)} className="w-full sm:w-auto justify-start px-0">
+                  <Layers className="mr-2" />
+                  View AI Story Card
+                </Button>
             </div>
           </div>
         </div>

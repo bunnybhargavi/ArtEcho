@@ -8,9 +8,10 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, Share2 } from 'lucide-react';
+import { ShoppingCart, Share2, ArrowRight } from 'lucide-react';
 import { useCartStore } from '@/lib/cart-store';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 interface QuickViewModalProps {
   product: Product;
@@ -23,6 +24,8 @@ export default function QuickViewModal({ product, artisan, isOpen, onClose }: Qu
   const image = PlaceHolderImages.find((img) => img.id === product.imageId);
   const { addToCart } = useCartStore();
   const { toast } = useToast();
+  const router = useRouter();
+
 
   const handleAddToCart = () => {
     if (image) {
@@ -46,6 +49,24 @@ export default function QuickViewModal({ product, artisan, isOpen, onClose }: Qu
     }
   };
 
+  const handleBuyNow = () => {
+    if (image) {
+      addToCart({
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        imageUrl: image.imageUrl,
+        quantity: 1,
+      });
+      toast({
+        title: "Added to cart ✅",
+        description: `Redirecting to cart...`,
+      });
+      onClose(); // Close modal before redirecting
+      router.push('/cart');
+    }
+  };
+
   const handleShare = async () => {
     const productUrl = `${window.location.origin}/products/${product.id}`;
     const shareData = {
@@ -54,28 +75,23 @@ export default function QuickViewModal({ product, artisan, isOpen, onClose }: Qu
       url: productUrl,
     };
 
-    if (navigator.share) {
-      try {
+    try {
+      if (navigator.share) {
         await navigator.share(shareData);
-      } catch (error) {
-        // Silently ignore AbortError which is triggered when the user cancels the share action
-        if ((error as DOMException).name !== 'AbortError') {
-          console.error('Error sharing:', error);
-        }
-      }
-    } else {
-      try {
+      } else {
         await navigator.clipboard.writeText(productUrl);
         toast({
           title: "Link copied!",
           description: "Product link copied to your clipboard.",
         });
-      } catch (error) {
-        console.error('Error copying to clipboard:', error);
-        toast({
+      }
+    } catch (error) {
+      if ((error as DOMException).name !== 'AbortError') {
+        console.error('Error sharing:', error);
+         toast({
           variant: "destructive",
-          title: "Failed to copy",
-          description: "Could not copy link to clipboard.",
+          title: "Failed to share",
+          description: "Could not share or copy link.",
         });
       }
     }
@@ -115,25 +131,39 @@ export default function QuickViewModal({ product, artisan, isOpen, onClose }: Qu
                 ))}
               </div>
               <div className="pt-4 mt-auto">
-                 <span className="font-headline text-3xl font-bold text-primary">
-                    Rs.{product.price}
-                </span>
+                 <div className="flex items-baseline gap-2">
+                    <span className="font-headline text-3xl font-bold text-primary">
+                        Rs.{product.price}
+                    </span>
+                     {product.originalPrice && (
+                        <span className="text-lg text-muted-foreground line-through">
+                            Rs.{product.originalPrice}
+                        </span>
+                    )}
+                </div>
               </div>
           </div>
         </div>
 
-        <DialogFooter className="p-6 bg-muted/50 border-t flex items-center justify-end gap-2">
-            <Button asChild variant="outline">
-                <Link href={`/products/${product.id}`}>View Full Details</Link>
-            </Button>
-            <Button onClick={handleShare} variant="outline">
-                <Share2 className="mr-2 h-4 w-4" />
-                Share
-            </Button>
-            <Button onClick={handleAddToCart}>
-                <ShoppingCart className="mr-2 h-4 w-4" />
-                Add to Cart
-            </Button>
+        <DialogFooter className="p-6 bg-muted/50 border-t flex flex-col sm:flex-row items-center justify-between gap-2">
+            <div className="flex gap-2">
+              <Button asChild variant="outline" size="sm">
+                  <Link href={`/products/${product.id}`}>View Details</Link>
+              </Button>
+               <Button onClick={handleShare} variant="outline" size="sm">
+                  <Share2 className="mr-2 h-4 w-4" />
+                  Share
+              </Button>
+            </div>
+            <div className="flex gap-2 w-full sm:w-auto">
+               <Button onClick={handleAddToCart} variant="secondary" className="w-full">
+                  <ShoppingCart className="mr-2 h-4 w-4" />
+                  Add to Cart
+              </Button>
+              <Button onClick={handleBuyNow} className="w-full">
+                  Buy Now <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

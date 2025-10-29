@@ -1,3 +1,4 @@
+
 import type { Artisan, Product } from './types';
 
 export let artisans: Artisan[] = [
@@ -41,7 +42,8 @@ export let products: Product[] = [
     name: 'Terracotta Chai Cup Set',
     description:
       'A handcrafted set of earthy terracotta cups, perfect for your evening chai. Made using traditional clay techniques from Rajasthan.',
-    price: 450,
+    price: 350,
+    originalPrice: 450,
     tags: ['terracotta', 'ceramics', 'handmade'],
     imageId: 'product-1',
     imageHoverId: 'product-1-hover',
@@ -68,7 +70,8 @@ export let products: Product[] = [
     name: 'Silver Tribal Pendant',
     description:
       'An elegant handcrafted pendant featuring tribal motifs from Odisha. Made with pure silver and finished with traditional etching techniques.',
-    price: 2250,
+    price: 1999,
+    originalPrice: 2250,
     tags: ['jewelry', 'silver', 'tribal'],
     imageId: 'product-3',
     artisanId: '2',
@@ -93,7 +96,8 @@ export let products: Product[] = [
     name: 'Madhubani Wall Painting',
     description:
       'A vibrant hand-painted Madhubani artwork depicting Indian folk tales. Each stroke reflects the culture and spirit of Bihar.',
-    price: 3500,
+    price: 2999,
+    originalPrice: 3500,
     tags: ['painting', 'folk art', 'madhubani'],
     imageId: 'product-5',
     artisanId: '3',
@@ -119,7 +123,8 @@ export let products: Product[] = [
     name: 'Rosewood Lunch Box',
     description:
       'A beautifully finished two-tiered lunch box crafted from rosewood. Perfect for an elegant, eco-friendly meal on the go.',
-    price: 2100,
+    price: 1800,
+    originalPrice: 2100,
     tags: ['woodwork', 'eco-friendly', 'lunchbox'],
     imageId: 'product-7',
     artisanId: '2',
@@ -144,7 +149,8 @@ export let products: Product[] = [
     name: 'Clay Matka Pot',
     description:
       'A handcrafted clay pot made using traditional methods, ideal for naturally cooling and storing water — the sustainable way.',
-    price: 599,
+    price: 499,
+    originalPrice: 599,
     tags: ['clay', 'pottery', 'eco'],
     imageId: 'product-9',
     artisanId: '1',
