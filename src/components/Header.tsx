@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ThemeToggle } from './ThemeToggle';
 
 const navLinks = [
+    { href: "/", label: "Home" },
     { href: "/about", label: "About" },
     { href: "/products", label: "Creations" },
     { href: "/dashboard", label: "Artisan Dashboard" },
@@ -185,5 +186,3 @@ const Header = () => {
 };
 
 export default Header;
-
-    
