@@ -131,12 +131,12 @@ const Header = () => {
                     </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="flex flex-col">
-                   <SheetHeader className="border-b pb-4">
+                   <SheetHeader>
                         <SheetTitle>Menu</SheetTitle>
-                        <Link href="/" onClick={() => setIsSheetOpen(false)}>
-                            <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={63} height={8} />
-                        </Link>
-                    </SheetHeader>
+                   </SheetHeader>
+                   <Link href="/" onClick={() => setIsSheetOpen(false)}>
+                        <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={63} height={8} />
+                   </Link>
                     
                     <form onSubmit={handleSearch} className="relative py-4">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
