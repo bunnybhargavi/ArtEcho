@@ -39,11 +39,16 @@ export const useCartStore = create<CartState>((set, get) => ({
   isCartInitialized: false,
 
   initializeCart: () => {
-    if (get().isCartInitialized) return;
-
+    // This function will be called from AuthCartSync to ensure it runs
+    // after the Firebase user state is resolved.
     const { auth, firestore } = initializeFirebase();
     
-    auth.onAuthStateChanged(async (user) => {
+    // We don't need a persistent onAuthStateChanged listener here
+    // as the main app provider handles it. We just need to load the cart
+    // based on the *current* user state.
+    const user = auth.currentUser;
+
+    const loadCart = async () => {
       if (user) {
         const cartRef = getCartRef(user.uid);
         const snapshot = await getDocs(cartRef);
@@ -80,7 +85,11 @@ export const useCartStore = create<CartState>((set, get) => ({
         const items = guestCartJson ? JSON.parse(guestCartJson) : [];
         set({ items, isCartInitialized: true });
       }
-    });
+    }
+    
+    if (!get().isCartInitialized) {
+        loadCart();
+    }
   },
 
   addToCart: async (itemToAdd) => {

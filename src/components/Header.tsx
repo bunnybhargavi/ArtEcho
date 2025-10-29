@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Menu, User, Search, ShoppingCart } from 'lucide-react';
+import { Menu, User, Search, ShoppingCart, LogOut } from 'lucide-react';
 import { Button } from './ui/button';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -10,6 +10,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input } from './ui/input';
 import { useCartStore } from '@/lib/cart-store';
+import { useUser, useAuth } from '@/firebase';
+import { signOut } from 'firebase/auth';
+import { useToast } from '@/hooks/use-toast';
 
 const navLinks = [
     { href: "/about", label: "About" },
@@ -24,14 +27,13 @@ const Header = () => {
     const [isSheetOpen, setIsSheetOpen] = useState(false);
     const router = useRouter();
     const { items, initializeCart } = useCartStore();
-    const [isCartInitialized, setIsCartInitialized] = useState(false);
+    const { user, isUserLoading } = useUser();
+    const auth = useAuth();
+    const { toast } = useToast();
 
     useEffect(() => {
-        if (!isCartInitialized) {
-            initializeCart();
-            setIsCartInitialized(true);
-        }
-    }, [initializeCart, isCartInitialized]);
+        initializeCart();
+    }, [initializeCart]);
 
     const handleSearch = (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
@@ -42,8 +44,16 @@ const Header = () => {
         setIsSheetOpen(false);
       }
     };
+    
+    const handleLogout = () => {
+        if (!auth) return;
+        signOut(auth).then(() => {
+            toast({ title: 'Logged Out', description: 'You have been successfully logged out.' });
+            router.push('/');
+        });
+    };
 
-    const cartCount = isCartInitialized ? items.reduce((total, item) => total + item.quantity, 0) : 0;
+    const cartCount = items.reduce((total, item) => total + item.quantity, 0);
 
   return (
     <header className="bg-card/80 backdrop-blur-sm sticky top-0 z-40 w-full border-b">
@@ -75,12 +85,21 @@ const Header = () => {
               />
             </form>
 
-            <Button asChild className="hidden sm:inline-flex" variant="ghost" size="icon">
-                <Link href="/login">
-                    <User />
-                    <span className="sr-only">Login</span>
-                </Link>
-            </Button>
+            {!isUserLoading && (
+                user ? (
+                    <Button onClick={handleLogout} className="hidden sm:inline-flex" variant="ghost" size="icon">
+                        <LogOut />
+                        <span className="sr-only">Logout</span>
+                    </Button>
+                ) : (
+                    <Button asChild className="hidden sm:inline-flex" variant="ghost" size="icon">
+                        <Link href="/login">
+                            <User />
+                            <span className="sr-only">Login</span>
+                        </Link>
+                    </Button>
+                )
+            )}
             
             <Button asChild variant="ghost" size="icon" className="relative hidden sm:inline-flex">
               <Link href="/cart">
@@ -100,16 +119,13 @@ const Header = () => {
                     </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="flex flex-col">
-                    <SheetHeader>
-                        <SheetTitle className="sr-only">Menu</SheetTitle>
-                        <div className="border-b pb-4">
-                            <Link href="/" onClick={() => setIsSheetOpen(false)}>
-                                <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={63} height={8} />
-                            </Link>
-                        </div>
+                   <SheetHeader className="border-b pb-4">
+                        <SheetTitle>Menu</SheetTitle>
+                        <Link href="/" onClick={() => setIsSheetOpen(false)}>
+                            <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={63} height={8} />
+                        </Link>
                     </SheetHeader>
                     
-
                     <form onSubmit={handleSearch} className="relative py-4">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
@@ -132,13 +148,22 @@ const Header = () => {
                             </Link>
                         ))}
                     </nav>
-                    <div className="mt-auto border-t pt-4 flex items-center gap-2">
-                         <Button asChild className="w-full">
-                            <Link href="/login" onClick={() => setIsSheetOpen(false)}>
-                                <User className="mr-2" />
-                                Login / Sign Up
-                            </Link>
-                        </Button>
+                    <div className="mt-auto border-t pt-4 flex flex-col gap-2">
+                        {!isUserLoading && (
+                             user ? (
+                                <Button onClick={() => { handleLogout(); setIsSheetOpen(false); }} className="w-full">
+                                    <LogOut className="mr-2" />
+                                    Logout
+                                </Button>
+                             ) : (
+                                <Button asChild className="w-full">
+                                    <Link href="/login" onClick={() => setIsSheetOpen(false)}>
+                                        <User className="mr-2" />
+                                        Login / Sign Up
+                                    </Link>
+                                </Button>
+                             )
+                        )}
                          <Button asChild variant="outline" className="w-full">
                             <Link href="/cart" onClick={() => setIsSheetOpen(false)}>
                                 <ShoppingCart className="mr-2" />
@@ -155,4 +180,3 @@ const Header = () => {
 };
 
 export default Header;
-

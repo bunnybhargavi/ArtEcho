@@ -1,18 +1,20 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/firebase';
+import { useAuth, useUser } from '@/firebase';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address.'),
@@ -33,6 +35,16 @@ export default function LoginPage() {
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState<null | 'email' | 'google'>(null);
     const auth = useAuth();
+    const { user, isUserLoading } = useUser();
+    const router = useRouter();
+
+    useEffect(() => {
+        // If user is loaded and exists, redirect them.
+        if (!isUserLoading && user) {
+            toast({ title: "Already Logged In", description: "Redirecting you to the homepage." });
+            router.push('/');
+        }
+    }, [user, isUserLoading, router, toast]);
 
     const form = useForm<LoginFormValues>({
         resolver: zodResolver(loginSchema),
@@ -52,6 +64,7 @@ export default function LoginPage() {
         signInWithEmailAndPassword(auth, values.email, values.password)
             .then((userCredential) => {
                 toast({ title: "Login Successful", description: "Welcome back!" });
+                router.push('/');
             })
             .catch((error) => {
                 toast({ variant: "destructive", title: "Login Failed", description: error.message });
@@ -72,6 +85,7 @@ export default function LoginPage() {
         signInWithPopup(auth, provider)
             .then((result) => {
                 toast({ title: "Signed In with Google", description: "Welcome to ArtEcho!" });
+                router.push('/');
             })
             .catch((error) => {
                 toast({ variant: "destructive", title: "Google Sign-In Failed", description: error.message });
@@ -80,6 +94,12 @@ export default function LoginPage() {
                 setIsLoading(null);
             });
     };
+
+    // Prevent rendering the form if we are still checking the user state or if user is already logged in
+    if (isUserLoading || user) {
+        return null;
+    }
+
 
     return (
         <div className="container mx-auto py-12 px-4 flex items-center justify-center min-h-[calc(100vh-5rem)]">
@@ -148,7 +168,11 @@ export default function LoginPage() {
                         </Form>
                     </div>
                 </CardContent>
+                <CardFooter className="text-center text-sm text-muted-foreground">
+                    <p>Don't have an account? <Link href="/signup" className="text-primary hover:underline">Sign Up</Link></p>
+                </CardFooter>
             </Card>
         </div>
     );
 }
+
