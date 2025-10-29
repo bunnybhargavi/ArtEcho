@@ -21,3 +21,20 @@ export interface Artisan {
   location: string;
   story: string;
 }
+
+export interface OrderItem {
+  productId: string;
+  name: string;
+  price: number;
+  imageUrl: string;
+  quantity: number;
+}
+
+export interface Order {
+  id: string;
+  userId: string;
+  items: OrderItem[];
+  total: number;
+  status: 'Placed' | 'Shipped' | 'Delivered' | 'Cancelled';
+  createdAt: string; // ISO date string
+}

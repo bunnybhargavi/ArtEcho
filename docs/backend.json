@@ -165,7 +165,7 @@
         },
         "timestamp": {
           "type": "string",
-description": "Timestamp of when the message was submitted.",
+"description": "Timestamp of when the message was submitted.",
           "format": "date-time"
         }
       },
@@ -250,6 +250,41 @@ description": "Timestamp of when the message was submitted.",
         "imageUrl",
         "quantity"
       ]
+    },
+    "Order": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Order",
+      "type": "object",
+      "description": "Represents a customer's order.",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/backend/entities/OrderItem" }
+        },
+        "total": { "type": "number" },
+        "status": {
+          "type": "string",
+          "enum": ["Placed", "Shipped", "Delivered", "Cancelled"]
+        },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "items", "total", "status", "createdAt"]
+    },
+    "OrderItem": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "OrderItem",
+      "type": "object",
+      "description": "Represents a single item within an order.",
+      "properties": {
+        "productId": { "type": "string" },
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "imageUrl": { "type": "string" },
+        "quantity": { "type": "number" }
+      },
+      "required": ["productId", "name", "price", "imageUrl", "quantity"]
     }
   },
   "auth": {
@@ -372,6 +407,26 @@ description": "Timestamp of when the message was submitted.",
             {
               "name": "cartItemId",
               "description": "The unique identifier of the cart item (usually the product ID)."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/orders/{orderId}",
+        "definition": {
+          "entityName": "Order",
+          "schema": {
+            "$ref": "#/backend/entities/Order"
+          },
+          "description": "Stores a user's orders. The 'userId' corresponds to the authenticated user's ID.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "orderId",
+              "description": "The unique identifier of the order."
             }
           ]
         }

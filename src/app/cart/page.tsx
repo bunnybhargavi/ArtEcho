@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useCartStore } from '@/lib/cart-store';
@@ -6,15 +5,64 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
-import { ShoppingCart, X, Plus, Minus, Tag } from 'lucide-react';
+import { ShoppingCart, X, Plus, Minus, Tag, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { placeOrderAction } from '@/app/actions';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { useUser } from '@/firebase';
 
 export default function CartPage() {
-  const { items, removeFromCart, updateQuantity } = useCartStore();
+  const { items, removeFromCart, updateQuantity, clearCart } = useCartStore();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+  const { user } = useUser();
 
   const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
+
+  const handleCheckout = async () => {
+    if (!user) {
+      toast({
+        variant: 'destructive',
+        title: 'Authentication Required',
+        description: 'Please log in to place an order.',
+      });
+      router.push('/login');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await placeOrderAction({
+        items,
+        total: subtotal,
+      });
+
+      if (result.success && result.orderId) {
+        toast({
+          title: 'Order Placed!',
+          description: 'Your order has been successfully placed.',
+        });
+        clearCart();
+        router.push(`/tracking/${result.orderId}`);
+      } else {
+        throw new Error(result.error || 'Failed to place order.');
+      }
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Checkout Failed',
+        description: error.message || 'There was a problem placing your order.',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   return (
     <div className="container mx-auto py-12 px-4">
@@ -110,7 +158,8 @@ export default function CartPage() {
                   </div>
                 </CardContent>
                 <CardFooter className="flex-col gap-2">
-                   <Button className="w-full" size="lg" disabled={items.length === 0}>
+                   <Button className="w-full" size="lg" disabled={items.length === 0 || isLoading} onClick={handleCheckout}>
+                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Proceed to Checkout
                   </Button>
                   <Button variant="outline" className="w-full" asChild>
