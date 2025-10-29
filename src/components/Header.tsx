@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Menu, User, Search, ShoppingCart } from 'lucide-react';
 import { Button } from './ui/button';
 import Image from 'next/image';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input } from './ui/input';
@@ -100,11 +100,15 @@ const Header = () => {
                     </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="flex flex-col">
-                     <div className="border-b pb-4">
-                         <Link href="/" onClick={() => setIsSheetOpen(false)}>
-                            <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={63} height={8} />
-                        </Link>
-                    </div>
+                    <SheetHeader>
+                        <SheetTitle className="sr-only">Menu</SheetTitle>
+                        <div className="border-b pb-4">
+                            <Link href="/" onClick={() => setIsSheetOpen(false)}>
+                                <Image src="https://i.postimg.cc/HWX44zYk/logo.jpg" alt="ArtEcho Logo" width={63} height={8} />
+                            </Link>
+                        </div>
+                    </SheetHeader>
+                    
 
                     <form onSubmit={handleSearch} className="relative py-4">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
