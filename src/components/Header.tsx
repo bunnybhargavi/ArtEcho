@@ -16,13 +16,17 @@ import { useToast } from '@/hooks/use-toast';
 import { ThemeToggle } from './ThemeToggle';
 
 const navLinks = [
-    { href: "/", label: "Home", icon: Home },
     { href: "/about", label: "About" },
     { href: "/products", label: "Creations" },
     { href: "/dashboard", label: "Artisan Dashboard" },
     { href: "/dashboard/buyer", label: "Buyer Dashboard" },
     { href: "/dashboard/brand", label: "Brand Dashboard" },
     { href: "/contact", label: "Contact Us" },
+];
+
+const mobileNavLinks = [
+    { href: "/", label: "Home", icon: Home },
+    ...navLinks
 ];
 
 const Header = () => {
@@ -144,7 +148,7 @@ const Header = () => {
                     </form>
 
                     <nav className="flex flex-col gap-4">
-                        {navLinks.map(link => (
+                        {mobileNavLinks.map(link => (
                             <Link
                                 key={link.href}
                                 href={link.href}
