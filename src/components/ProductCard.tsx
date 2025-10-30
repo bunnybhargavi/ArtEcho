@@ -43,6 +43,7 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
   const [isBuying, setIsBuying] = useState(false);
   const { user } = useUser();
 
+  const discountPercent = product.originalPrice ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : 0;
 
   const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
     // Prevent navigation if a button was clicked
@@ -131,6 +132,12 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
             </Badge>
           )}
 
+          {discountPercent > 0 && (
+            <Badge variant="destructive" className="absolute top-2 right-2 z-10">
+              {discountPercent}% OFF
+            </Badge>
+          )}
+
           {mainImage ? (
             <Image
               src={mainImage.imageUrl}
@@ -205,4 +212,3 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
     </Card>
   );
 }
-

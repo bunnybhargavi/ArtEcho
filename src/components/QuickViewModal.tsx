@@ -31,6 +31,7 @@ export default function QuickViewModal({ product, artisan, isOpen, onClose }: Qu
   const [isBuying, setIsBuying] = useState(false);
   const { user } = useUser();
 
+  const discountPercent = product.originalPrice ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : 0;
 
   const handleAddToCart = () => {
     if (image) {
@@ -149,6 +150,11 @@ export default function QuickViewModal({ product, artisan, isOpen, onClose }: Qu
                     <span className="text-muted-foreground text-sm">No Image</span>
                 </div>
             )}
+             {discountPercent > 0 && (
+              <Badge variant="destructive" className="absolute top-2 left-2 z-10">
+                {discountPercent}% OFF
+              </Badge>
+            )}
           </div>
           
           <div className="flex flex-col space-y-4">
@@ -201,4 +207,3 @@ export default function QuickViewModal({ product, artisan, isOpen, onClose }: Qu
     </Dialog>
   );
 }
-

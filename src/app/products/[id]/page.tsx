@@ -47,6 +47,7 @@ export default function ProductPage() {
   const artisan = artisans.find((a) => a.id === product.artisanId);
   const image = PlaceHolderImages.find((img) => img.id === product.imageId);
   const review = customerReviews.find(r => r.id === product.id) ?? customerReviews[0];
+  const discountPercent = product.originalPrice ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : 0;
   
   const handleAddToCart = () => {
     if (image) {
@@ -131,6 +132,11 @@ export default function ProductPage() {
               <div className="w-full h-full bg-muted flex items-center justify-center">
                 <span className="text-muted-foreground text-sm">No Image</span>
               </div>
+            )}
+             {discountPercent > 0 && (
+              <Badge variant="destructive" className="absolute top-4 left-4 z-10 text-lg">
+                {discountPercent}% OFF
+              </Badge>
             )}
           </div>
           <div className="p-6 md:p-10 flex flex-col">
@@ -225,4 +231,3 @@ export default function ProductPage() {
     </div>
   );
 }
-
