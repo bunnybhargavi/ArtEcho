@@ -9,13 +9,14 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { MapPin, User, VenetianMask, Layers, ShoppingCart, ArrowRight, Loader2, ArrowLeft } from 'lucide-react';
+import { MapPin, User, VenetianMask, Layers, ShoppingCart, ArrowRight, Loader2, ArrowLeft, Star, MessageSquare } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import StoryCardModal from '@/components/dashboard/StoryCardModal';
 import { useCartStore } from '@/lib/cart-store';
 import { useToast } from '@/hooks/use-toast';
 import { placeSingleItemOrderAction } from '@/app/actions';
 import { useUser } from '@/firebase';
+import { customerReviews } from '@/lib/reviews';
 
 export default function ProductPage() {
   const params = useParams();
@@ -45,6 +46,7 @@ export default function ProductPage() {
 
   const artisan = artisans.find((a) => a.id === product.artisanId);
   const image = PlaceHolderImages.find((img) => img.id === product.imageId);
+  const review = customerReviews.find(r => r.id === product.id) ?? customerReviews[0];
   
   const handleAddToCart = () => {
     if (image) {
@@ -164,15 +166,24 @@ export default function ProductPage() {
               </div>
             </div>
 
-            {artisan && (
-              <div className="mt-6">
-                 <h2 className="font-headline text-xl font-semibold mb-2">The Artisan's Story</h2>
-                 <p className="text-foreground/80 leading-relaxed italic line-clamp-4">
-                  "{artisan.story}"
-                 </p>
-              </div>
-            )}
+            <Separator className="my-6" />
             
+            <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-headline text-lg font-semibold mb-3 flex items-center gap-2">
+                    <MessageSquare className="w-5 h-5 text-primary" />
+                    What Our Customers Say
+                </h3>
+                <div className="space-y-2">
+                    <div className="flex items-center">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                            <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} />
+                        ))}
+                    </div>
+                    <p className="text-foreground/80 italic">"{review.review}"</p>
+                    <p className="font-semibold text-sm text-right">- {review.name}</p>
+                </div>
+            </div>
+
             <div className="mt-auto pt-8 flex flex-col gap-4">
               <div className="flex items-baseline gap-2">
                 <span className="font-headline text-3xl font-bold text-primary">
