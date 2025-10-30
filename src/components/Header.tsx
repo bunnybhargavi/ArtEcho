@@ -15,17 +15,18 @@ import { signOut } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { ThemeToggle } from './ThemeToggle';
 
-const navLinks = [
-    { href: "/", label: "Home" },
-    { href: "/about", label: "About" },
-    { href: "/products", label: "Creations" },
-    { href: "/dashboard", label: "Artisan Dashboard" },
-    { href: "/dashboard/buyer", label: "Buyer Dashboard" },
-    { href: "/dashboard/brand", label: "Brand Dashboard" },
-    { href: "/contact", label: "Contact Us" },
-];
-
 const Header = () => {
+    const navLinks = [
+        { href: "/", label: "Home" },
+        { href: "/about", label: "About" },
+        { href: "/products", label: "Creations" },
+        { href: "/artisans", label: "Artisans"},
+        { href: "/dashboard", label: "Artisan Dashboard" },
+        { href: "/dashboard/buyer", label: "Buyer Dashboard" },
+        { href: "/dashboard/brand", label: "Brand Dashboard" },
+        { href: "/contact", label: "Contact Us" },
+    ];
+
     const [isSheetOpen, setIsSheetOpen] = useState(false);
     const router = useRouter();
     const { items, initializeCart } = useCartStore();

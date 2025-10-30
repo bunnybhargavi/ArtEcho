@@ -50,7 +50,7 @@ export default function Home() {
             <p className="mt-4 max-w-2xl mx-auto text-md sm:text-lg md:text-xl">
               One-of-a-kind pieces made with love.
             </p>
-            <Link href="/#featured-creations">
+            <Link href="/artisans">
               <Button size="lg" className="mt-8 bg-primary hover:bg-primary/90">
                 Explore Artisan Crafts
               </Button>
@@ -100,4 +100,3 @@ export default function Home() {
     </div>
   );
 }
-
