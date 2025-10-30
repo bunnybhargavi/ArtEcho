@@ -9,7 +9,7 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { MapPin, User, VenetianMask, Layers, ShoppingCart, ArrowRight, Loader2 } from 'lucide-react';
+import { MapPin, User, VenetianMask, Layers, ShoppingCart, ArrowRight, Loader2, ArrowLeft } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import StoryCardModal from '@/components/dashboard/StoryCardModal';
 import { useCartStore } from '@/lib/cart-store';
@@ -20,6 +20,7 @@ import { useUser } from '@/firebase';
 export default function ProductPage() {
   const params = useParams();
   const { id } = params;
+  const router = useRouter();
   
   const product = products.find((p) => p.id === id);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -32,7 +33,6 @@ export default function ProductPage() {
   
   const { addToCart } = useCartStore();
   const { toast } = useToast();
-  const router = useRouter();
   const { user } = useUser();
 
   if (!isClient) {
@@ -108,6 +108,12 @@ export default function ProductPage() {
 
   return (
     <div className="container mx-auto py-8 md:py-12 px-4">
+       <div className="mb-4">
+        <Button variant="ghost" onClick={() => router.back()}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back
+        </Button>
+      </div>
       <Card className="overflow-hidden shadow-lg">
         <div className="grid md:grid-cols-2">
           <div className="relative min-h-[300px] sm:min-h-[400px] md:min-h-[500px]">
