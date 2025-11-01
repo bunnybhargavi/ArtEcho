@@ -77,7 +77,16 @@ export const useCartStore = create<CartState>((set, get) => ({
               }
             });
             
-            await batch.commit();
+            batch.commit().catch(error => {
+                errorEmitter.emit(
+                    'permission-error',
+                    new FirestorePermissionError({
+                        path: cartRef.path,
+                        operation: 'write',
+                        requestResourceData: guestItems,
+                    })
+                )
+            });
             localStorage.removeItem('guestCart');
           }
         }
@@ -195,7 +204,15 @@ export const useCartStore = create<CartState>((set, get) => ({
         const snapshot = await getDocs(cartRef);
         const batch = writeBatch(firestore);
         snapshot.docs.forEach(doc => batch.delete(doc.ref));
-        await batch.commit();
+        batch.commit().catch(error => {
+            errorEmitter.emit(
+                'permission-error',
+                new FirestorePermissionError({
+                    path: cartRef.path,
+                    operation: 'delete',
+                })
+            )
+        });
     } else {
       syncWithLocalStorage([]);
     }
