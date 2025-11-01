@@ -25,6 +25,27 @@ import { CartItem } from '@/lib/cart-store';
 import { headers } from 'next/headers';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import { auth } from 'firebase-admin';
+import { getFirebaseAdminApp } from '@/firebase/admin';
+
+async function getUserIdFromToken() {
+    const headersList = headers();
+    const idToken = headersList.get('x-id-token');
+
+    if (!idToken) {
+        return null;
+    }
+
+    try {
+        const decodedToken = await auth(getFirebaseAdminApp()).verifyIdToken(
+            idToken
+        );
+        return decodedToken.uid;
+    } catch (error) {
+        console.error('Error verifying ID token:', error);
+        return null;
+    }
+}
 
 export async function generateArtisanStoryCardAction(
   input: GenerateArtisanStoryCardInput
@@ -85,8 +106,7 @@ export async function placeOrderAction(data: {
   total: number;
 }): Promise<{ success: boolean; orderId?: string; error?: string }> {
   try {
-    const headersList = headers();
-    const userId = headersList.get('x-user-id');
+    const userId = await getUserIdFromToken();
 
     if (!userId) {
       return { success: false, error: 'User not authenticated.' };
@@ -146,8 +166,7 @@ export async function placeOrderAction(data: {
 
 export async function placeSingleItemOrderAction(item: CartItem): Promise<{ success: boolean; orderId?: string; error?: string }> {
   try {
-    const headersList = headers();
-    const userId = headersList.get('x-user-id'); 
+    const userId = await getUserIdFromToken();
 
     if (!userId) {
       return { success: false, error: 'User not authenticated.' };
@@ -187,8 +206,7 @@ export async function placeSingleItemOrderAction(item: CartItem): Promise<{ succ
 
 export async function updateUserThemeAction(theme: 'light' | 'dark' | 'system') {
   try {
-    const headersList = headers();
-    const userId = headersList.get('x-user-id');
+    const userId = await getUserIdFromToken();
 
     if (!userId) {
       // Not an error, just means a guest is changing themes.

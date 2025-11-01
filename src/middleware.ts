@@ -1,32 +1,24 @@
 
 import {type NextRequest, NextResponse} from 'next/server';
-import {auth} from 'firebase-admin';
-import {getFirebaseAdminApp} from './firebase/admin';
 
-
+// This middleware is now edge-compatible.
+// It extracts the auth token and forwards it in a new header to be processed
+// by a Node.js-runtime API route or server action.
 export async function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   const authToken = request.headers.get('Authorization')?.split('Bearer ')[1];
 
-  let userId: string | null = null;
+  // We are NOT verifying the token here. We are just passing it along.
+  // The verification will happen in a server-side (Node.js) environment.
   if (authToken) {
-      try {
-        // The middleware can run in edge or node, we can't be sure which.
-        // firebase-admin only works in node.
-        if (typeof process.env.NEXT_RUNTIME === 'undefined' || process.env.NEXT_RUNTIME === 'nodejs') {
-            const decodedToken = await auth(getFirebaseAdminApp()).verifyIdToken(
-              authToken
-            );
-            userId = decodedToken.uid;
-        }
-      } catch (error) {
-        // Token is invalid or expired. We can't set the user ID.
-        console.log('Auth token verification failed in middleware, proceeding without user ID.');
-      }
+    requestHeaders.set('x-id-token', authToken);
   }
 
+  // Pass the user ID if it was already resolved and set by another part of the chain
+  // (though in this setup, this is less likely to be the primary path).
+  const userId = request.headers.get('x-user-id');
   if (userId) {
-    requestHeaders.set('x-user-id', userId);
+      requestHeaders.set('x-user-id', userId);
   }
 
   return NextResponse.next({
@@ -38,8 +30,5 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   // This will apply the middleware to all routes.
-  // If you want to be more specific, you can adjust the matcher.
-  // For example, to only apply it to API routes and server actions:
-  // matcher: ['/api/:path*', '/cart/:path*', '/checkout/:path*'],
   matcher: ['/((?!_next/static|favicon.ico).*)'],
 };
