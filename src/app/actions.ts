@@ -84,7 +84,7 @@ export async function submitContactFormAction(formData: {
         timestamp: new Date().toISOString(),
     };
 
-    await addDoc(contactMessagesRef, submissionData).catch(error => {
+    addDoc(contactMessagesRef, submissionData).catch(error => {
         errorEmitter.emit(
             'permission-error',
             new FirestorePermissionError({
@@ -93,8 +93,6 @@ export async function submitContactFormAction(formData: {
                 requestResourceData: submissionData,
             })
         );
-        // Re-throw to be caught by the outer try/catch
-        throw error;
     });
 
     return { success: true };
@@ -147,11 +145,13 @@ export async function placeOrderAction(data: {
     cartSnapshot.docs.forEach((cartDoc) => {
       batch.delete(doc(cartRef, cartDoc.id));
     });
+    
+    // Add specific error handling for the batch commit
     await batch.commit().catch(error => {
         errorEmitter.emit(
             'permission-error',
             new FirestorePermissionError({
-                path: cartRef.path,
+                path: cartRef.path, // The path for the batch operation is the collection path
                 operation: 'delete',
             })
         );
@@ -161,6 +161,7 @@ export async function placeOrderAction(data: {
 
     return { success: true, orderId: docRef.id };
   } catch (error: any) {
+    // The console.error is a fallback for non-permission errors
     console.error('Error placing order:', error);
     return { success: false, error: error.message || 'Failed to place order.' };
   }
@@ -219,7 +220,7 @@ export async function updateUserThemeAction(theme: 'light' | 'dark' | 'system') 
     const { firestore } = initializeFirebase();
     const userDocRef = doc(firestore, 'users', userId);
 
-    await setDoc(userDocRef, { theme }, { merge: true })
+    setDoc(userDocRef, { theme }, { merge: true })
         .catch(error => {
             errorEmitter.emit(
                 'permission-error',
@@ -229,8 +230,6 @@ export async function updateUserThemeAction(theme: 'light' | 'dark' | 'system') 
                     requestResourceData: { theme },
                 })
             );
-            // Re-throw to be caught by the outer try/catch
-            throw error;
         });
 
     return { success: true };
