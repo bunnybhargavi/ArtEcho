@@ -216,7 +216,7 @@ export async function updateUserThemeAction(theme: 'light' | 'dark' | 'system') 
     const { firestore } = initializeFirebase();
     const userDocRef = doc(firestore, 'users', userId);
 
-    setDoc(userDocRef, { theme }, { merge: true })
+    await setDoc(userDocRef, { theme }, { merge: true })
         .catch(error => {
             errorEmitter.emit(
                 'permission-error',
@@ -225,7 +225,9 @@ export async function updateUserThemeAction(theme: 'light' | 'dark' | 'system') 
                     operation: 'update',
                     requestResourceData: { theme },
                 })
-            )
+            );
+            // Re-throw to be caught by the outer try/catch
+            throw error;
         });
 
     return { success: true };
