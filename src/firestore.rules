@@ -1,0 +1,113 @@
+
+/**
+ * @fileoverview Firestore Security Rules for ArtEcho application.
+ *
+ * Core Philosophy:
+ * This ruleset prioritizes authorization independence, clarity, and maintainability.
+ * It enforces a flat data structure where possible and avoids hierarchical authorization dependencies.
+ *
+ * Data Structure:
+ * - /artisanProfiles/{artisanId}: Stores artisan profile information, with the document ID as the artisan's unique ID.
+ * - /products/{productId}: Stores product information, with the document ID as the product's unique ID.  Contains an artisanId for relational purposes, but access control is independent.
+ * - /tags/{tagId}: Stores tag information, with the document ID as the tag's unique ID.
+ * - /storyCards/{storyCardId}: Stores story card information, with the document ID as the story card's unique ID.
+ * - /contactMessages/{contactMessageId}: Stores contact messages submitted by users, with the document ID as the message's unique ID.
+ * - /customerReviews/{customerReviewId}: Stores customer reviews, with the document ID as the review's unique ID.
+ *
+ * Key Security Decisions:
+ * - Public read access is generally allowed to facilitate listing and discovery.
+ * - Write access is restricted to prevent unauthorized modifications.
+ * - No custom claims are used for authorization.
+ *
+ * Structural Segregation:
+ * The design enforces clear security requirements for each collection, allowing for simple and efficient rule definitions.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Grants read access to anyone and restricts write access to none.
+     * @path /artisanProfiles/{artisanId}
+     * @allow get, list: if true;
+     * @deny create, update, delete: if false;
+     * @principle Allows public listing but restricts writes to prevent unauthorized changes.
+     */
+    match /artisanProfiles/{artisanId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    /**
+     * @description Grants read access to anyone and restricts write access to none.
+     * @path /products/{productId}
+     * @allow get, list: if true;
+     * @deny create, update, delete: if false;
+     * @principle Allows public listing but restricts writes to prevent unauthorized changes.
+     */
+    match /products/{productId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    /**
+     * @description Grants read access to anyone and restricts write access to none.
+     * @path /tags/{tagId}
+     * @allow get, list: if true;
+     * @deny create, update, delete: if false;
+     * @principle Allows public listing but restricts writes to prevent unauthorized changes.
+     */
+    match /tags/{tagId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    /**
+     * @description Grants read access to anyone and restricts write access to none.
+     * @path /storyCards/{storyCardId}
+     * @allow get, list: if true;
+     * @deny create, update, delete: if false;
+     * @principle Allows public listing but restricts writes to prevent unauthorized changes.
+     */
+    match /storyCards/{storyCardId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    /**
+     * @description Grants read access to anyone and restricts write access to none.
+     * @path /contactMessages/{contactMessageId}
+     * @allow create: if true;
+     * @allow get, list, update, delete: if false;
+     * @principle Allows public listing but restricts writes to prevent unauthorized changes.
+     */
+    match /contactMessages/{contactMessageId} {
+      allow create: if true;
+      allow get, list, update, delete: if false;
+    }
+
+    /**
+     * @description Grants read access to anyone and restricts write access to none.
+     * @path /customerReviews/{customerReviewId}
+     * @allow get, list: if true;
+     * @deny create, update, delete: if false;
+     * @principle Allows public listing but restricts writes to prevent unauthorized changes.
+     */
+    match /customerReviews/{customerReviewId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+    
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      match /cart/{cartItemId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      match /orders/{orderId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+  }
+}

@@ -2,6 +2,9 @@
 import { create } from 'zustand';
 import { doc, getDoc, setDoc, deleteDoc, collection, getDocs, writeBatch } from 'firebase/firestore';
 import { initializeFirebase } from '@/firebase';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
+
 
 export interface CartItem {
   productId: string;
@@ -113,7 +116,17 @@ export const useCartStore = create<CartState>((set, get) => ({
     if (user) {
       const updatedItem = newItems.find(item => item.productId === itemToAdd.productId)!;
       const itemDocRef = doc(getCartRef(user.uid), itemToAdd.productId);
-      await setDoc(itemDocRef, updatedItem, { merge: true });
+      setDoc(itemDocRef, updatedItem, { merge: true })
+        .catch(error => {
+            errorEmitter.emit(
+                'permission-error',
+                new FirestorePermissionError({
+                    path: itemDocRef.path,
+                    operation: 'write',
+                    requestResourceData: updatedItem,
+                })
+            )
+        });
     } else {
       syncWithLocalStorage(newItems);
     }
@@ -127,7 +140,16 @@ export const useCartStore = create<CartState>((set, get) => ({
 
     if (user) {
       const itemDocRef = doc(getCartRef(user.uid), productId);
-      await deleteDoc(itemDocRef);
+      deleteDoc(itemDocRef)
+        .catch(error => {
+            errorEmitter.emit(
+                'permission-error',
+                new FirestorePermissionError({
+                    path: itemDocRef.path,
+                    operation: 'delete',
+                })
+            )
+        });
     } else {
       syncWithLocalStorage(newItems);
     }
@@ -149,7 +171,17 @@ export const useCartStore = create<CartState>((set, get) => ({
     if (user) {
         const updatedItem = newItems.find(item => item.productId === productId)!;
         const itemDocRef = doc(getCartRef(user.uid), productId);
-        await setDoc(itemDocRef, updatedItem, { merge: true });
+        setDoc(itemDocRef, updatedItem, { merge: true })
+            .catch(error => {
+                errorEmitter.emit(
+                    'permission-error',
+                    new FirestorePermissionError({
+                        path: itemDocRef.path,
+                        operation: 'update',
+                        requestResourceData: updatedItem,
+                    })
+                )
+            });
     } else {
       syncWithLocalStorage(newItems);
     }

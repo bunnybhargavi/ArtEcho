@@ -12,7 +12,6 @@ import {
   type MatchArtisansToBrandInput,
   type MatchArtisansToBrandOutput,
 } from '@/ai/flows/match-artisans-to-brand-flow';
-import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { initializeFirebase } from '@/firebase';
 import {
   collection,
@@ -24,6 +23,8 @@ import {
 } from 'firebase/firestore';
 import { CartItem } from '@/lib/cart-store';
 import { headers } from 'next/headers';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 export async function generateArtisanStoryCardAction(
   input: GenerateArtisanStoryCardInput
@@ -58,9 +59,18 @@ export async function submitContactFormAction(formData: {
     const { firestore } = initializeFirebase();
     const contactMessagesRef = collection(firestore, 'contactMessages');
 
-    await addDocumentNonBlocking(contactMessagesRef, {
+    addDoc(contactMessagesRef, {
       ...formData,
       timestamp: new Date().toISOString(),
+    }).catch(error => {
+        errorEmitter.emit(
+            'permission-error',
+            new FirestorePermissionError({
+                path: contactMessagesRef.path,
+                operation: 'create',
+                requestResourceData: formData,
+            })
+        )
     });
 
     return { success: true };
@@ -93,7 +103,19 @@ export async function placeOrderAction(data: {
       createdAt: new Date().toISOString(),
     };
 
-    const docRef = await addDoc(ordersRef, newOrder);
+    const docRef = await addDoc(ordersRef, newOrder)
+      .catch(error => {
+        errorEmitter.emit(
+            'permission-error',
+            new FirestorePermissionError({
+                path: ordersRef.path,
+                operation: 'create',
+                requestResourceData: newOrder,
+            })
+        );
+        // Re-throw to be caught by the outer try/catch
+        throw error;
+      });
 
     // After creating the order, clear the cart
     const cartRef = collection(firestore, 'users', userId, 'cart');
@@ -132,7 +154,19 @@ export async function placeSingleItemOrderAction(item: CartItem): Promise<{ succ
       createdAt: new Date().toISOString(),
     };
 
-    const docRef = await addDoc(ordersRef, newOrder);
+    const docRef = await addDoc(ordersRef, newOrder)
+     .catch(error => {
+        errorEmitter.emit(
+            'permission-error',
+            new FirestorePermissionError({
+                path: ordersRef.path,
+                operation: 'create',
+                requestResourceData: newOrder,
+            })
+        );
+        // Re-throw to be caught by the outer try/catch
+        throw error;
+      });
 
     return { success: true, orderId: docRef.id };
   } catch (error: any) {
@@ -154,7 +188,17 @@ export async function updateUserThemeAction(theme: 'light' | 'dark' | 'system') 
     const { firestore } = initializeFirebase();
     const userDocRef = doc(firestore, 'users', userId);
 
-    await setDoc(userDocRef, { theme }, { merge: true });
+    setDoc(userDocRef, { theme }, { merge: true })
+        .catch(error => {
+            errorEmitter.emit(
+                'permission-error',
+                new FirestorePermissionError({
+                    path: userDocRef.path,
+                    operation: 'update',
+                    requestResourceData: { theme },
+                })
+            )
+        });
 
     return { success: true };
   } catch (error: any) {
@@ -162,5 +206,3 @@ export async function updateUserThemeAction(theme: 'light' | 'dark' | 'system') 
     return { success: false, error: error.message || 'Failed to update theme.' };
   }
 }
-
-    
