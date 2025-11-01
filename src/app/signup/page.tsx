@@ -50,10 +50,11 @@ export default function SignupPage() {
             setIsLoading(false);
             return;
         }
+        // Non-blocking call
         createUserWithEmailAndPassword(auth, values.email, values.password)
-            .then((userCredential) => {
-                toast({ title: "Account Created", description: "Welcome to ArtEcho! You are now logged in." });
-                router.push('/');
+            .then(() => {
+                toast({ title: "Account Creation Initiated", description: "You will be redirected shortly." });
+                // No navigation here, onAuthStateChanged will handle it
             })
             .catch((error) => {
                 toast({ variant: "destructive", title: "Sign Up Failed", description: error.message });

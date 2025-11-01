@@ -61,10 +61,11 @@ export default function LoginPage() {
             setIsLoading(null);
             return;
         }
+        // Non-blocking call
         signInWithEmailAndPassword(auth, values.email, values.password)
-            .then((userCredential) => {
-                toast({ title: "Login Successful", description: "Welcome back!" });
-                router.push('/');
+            .then(() => {
+                toast({ title: "Login Initiated", description: "You will be redirected shortly." });
+                // No navigation here, onAuthStateChanged will handle it
             })
             .catch((error) => {
                 toast({ variant: "destructive", title: "Login Failed", description: error.message });
@@ -82,10 +83,11 @@ export default function LoginPage() {
             return;
         }
         const provider = new GoogleAuthProvider();
+        // Non-blocking call
         signInWithPopup(auth, provider)
-            .then((result) => {
-                toast({ title: "Signed In with Google", description: "Welcome to ArtEcho!" });
-                router.push('/');
+            .then(() => {
+                toast({ title: "Google Sign-In Initiated", description: "You will be redirected shortly." });
+                 // No navigation here, onAuthStateChanged will handle it
             })
             .catch((error) => {
                 toast({ variant: "destructive", title: "Google Sign-In Failed", description: error.message });
@@ -175,4 +177,3 @@ export default function LoginPage() {
         </div>
     );
 }
-
