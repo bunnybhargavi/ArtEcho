@@ -74,11 +74,11 @@ service cloud.firestore {
     }
 
     /**
-     * @description Grants read access to anyone and restricts write access to none.
+     * @description Allows anyone to create a contact message.
      * @path /contactMessages/{contactMessageId}
      * @allow create: if true;
      * @allow get, list, update, delete: if false;
-     * @principle Allows public listing but restricts writes to prevent unauthorized changes.
+     * @principle Allows users to submit contact forms.
      */
     match /contactMessages/{contactMessageId} {
       allow create: if true;
@@ -98,12 +98,15 @@ service cloud.firestore {
     }
     
     match /users/{userId} {
+      // Users can only read and write their own user document.
       allow read, write: if request.auth != null && request.auth.uid == userId;
 
+      // Users can manage their own shopping cart.
       match /cart/{cartItemId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
 
+      // Users can create and manage their own orders.
       match /orders/{orderId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
