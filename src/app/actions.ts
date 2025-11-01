@@ -124,7 +124,17 @@ export async function placeOrderAction(data: {
     cartSnapshot.docs.forEach((cartDoc) => {
       batch.delete(doc(cartRef, cartDoc.id));
     });
-    await batch.commit();
+    await batch.commit().catch(error => {
+        errorEmitter.emit(
+            'permission-error',
+            new FirestorePermissionError({
+                path: cartRef.path,
+                operation: 'delete',
+            })
+        );
+        // Re-throw to be caught by the outer try/catch
+        throw error;
+    });
 
     return { success: true, orderId: docRef.id };
   } catch (error: any) {
