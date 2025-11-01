@@ -79,19 +79,22 @@ export async function submitContactFormAction(formData: {
   try {
     const { firestore } = initializeFirebase();
     const contactMessagesRef = collection(firestore, 'contactMessages');
+    const submissionData = {
+        ...formData,
+        timestamp: new Date().toISOString(),
+    };
 
-    addDoc(contactMessagesRef, {
-      ...formData,
-      timestamp: new Date().toISOString(),
-    }).catch(error => {
+    await addDoc(contactMessagesRef, submissionData).catch(error => {
         errorEmitter.emit(
             'permission-error',
             new FirestorePermissionError({
                 path: contactMessagesRef.path,
                 operation: 'create',
-                requestResourceData: formData,
+                requestResourceData: submissionData,
             })
-        )
+        );
+        // Re-throw to be caught by the outer try/catch
+        throw error;
     });
 
     return { success: true };
