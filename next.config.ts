@@ -90,6 +90,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'cdn.vibecity.in',
+        port: '',
+        pathname: '/**',
+      }
     ],
   },
 };
