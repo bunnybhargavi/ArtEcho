@@ -10,16 +10,8 @@ import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import wav from 'wav';
 import { googleAI } from '@genkit-ai/google-genai';
+import { GenerateAudioFromTextInputSchema, GenerateAudioFromTextOutputSchema, GenerateAudioFromTextInput, GenerateAudioFromTextOutput } from '@/lib/types';
 
-const GenerateAudioFromTextInputSchema = z.object({
-  text: z.string().min(1).describe('The text to be converted to speech.'),
-});
-type GenerateAudioFromTextInput = z.infer<typeof GenerateAudioFromTextInputSchema>;
-
-const GenerateAudioFromTextOutputSchema = z.object({
-  audioDataUri: z.string().describe('A data URI for the audio recording of the provided text.'),
-});
-type GenerateAudioFromTextOutput = z.infer<typeof GenerateAudioFromTextOutputSchema>;
 
 export async function generateAudioFromText(input: GenerateAudioFromTextInput): Promise<GenerateAudioFromTextOutput> {
   return generateAudioFromTextFlow(input);

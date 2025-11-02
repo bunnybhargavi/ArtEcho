@@ -18,27 +18,15 @@ import { generateAudioFromText } from '@/ai/flows/generate-audio-from-text';
 import { getFirebaseAdminApp } from '@/firebase/admin';
 import { getFirestore } from 'firebase-admin/firestore';
 import { useAuthStore } from '@/lib/auth-store';
-import type { Artisan, Product } from '@/lib/types';
-import { z } from 'zod';
-
-
-export const GenerateAudioFromTextInputSchema = z.object({
-  text: z.string().min(1).describe('The text to be converted to speech.'),
-});
-export type GenerateAudioFromTextInput = z.infer<typeof GenerateAudioFromTextInputSchema>;
-
-export const GenerateAudioFromTextOutputSchema = z.object({
-  audioDataUri: z.string().describe('A data URI for the audio recording of the provided text.'),
-});
-export type GenerateAudioFromTextOutput = z.infer<typeof GenerateAudioFromTextOutputSchema>;
+import type { Artisan, Product, GenerateAudioFromTextInput, GenerateAudioFromTextOutput } from '@/lib/types';
 
 
 export async function generateArtisanStoryCardAction(
-  input: { artisan: Artisan, product: Product, productPhotoDataUri: string }
+  input: GenerateArtisanStoryCardInput
 ): Promise<{ success: boolean; data?: GenerateArtisanStoryCardOutput; message?: string }> {
   try {
     // 1. Input Validation
-    if (!input.artisan || !input.product || !input.productPhotoDataUri) {
+    if (!input.artisanId || !input.productId || !input.productPhotoDataUri) {
       const errorMsg = 'Invalid input. Please provide all required fields.';
       console.error('Validation Error:', errorMsg);
       return { success: false, message: errorMsg };
@@ -48,20 +36,8 @@ export async function generateArtisanStoryCardAction(
     const firestore = getFirestore(adminApp);
     const storyCardCollection = firestore.collection('storyCards');
   
-    const flowInput: GenerateArtisanStoryCardInput = {
-        artisanId: input.artisan.id,
-        productId: input.product.id,
-        artisanName: input.artisan.name,
-        craft: input.artisan.craft,
-        location: input.artisan.location,
-        artisanStory: input.artisan.story,
-        productName: input.product.name,
-        productDescription: input.product.description,
-        productPhotoDataUri: input.productPhotoDataUri
-    };
-
     // 2. Graceful AI Call
-    const result = await generateArtisanStoryCard(flowInput);
+    const result = await generateArtisanStoryCard(input);
 
     if (!result || !result.storyCardDescription) {
         throw new Error('AI failed to generate a story description.');
@@ -69,8 +45,8 @@ export async function generateArtisanStoryCardAction(
   
     // 3. Firestore Write with feedback
     const newStoryCardData = {
-      productId: input.product.id,
-      artisanId: input.artisan.id,
+      productId: input.productId,
+      artisanId: input.artisanId,
       description: result.storyCardDescription,
       audioUrl: result.audioDataUri,
       createdAt: new Date().toISOString(),

@@ -1,4 +1,6 @@
 
+import { z } from 'zod';
+
 export interface Product {
   id: string;
   name: string;
@@ -49,3 +51,14 @@ export interface Order {
   expectedDelivery?: string; // ISO date string
   statusHistory?: TrackingEvent[];
 }
+
+
+export const GenerateAudioFromTextInputSchema = z.object({
+  text: z.string().min(1).describe('The text to be converted to speech.'),
+});
+export type GenerateAudioFromTextInput = z.infer<typeof GenerateAudioFromTextInputSchema>;
+
+export const GenerateAudioFromTextOutputSchema = z.object({
+  audioDataUri: z.string().describe('A data URI for the audio recording of the provided text.'),
+});
+export type GenerateAudioFromTextOutput = z.infer<typeof GenerateAudioFromTextOutputSchema>;
