@@ -71,14 +71,8 @@ export default function AIStoryGenerator() {
       const productPhotoDataUri = reader.result as string;
       try {
         const response = await generateArtisanStoryCardAction({
-          artisanId: values.artisanId,
-          productId: values.productId,
-          artisanName: artisan.name,
-          craft: artisan.craft,
-          location: artisan.location,
-          artisanStory: artisan.story,
-          productName: product.name,
-          productDescription: product.description,
+          artisan,
+          product,
           productPhotoDataUri,
         });
         setResult(response);

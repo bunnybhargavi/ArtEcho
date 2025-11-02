@@ -44,14 +44,8 @@ export default function StoryCardModal({ product, artisan, isOpen, onClose }: St
             
           try {
             const result = await generateArtisanStoryCardAction({
-              artisanId: artisan.id,
-              productId: product.id,
-              artisanName: artisan.name,
-              craft: artisan.craft,
-              location: artisan.location,
-              artisanStory: artisan.story,
-              productName: product.name,
-              productDescription: product.description,
+              artisan,
+              product,
               productPhotoDataUri,
             });
             setStoryResult(result);

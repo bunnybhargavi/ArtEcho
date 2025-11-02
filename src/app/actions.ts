@@ -16,22 +16,35 @@ import {
 import { getFirebaseAdminApp } from '@/firebase/admin';
 import { getFirestore } from 'firebase-admin/firestore';
 import { useAuthStore } from '@/lib/auth-store';
+import type { Artisan, Product } from '@/lib/types';
 
 
 export async function generateArtisanStoryCardAction(
-  input: GenerateArtisanStoryCardInput
+  input: { artisan: Artisan, product: Product, productPhotoDataUri: string }
 ): Promise<GenerateArtisanStoryCardOutput> {
   try {
     const adminApp = getFirebaseAdminApp();
     const firestore = getFirestore(adminApp);
     const storyCardCollection = firestore.collection('storyCards');
+
+    const flowInput: GenerateArtisanStoryCardInput = {
+        artisanId: input.artisan.id,
+        productId: input.product.id,
+        artisanName: input.artisan.name,
+        craft: input.artisan.craft,
+        location: input.artisan.location,
+        artisanStory: input.artisan.story,
+        productName: input.product.name,
+        productDescription: input.product.description,
+        productPhotoDataUri: input.productPhotoDataUri
+    };
   
     // Generate the story first
-    const result = await generateArtisanStoryCard(input);
+    const result = await generateArtisanStoryCard(flowInput);
   
     const newStoryCardData = {
-      productId: input.productId,
-      artisanId: input.artisanId,
+      productId: flowInput.productId,
+      artisanId: flowInput.artisanId,
       description: result.storyCardDescription,
       audioUrl: result.audioDataUri,
       createdAt: new Date().toISOString(),
