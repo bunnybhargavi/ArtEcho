@@ -21,27 +21,25 @@ import { artisans, products } from '@/lib/data';
 
 export async function generateArtisanStoryCardAction(
   input: { artisanId: string; productId: string, productPhotoDataUri: string }
-): Promise<GenerateArtisanStoryCardOutput & { error?: string }> {
+): Promise<{ success: boolean; data?: GenerateArtisanStoryCardOutput; message?: string }> {
   // 1. Input Validation
   if (!input.artisanId || !input.productId || !input.productPhotoDataUri) {
-    console.error('Validation Error: Missing artisanId, productId, or productPhotoDataUri.');
-    return { 
-      storyCardDescription: '', 
-      audioDataUri: '',
-      error: 'Invalid input. Please provide all required fields.' 
-    };
+    const errorMsg = 'Invalid input. Please provide all required fields.';
+    console.error('Validation Error:', errorMsg);
+    const response = { success: false, message: errorMsg };
+    console.log('Returning response:', response);
+    return response;
   }
   
   const artisan = artisans.find(a => a.id === input.artisanId);
   const product = products.find(p => p.id === input.productId);
 
   if (!artisan || !product) {
-    console.error(`Data Error: Could not find artisan with ID '${input.artisanId}' or product with ID '${input.productId}'.`);
-    return { 
-      storyCardDescription: '', 
-      audioDataUri: '',
-      error: 'Artisan or product data could not be found.' 
-    };
+    const errorMsg = `Data Error: Could not find artisan with ID '${input.artisanId}' or product with ID '${input.productId}'.`;
+    console.error(errorMsg);
+    const response = { success: false, message: 'Artisan or product data could not be found.' };
+    console.log('Returning response:', response);
+    return response;
   }
 
   try {
@@ -83,17 +81,17 @@ export async function generateArtisanStoryCardAction(
         // This is a background error, so we don't block the user response.
         // In a production app, you might add this to a retry queue or monitoring system.
     });
-  
-    return result;
+    
+    const response = { success: true, data: result };
+    console.log('Returning response:', response);
+    return response;
 
-  } catch (error) {
+  } catch (error: any) {
     // 4. Centralized Error Handling & Logging
     console.error('Critical Error in generateArtisanStoryCardAction:', error);
-    return { 
-      storyCardDescription: '', 
-      audioDataUri: '',
-      error: 'Failed to generate story card due to an unexpected server error.'
-    };
+    const response = { success: false, message: error.message || 'Failed to generate story card due to an unexpected server error.' };
+    console.log('Returning response:', response);
+    return response;
   }
 }
 
