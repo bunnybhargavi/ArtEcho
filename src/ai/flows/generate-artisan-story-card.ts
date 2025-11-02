@@ -11,6 +11,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'zod';
 import wav from 'wav';
+import { googleAI } from '@genkit-ai/google-genai';
 
 const GenerateArtisanStoryCardInputSchema = z.object({
   artisanId: z.string().describe("The ID of the artisan."),
@@ -41,6 +42,7 @@ export async function generateArtisanStoryCard(input: GenerateArtisanStoryCardIn
 
 const storyCardPrompt = ai.definePrompt({
   name: 'storyCardPrompt',
+  model: googleAI.model('gemini-pro'),
   input: {schema: z.object({
     artisanName: z.string(),
     craft: z.string(),
@@ -83,7 +85,7 @@ const generateArtisanStoryCardFlow = ai.defineFlow(
     
     // Step 2: Generate audio from the generated description.
     const ttsResponse = await ai.generate({
-      model: 'googleai/gemini-2.5-flash-preview-tts',
+      model: googleAI.model('gemini-2.5-flash-preview-tts'),
       config: {
         responseModalities: ['AUDIO'],
         speechConfig: {
