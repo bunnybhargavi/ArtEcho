@@ -16,40 +16,48 @@ import { initializeFirebase } from '@/firebase';
 import {
   collection,
   addDoc,
-  writeBatch,
-  getDocs,
-  doc,
-  setDoc,
 } from 'firebase/firestore';
 import { CartItem } from '@/lib/cart-store';
-import { headers } from 'next/headers';
 import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
+import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
 import { useAuthStore } from '@/lib/auth-store';
 
 
 export async function generateArtisanStoryCardAction(
   input: GenerateArtisanStoryCardInput
 ): Promise<GenerateArtisanStoryCardOutput> {
-  try {
-    const result = await generateArtisanStoryCard(input);
-    const { firestore } = initializeFirebase();
-    
-    // Save the generated story card to Firestore
-    const storyCardCollection = collection(firestore, 'storyCards');
-    addDoc(storyCardCollection, {
-      productId: input.productId,
-      artisanId: input.artisanId,
-      description: result.storyCardDescription,
-      audioUrl: result.audioDataUri,
-      createdAt: new Date().toISOString(),
+  const { firestore } = initializeFirebase();
+  const storyCardCollection = collection(firestore, 'storyCards');
+
+  // Generate the story first
+  const result = await generateArtisanStoryCard(input);
+
+  const newStoryCardData = {
+    productId: input.productId,
+    artisanId: input.artisanId,
+    description: result.storyCardDescription,
+    audioUrl: result.audioDataUri,
+    createdAt: new Date().toISOString(),
+  };
+
+  // Save the generated story card to Firestore without blocking
+  addDoc(storyCardCollection, newStoryCardData)
+    .catch(async (serverError) => {
+      const permissionError = new FirestorePermissionError({
+        path: storyCardCollection.path,
+        operation: 'create',
+        requestResourceData: newStoryCardData,
+      } satisfies SecurityRuleContext);
+
+      errorEmitter.emit('permission-error', permissionError);
+
+      // We still throw an error to be caught by the client-side action handler
+      // This allows the UI to know the operation failed.
+      throw new Error('Failed to save story card due to permissions.');
     });
 
-    return result;
-  } catch (error) {
-    console.error('Error in generateArtisanStoryCardAction:', error);
-    throw new Error('Failed to generate story card.');
-  }
+  // Return the generated content immediately for a responsive UI
+  return result;
 }
 
 export async function matchArtisansToBrandAction(

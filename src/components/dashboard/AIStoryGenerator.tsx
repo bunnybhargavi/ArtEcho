@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -24,7 +25,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Sparkles, Volume2 } from 'lucide-react';
@@ -88,10 +88,12 @@ export default function AIStoryGenerator() {
           description: "Your new story card has been saved.",
         });
       } catch (error) {
+        // The permission error is thrown globally, but we catch here
+        // to stop the loading spinner and inform the user.
         toast({
           variant: 'destructive',
           title: 'Error Generating Story',
-          description: 'There was a problem with the AI generation. Please try again.',
+          description: 'There was a problem generating or saving the story card. Please check for permission errors.',
         });
         console.error(error);
       } finally {
@@ -242,5 +244,3 @@ export default function AIStoryGenerator() {
     </div>
   );
 }
-
-    
