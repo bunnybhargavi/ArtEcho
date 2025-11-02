@@ -18,11 +18,12 @@ const allStatuses = ['Placed', 'Shipped', 'On the way', 'Out for delivery', 'Del
 
 // This is a fake order generator for the mock system.
 const generateFakeOrder = (orderId: string): Order => {
+    const now = new Date();
+    const expectedDeliveryDate = new Date(now);
+    expectedDeliveryDate.setDate(now.getDate() + 5); // 5 days from now
+
     const trackingHistory: TrackingEvent[] = [
-        { status: 'Package has left seller facility and is in transit to carrier', location: 'Sumner WA US', timestamp: '2015-06-08T14:00:00Z' },
-        { status: 'Package arrived at a carrier facility', location: 'Seattle WA US', timestamp: '2015-06-08T14:35:00Z' },
-        { status: 'Out for delivery', location: 'Seattle WA US', timestamp: '2015-06-08T15:24:00Z' },
-        { status: 'Out for delivery', location: 'Seattle WA US', timestamp: '2015-06-08T16:07:00Z' },
+        { status: 'Order placed and confirmed.', location: 'Hyderabad, IN', timestamp: now.toISOString() },
     ];
 
     return {
@@ -38,9 +39,9 @@ const generateFakeOrder = (orderId: string): Order => {
             }
         ],
         total: 700,
-        status: 'Out for delivery',
-        createdAt: '2015-06-07T10:00:00Z',
-        expectedDelivery: '2015-06-08T20:00:00Z',
+        status: 'Placed',
+        createdAt: now.toISOString(),
+        expectedDelivery: expectedDeliveryDate.toISOString(),
         statusHistory: trackingHistory,
     };
 };
@@ -103,12 +104,12 @@ export default function TrackingPage() {
                     <div>
                         <h2 className="text-2xl font-bold text-primary">{order.status}</h2>
                         {order.expectedDelivery && 
-                            <p className="text-green-600 font-semibold">Expected delivery: {new Date(order.expectedDelivery).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}, by 8:00pm</p>
+                            <p className="text-green-600 font-semibold">Expected delivery: {new Date(order.expectedDelivery).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
                         }
                     </div>
                     <div className="text-right text-sm text-muted-foreground">
-                        <p>Your package is out for delivery and will arrive today.</p>
-                        <p>(Updated 0 minute(s) ago)</p>
+                        <p>Your order has been placed and is preparing for shipment.</p>
+                        <p>(Updated just now)</p>
                     </div>
                 </div>
 
