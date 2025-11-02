@@ -141,7 +141,6 @@ export async function placeSingleItemOrderAction(item: CartItem): Promise<{ succ
   const userId = user.uid;
 
   const { firestore } = initializeFirebase();
-  const ordersRef = collection(firestore, 'users', userId, 'orders');
   
   const newOrder = {
     userId,
@@ -150,6 +149,8 @@ export async function placeSingleItemOrderAction(item: CartItem): Promise<{ succ
     status: 'Placed' as const,
     createdAt: new Date().toISOString(),
   };
+
+  const ordersRef = collection(firestore, 'users', userId, 'orders');
 
   try {
     const docRef = await addDoc(ordersRef, newOrder);
@@ -197,4 +198,5 @@ export async function updateUserThemeAction(theme: 'light' | 'dark' | 'system') 
     return { success: false, error: error.message || 'Failed to update theme.' };
   }
 }
+
 
