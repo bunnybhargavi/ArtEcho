@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useState } from 'react';
 import {
   Accordion,
   AccordionContent,
@@ -27,6 +28,8 @@ const styles = ['Modern', 'Rustic', 'Minimalist', 'Traditional', 'Boho'];
 const locations = ['Oaxaca, Mexico', 'Kyoto, Japan', 'Marrakech, Morocco', 'Waterford, Ireland'];
 
 export default function ProductFilters() {
+  const [price, setPrice] = useState(50);
+
   return (
     <Card className="p-4 lg:p-0 lg:border-none lg:shadow-none">
         <h2 className="font-headline text-xl font-bold mb-4 hidden lg:block">Filters</h2>
@@ -59,10 +62,15 @@ export default function ProductFilters() {
         <AccordionItem value="price">
             <AccordionTrigger className="font-semibold">Price Range</AccordionTrigger>
             <AccordionContent className="pt-4 space-y-4">
-                <Slider defaultValue={[50]} max={500} step={10} />
+                <Slider 
+                  value={[price]} 
+                  onValueChange={(value) => setPrice(value[0])}
+                  max={500} 
+                  step={10} 
+                />
                 <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>$0</span>
-                    <span>$500</span>
+                    <span>Rs.0</span>
+                    <span>Rs.{price}</span>
                 </div>
             </AccordionContent>
         </AccordionItem>
@@ -129,4 +137,3 @@ export default function ProductFilters() {
     </Card>
   );
 }
-
