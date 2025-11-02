@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useUser } from '@/lib/auth-store';
 import { placeSingleItemOrderAction } from '@/app/actions';
+import PaymentDialog from './PaymentDialog';
 
 interface QuickViewModalProps {
   product: Product;
@@ -29,6 +30,7 @@ export default function QuickViewModal({ product, artisan, isOpen, onClose }: Qu
   const { toast } = useToast();
   const router = useRouter();
   const [isBuying, setIsBuying] = useState(false);
+  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
   const { user } = useUser();
 
   const discountPercent = product.originalPrice ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : 0;
@@ -55,7 +57,7 @@ export default function QuickViewModal({ product, artisan, isOpen, onClose }: Qu
     }
   };
 
-  const handleBuyNow = async () => {
+  const handleBuyNow = () => {
      if (!user) {
       toast({
         variant: 'destructive',
@@ -65,9 +67,13 @@ export default function QuickViewModal({ product, artisan, isOpen, onClose }: Qu
       router.push('/login');
       return;
     }
-    
+    setIsPaymentDialogOpen(true);
+  };
+
+  const confirmOrder = async () => {
     if (image && product) {
       setIsBuying(true);
+      setIsPaymentDialogOpen(false);
       const item: CartItem = {
         productId: product.id,
         name: product.name,
@@ -100,6 +106,7 @@ export default function QuickViewModal({ product, artisan, isOpen, onClose }: Qu
     }
   };
 
+
   const handleShare = async () => {
     const productUrl = `${window.location.origin}/products/${product.id}`;
     const shareData = {
@@ -131,80 +138,88 @@ export default function QuickViewModal({ product, artisan, isOpen, onClose }: Qu
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl grid-rows-[auto_1fr_auto] p-0">
-        <DialogHeader className="p-6 pb-0">
-          <DialogTitle className="font-headline text-2xl md:text-3xl">{product.name}</DialogTitle>
-        </DialogHeader>
-        
-        <div className="grid md:grid-cols-2 gap-6 p-6 overflow-y-auto max-h-[70vh]">
-          <div className="relative aspect-square">
-            {image ? (
-                <Image 
-                  src={image.imageUrl} 
-                  alt={`Quick view of ${product.name}, a piece of ${artisan.craft} by ${artisan.name}`} 
-                  fill 
-                  className="object-cover rounded-md" data-ai-hint={image.imageHint} 
-                />
-            ): (
-                 <div className="w-full h-full bg-muted flex items-center justify-center rounded-md">
-                    <span className="text-muted-foreground text-sm">No Image</span>
-                </div>
-            )}
-             {discountPercent > 0 && (
-              <Badge variant="destructive" className="absolute top-2 left-2 z-10">
-                {discountPercent}% OFF
-              </Badge>
-            )}
-          </div>
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-3xl grid-rows-[auto_1fr_auto] p-0">
+          <DialogHeader className="p-6 pb-0">
+            <DialogTitle className="font-headline text-2xl md:text-3xl">{product.name}</DialogTitle>
+          </DialogHeader>
           
-          <div className="flex flex-col space-y-4">
-              <div>
-                 <p className="text-sm text-muted-foreground">by {artisan.name}</p>
-                 <p className="text-foreground/80 leading-relaxed mt-2 line-clamp-4">{product.description}</p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {product.tags.map((tag) => (
-                  <Badge key={tag} variant="outline">{tag}</Badge>
-                ))}
-              </div>
-              <div className="pt-4 mt-auto">
-                 <div className="flex items-baseline gap-2">
-                    <span className="font-headline text-3xl font-bold text-primary">
-                        Rs.{product.price}
-                    </span>
-                     {product.originalPrice && (
-                        <span className="text-lg text-muted-foreground line-through">
-                            Rs.{product.originalPrice}
-                        </span>
-                    )}
+          <div className="grid md:grid-cols-2 gap-6 p-6 overflow-y-auto max-h-[70vh]">
+            <div className="relative aspect-square">
+              {image ? (
+                  <Image 
+                    src={image.imageUrl} 
+                    alt={`Quick view of ${product.name}, a piece of ${artisan.craft} by ${artisan.name}`} 
+                    fill 
+                    className="object-cover rounded-md" data-ai-hint={image.imageHint} 
+                  />
+              ): (
+                   <div className="w-full h-full bg-muted flex items-center justify-center rounded-md">
+                      <span className="text-muted-foreground text-sm">No Image</span>
+                  </div>
+              )}
+               {discountPercent > 0 && (
+                <Badge variant="destructive" className="absolute top-2 left-2 z-10">
+                  {discountPercent}% OFF
+                </Badge>
+              )}
+            </div>
+            
+            <div className="flex flex-col space-y-4">
+                <div>
+                   <p className="text-sm text-muted-foreground">by {artisan.name}</p>
+                   <p className="text-foreground/80 leading-relaxed mt-2 line-clamp-4">{product.description}</p>
                 </div>
-              </div>
+                <div className="flex flex-wrap gap-2">
+                  {product.tags.map((tag) => (
+                    <Badge key={tag} variant="outline">{tag}</Badge>
+                  ))}
+                </div>
+                <div className="pt-4 mt-auto">
+                   <div className="flex items-baseline gap-2">
+                      <span className="font-headline text-3xl font-bold text-primary">
+                          Rs.{product.price}
+                      </span>
+                       {product.originalPrice && (
+                          <span className="text-lg text-muted-foreground line-through">
+                              Rs.{product.originalPrice}
+                          </span>
+                      )}
+                  </div>
+                </div>
+            </div>
           </div>
-        </div>
 
-        <DialogFooter className="p-6 bg-muted/50 border-t flex flex-col sm:flex-row items-center justify-between gap-2">
-            <div className="flex gap-2">
-              <Button asChild variant="outline" size="sm">
-                  <Link href={`/products/${product.id}`}>View Details</Link>
-              </Button>
-               <Button onClick={handleShare} variant="outline" size="sm">
-                  <Share2 className="mr-2 h-4 w-4" />
-                  Share
-              </Button>
-            </div>
-            <div className="flex gap-2 w-full sm:w-auto">
-               <Button onClick={handleAddToCart} variant="secondary" className="w-full" disabled={isBuying}>
-                  <ShoppingCart className="mr-2 h-4 w-4" />
-                  Add to Cart
-              </Button>
-              <Button onClick={handleBuyNow} className="w-full" disabled={isBuying}>
-                {isBuying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRight className="mr-2 h-4 w-4" />}
-                  Buy Now
-              </Button>
-            </div>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          <DialogFooter className="p-6 bg-muted/50 border-t flex flex-col sm:flex-row items-center justify-between gap-2">
+              <div className="flex gap-2">
+                <Button asChild variant="outline" size="sm">
+                    <Link href={`/products/${product.id}`}>View Details</Link>
+                </Button>
+                 <Button onClick={handleShare} variant="outline" size="sm">
+                    <Share2 className="mr-2 h-4 w-4" />
+                    Share
+                </Button>
+              </div>
+              <div className="flex gap-2 w-full sm:w-auto">
+                 <Button onClick={handleAddToCart} variant="secondary" className="w-full" disabled={isBuying}>
+                    <ShoppingCart className="mr-2 h-4 w-4" />
+                    Add to Cart
+                </Button>
+                <Button onClick={handleBuyNow} className="w-full" disabled={isBuying}>
+                  {isBuying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRight className="mr-2 h-4 w-4" />}
+                    Buy Now
+                </Button>
+              </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <PaymentDialog
+        isOpen={isPaymentDialogOpen}
+        onClose={() => setIsPaymentDialogOpen(false)}
+        onConfirm={confirmOrder}
+        total={product.price}
+      />
+    </>
   );
 }

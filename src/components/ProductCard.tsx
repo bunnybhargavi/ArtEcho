@@ -19,6 +19,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useUser } from '@/lib/auth-store';
 import { placeSingleItemOrderAction } from '@/app/actions';
+import PaymentDialog from './PaymentDialog';
 
 interface ProductCardProps {
   product: Product;
@@ -41,6 +42,7 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
   const { toast } = useToast();
   const router = useRouter();
   const [isBuying, setIsBuying] = useState(false);
+  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
   const { user } = useUser();
 
   const discountPercent = product.originalPrice ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : 0;
@@ -75,7 +77,7 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
     }
   };
   
-  const handleBuyNow = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleBuyNow = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     if (!user) {
       toast({
@@ -86,9 +88,13 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
       router.push('/login');
       return;
     }
+    setIsPaymentDialogOpen(true);
+  };
 
+  const confirmOrder = async () => {
     if (mainImage && product) {
       setIsBuying(true);
+      setIsPaymentDialogOpen(false);
       const item: CartItem = {
         productId: product.id,
         name: product.name,
@@ -121,95 +127,103 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
   };
 
   return (
-    <Card
-      className={`overflow-hidden h-full flex flex-col group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer ${className}`}
-      onClick={handleCardClick}
-    >
-      <CardHeader className="p-0">
-        <div className="relative aspect-square product-image-container">
-          {product.badge && (
-            <Badge className={`absolute top-2 left-2 z-10 border-none ${badgeColorClasses[product.badge] || 'bg-gray-100 text-gray-800'}`}>
-              {product.badge}
-            </Badge>
-          )}
-
-          {discountPercent > 0 && (
-            <Badge variant="destructive" className="absolute top-2 right-2 z-10">
-              {discountPercent}% OFF
-            </Badge>
-          )}
-
-          {mainImage ? (
-            <Image
-              src={mainImage.imageUrl}
-              alt={artisan ? `Photo of ${product.name}, a piece of ${artisan.craft} by ${artisan.name}` : `Photo of ${product.name}`}
-              fill
-              className={`object-cover transition-opacity duration-300 ${hoverImage ? 'group-hover:opacity-0' : ''}`}
-              data-ai-hint={mainImage.imageHint}
-            />
-          ) : (
-            <div className="w-full h-full bg-muted flex items-center justify-center">
-              <span className="text-muted-foreground text-sm">No Image</span>
-            </div>
-          )}
-
-          {hoverImage && (
-            <Image
-              src={hoverImage.imageUrl}
-              alt={`Alternate view of ${product.name}`}
-              fill
-              className="object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-              data-ai-hint={hoverImage.imageHint}
-            />
-          )}
-           <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="flex justify-evenly">
-                    <Button variant="secondary" size="sm" onClick={handleAddToCart} disabled={isBuying}>
-                        <ShoppingCart className="mr-2 h-4 w-4" />
-                        Add to Cart
-                    </Button>
-                     <Button size="sm" onClick={handleBuyNow} disabled={isBuying}>
-                        {isBuying ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Buy Now'}
-                    </Button>
-                </div>
-            </div>
-        </div>
-      </CardHeader>
-      <CardContent className="p-4 flex-grow flex flex-col">
-        <h3 className="font-headline text-lg font-semibold leading-tight">
-          {product.name}
-        </h3>
-        {artisan && (
-          <p className="text-sm text-muted-foreground mt-1">
-            by {artisan.name}
-          </p>
-        )}
-        
-        <div className="flex items-center gap-1 mt-2">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Star
-              key={i}
-              className={`w-4 h-4 ${
-                i < Math.floor(product.rating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'
-              }`}
-            />
-          ))}
-          <span className="text-xs text-muted-foreground ml-1">({product.reviews})</span>
-        </div>
-
-      </CardContent>
-      <CardFooter className="p-4 pt-0">
-         <div className="flex items-baseline gap-2">
-           <Badge variant="secondary" className="font-mono text-sm">
-              Rs.{product.price}
-            </Badge>
-            {product.originalPrice && (
-                <span className="text-sm text-muted-foreground line-through">
-                    Rs.{product.originalPrice}
-                </span>
+    <>
+      <Card
+        className={`overflow-hidden h-full flex flex-col group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer ${className}`}
+        onClick={handleCardClick}
+      >
+        <CardHeader className="p-0">
+          <div className="relative aspect-square product-image-container">
+            {product.badge && (
+              <Badge className={`absolute top-2 left-2 z-10 border-none ${badgeColorClasses[product.badge] || 'bg-gray-100 text-gray-800'}`}>
+                {product.badge}
+              </Badge>
             )}
-        </div>
-      </CardFooter>
-    </Card>
+
+            {discountPercent > 0 && (
+              <Badge variant="destructive" className="absolute top-2 right-2 z-10">
+                {discountPercent}% OFF
+              </Badge>
+            )}
+
+            {mainImage ? (
+              <Image
+                src={mainImage.imageUrl}
+                alt={artisan ? `Photo of ${product.name}, a piece of ${artisan.craft} by ${artisan.name}` : `Photo of ${product.name}`}
+                fill
+                className={`object-cover transition-opacity duration-300 ${hoverImage ? 'group-hover:opacity-0' : ''}`}
+                data-ai-hint={mainImage.imageHint}
+              />
+            ) : (
+              <div className="w-full h-full bg-muted flex items-center justify-center">
+                <span className="text-muted-foreground text-sm">No Image</span>
+              </div>
+            )}
+
+            {hoverImage && (
+              <Image
+                src={hoverImage.imageUrl}
+                alt={`Alternate view of ${product.name}`}
+                fill
+                className="object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                data-ai-hint={hoverImage.imageHint}
+              />
+            )}
+             <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="flex justify-evenly">
+                      <Button variant="secondary" size="sm" onClick={handleAddToCart} disabled={isBuying}>
+                          <ShoppingCart className="mr-2 h-4 w-4" />
+                          Add to Cart
+                      </Button>
+                       <Button size="sm" onClick={handleBuyNow} disabled={isBuying}>
+                          {isBuying ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Buy Now'}
+                      </Button>
+                  </div>
+              </div>
+          </div>
+        </CardHeader>
+        <CardContent className="p-4 flex-grow flex flex-col">
+          <h3 className="font-headline text-lg font-semibold leading-tight">
+            {product.name}
+          </h3>
+          {artisan && (
+            <p className="text-sm text-muted-foreground mt-1">
+              by {artisan.name}
+            </p>
+          )}
+          
+          <div className="flex items-center gap-1 mt-2">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star
+                key={i}
+                className={`w-4 h-4 ${
+                  i < Math.floor(product.rating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'
+                }`}
+              />
+            ))}
+            <span className="text-xs text-muted-foreground ml-1">({product.reviews})</span>
+          </div>
+
+        </CardContent>
+        <CardFooter className="p-4 pt-0">
+           <div className="flex items-baseline gap-2">
+             <Badge variant="secondary" className="font-mono text-sm">
+                Rs.{product.price}
+              </Badge>
+              {product.originalPrice && (
+                  <span className="text-sm text-muted-foreground line-through">
+                      Rs.{product.originalPrice}
+                  </span>
+              )}
+          </div>
+        </CardFooter>
+      </Card>
+      <PaymentDialog
+        isOpen={isPaymentDialogOpen}
+        onClose={() => setIsPaymentDialogOpen(false)}
+        onConfirm={confirmOrder}
+        total={product.price}
+      />
+    </>
   );
 }
