@@ -13,11 +13,12 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Badge } from './ui/badge';
 import { Star, ShoppingCart, Loader2 } from 'lucide-react';
 import { Button } from './ui/button';
-import { useCartStore } from '@/lib/cart-store';
+import { useCartStore, type CartItem } from '@/lib/cart-store';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useUser } from '@/lib/auth-store';
+import { placeSingleItemOrderAction } from '@/app/actions';
 
 interface ProductCardProps {
   product: Product;
@@ -86,17 +87,27 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
       return;
     }
 
-    if (mainImage) {
+    if (mainImage && product) {
       setIsBuying(true);
-      try {
-        const fakeOrderId = `fake-order-${Date.now()}`;
-        toast({
-          title: 'Order Placed!',
-          description: 'Your order has been successfully placed.',
-        });
-        // For mock, just stay on page, or redirect to home
-        router.push('/');
+      const item: CartItem = {
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        imageUrl: mainImage.imageUrl,
+        quantity: 1,
+      };
 
+      try {
+        const result = await placeSingleItemOrderAction(item);
+        if (result.success && result.orderId) {
+          toast({
+            title: 'Order Placed!',
+            description: 'Your order has been successfully placed.',
+          });
+          router.push(`/tracking/${result.orderId}`);
+        } else {
+           throw new Error(result.error || 'Failed to place order.');
+        }
       } catch (error: any) {
         toast({
           variant: 'destructive',

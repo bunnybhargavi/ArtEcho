@@ -16,6 +16,8 @@ import { useCartStore } from '@/lib/cart-store';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/lib/auth-store';
 import { customerReviews } from '@/lib/reviews';
+import { placeSingleItemOrderAction } from '@/app/actions';
+import type { CartItem } from '@/lib/cart-store';
 
 export default function ProductPage() {
   const params = useParams();
@@ -75,17 +77,28 @@ export default function ProductPage() {
       return;
     }
 
-    if (image) {
+    if (image && product) {
       setIsBuying(true);
+      const item: CartItem = {
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        imageUrl: image.imageUrl,
+        quantity: 1,
+      };
+      
       try {
-        const fakeOrderId = `fake-order-${Date.now()}`;
-        toast({
-          title: 'Order Placed!',
-          description: 'Your order has been successfully placed.',
-        });
-        // In a real app, you'd navigate to a tracking page.
-        // For this mock, we can just go to the homepage.
-        router.push('/');
+        const result = await placeSingleItemOrderAction(item);
+
+        if (result.success && result.orderId) {
+          toast({
+            title: 'Order Placed!',
+            description: 'Your order has been successfully placed.',
+          });
+          router.push(`/tracking/${result.orderId}`);
+        } else {
+          throw new Error(result.error || 'Failed to place order.');
+        }
       } catch (error: any) {
         toast({
           variant: 'destructive',

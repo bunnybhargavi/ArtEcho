@@ -38,16 +38,18 @@ export default function CartPage() {
 
     setIsLoading(true);
     try {
-      // Since we have a fake user, we can create a fake order ID.
-      const fakeOrderId = `fake-order-${Date.now()}`;
-      toast({
-        title: 'Order Placed!',
-        description: 'Your order has been successfully placed.',
-      });
-      clearCart();
-      // We'll just redirect to the homepage for now.
-      // In a real app, you'd go to a tracking page.
-      router.push(`/`);
+      const result = await placeOrderAction({ items, total: subtotal });
+      
+      if (result.success && result.orderId) {
+        toast({
+            title: 'Order Placed!',
+            description: 'Your order has been successfully placed.',
+        });
+        clearCart();
+        router.push(`/tracking/${result.orderId}`);
+      } else {
+        throw new Error(result.error || 'Failed to place order.');
+      }
 
     } catch (error: any) {
       toast({

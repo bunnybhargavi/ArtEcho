@@ -9,11 +9,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, Share2, ArrowRight, Loader2 } from 'lucide-react';
-import { useCartStore } from '@/lib/cart-store';
+import { useCartStore, type CartItem } from '@/lib/cart-store';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useUser } from '@/lib/auth-store';
+import { placeSingleItemOrderAction } from '@/app/actions';
 
 interface QuickViewModalProps {
   product: Product;
@@ -65,16 +66,28 @@ export default function QuickViewModal({ product, artisan, isOpen, onClose }: Qu
       return;
     }
     
-    if (image) {
+    if (image && product) {
       setIsBuying(true);
+      const item: CartItem = {
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        imageUrl: image.imageUrl,
+        quantity: 1,
+      };
+
       try {
-        const fakeOrderId = `fake-order-${Date.now()}`;
-        toast({
-            title: 'Order Placed!',
-            description: 'Your order has been successfully placed.',
-        });
-        onClose(); // Close modal before redirecting
-        router.push(`/`);
+        const result = await placeSingleItemOrderAction(item);
+        if (result.success && result.orderId) {
+            toast({
+                title: 'Order Placed!',
+                description: 'Your order has been successfully placed.',
+            });
+            onClose(); // Close modal before redirecting
+            router.push(`/tracking/${result.orderId}`);
+        } else {
+            throw new Error(result.error || 'Failed to place order.');
+        }
       } catch (error: any) {
          toast({
           variant: 'destructive',

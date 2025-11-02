@@ -25,14 +25,14 @@ import { CartItem } from '@/lib/cart-store';
 import { headers } from 'next/headers';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import { useAuthStore } from '@/lib/auth-store';
 
 
 async function getUserIdFromToken(): Promise<string | null> {
-    // This function is temporarily disabled to prevent server crashes.
-    // We will re-implement this securely.
-    const headersList = headers();
-    const userId = headersList.get('x-user-id');
-    return userId || null;
+    // This is a mock function. In a real app, you'd get this from a session.
+    // For now, we will use the state from our mock auth store.
+    const user = useAuthStore.getState().user;
+    return user?.uid || null;
 }
 
 
