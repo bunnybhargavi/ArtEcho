@@ -12,31 +12,16 @@ import { useAuthStore, useUser } from '@/lib/auth-store';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Loader2, Mail } from 'lucide-react';
 
-const mockUsers = [
-    {
-        uid: 'user-1-uid',
-        email: 'elena.rodriguez@example.com',
-        displayName: 'Elena Rodriguez',
-    },
-    {
-        uid: 'user-2-uid',
-        email: 'arjun.patel@example.com',
-        displayName: 'Arjun Patel',
-    },
-    {
-        uid: 'user-3-uid',
-        email: 'ayesha.khan@example.com',
-        displayName: 'Ayesha Khan',
-    }
-];
-
-
 export default function LoginPage() {
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState<string | null>(null);
     const { user, isUserLoading } = useUser();
     const router = useRouter();
-    const { login } = useAuthStore();
+    const { login, mockUsers, initializeAuth } = useAuthStore();
+
+    useEffect(() => {
+        initializeAuth();
+    }, [initializeAuth]);
 
     useEffect(() => {
         // If user is loaded and exists, redirect them.
@@ -65,7 +50,6 @@ export default function LoginPage() {
             </div>
         );
     }
-
 
     return (
         <div className="container mx-auto py-12 px-4 flex items-center justify-center min-h-[calc(100vh-5rem)]">

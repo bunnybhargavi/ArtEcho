@@ -15,6 +15,7 @@ import Link from 'next/link';
 import { useAuthStore, useUser } from '@/lib/auth-store';
 
 const signupSchema = z.object({
+  displayName: z.string().min(2, 'Name must be at least 2 characters.'),
   email: z.string().email('Invalid email address.'),
   password: z.string().min(6, 'Password must be at least 6 characters.'),
 });
@@ -26,7 +27,7 @@ export default function SignupPage() {
     const [isLoading, setIsLoading] = useState(false);
     const { user, isUserLoading } = useUser();
     const router = useRouter();
-    const { login } = useAuthStore();
+    const { login, addUser } = useAuthStore();
 
     useEffect(() => {
         if (!isUserLoading && user) {
@@ -37,6 +38,7 @@ export default function SignupPage() {
     const form = useForm<SignupFormValues>({
         resolver: zodResolver(signupSchema),
         defaultValues: {
+            displayName: '',
             email: '',
             password: '',
         },
@@ -46,12 +48,16 @@ export default function SignupPage() {
         setIsLoading(true);
         // Simulate a network request
         setTimeout(() => {
-            const mockUser = {
+            const newUser = {
                 uid: `fake-user-id-${Date.now()}`,
                 email: values.email,
-                displayName: values.email.split('@')[0],
+                displayName: values.displayName,
             };
-            login(mockUser);
+            
+            // Add user to the persistent list and then log them in
+            addUser(newUser);
+            login(newUser);
+
             toast({ title: "Account Created", description: "Welcome to ArtEcho!" });
             router.push('/');
             setIsLoading(false);
@@ -72,6 +78,19 @@ export default function SignupPage() {
                 <CardContent>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                             <FormField
+                                control={form.control}
+                                name="displayName"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Full Name</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="Your Name" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                             <FormField
                                 control={form.control}
                                 name="email"
