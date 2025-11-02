@@ -1,3 +1,4 @@
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import AIStoryGenerator from "@/components/dashboard/AIStoryGenerator";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -5,19 +6,25 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import OrderHistory from "./my-orders/page";
 
 export default function DashboardPage() {
   return (
     <div className="container mx-auto py-8 md:py-12 px-4">
       <h1 className="font-headline text-3xl md:text-5xl font-bold mb-8">Artisan Dashboard</h1>
       <Tabs defaultValue="story-generator" className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-1 sm:grid-cols-3 h-auto sm:h-10">
+        <TabsList className="grid w-full max-w-lg grid-cols-1 sm:grid-cols-4 h-auto sm:h-10">
           <TabsTrigger value="story-generator">AI Story Generator</TabsTrigger>
+          <TabsTrigger value="my-orders">My Orders</TabsTrigger>
           <TabsTrigger value="products">Manage Products</TabsTrigger>
           <TabsTrigger value="profile">Manage Profile</TabsTrigger>
         </TabsList>
         <TabsContent value="story-generator">
           <AIStoryGenerator />
+        </TabsContent>
+        <TabsContent value="my-orders">
+            <OrderHistory />
         </TabsContent>
         <TabsContent value="products">
           <Card>
