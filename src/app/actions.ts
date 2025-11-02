@@ -13,16 +13,24 @@ import {
   type MatchArtisansToBrandOutput,
 } from '@/ai/flows/match-artisans-to-brand-flow';
 
-import {
-  generateAudioFromText,
-  type GenerateAudioFromTextInput,
-  type GenerateAudioFromTextOutput,
-} from '@/ai/flows/generate-audio-from-text';
+import { generateAudioFromText } from '@/ai/flows/generate-audio-from-text';
 
 import { getFirebaseAdminApp } from '@/firebase/admin';
 import { getFirestore } from 'firebase-admin/firestore';
 import { useAuthStore } from '@/lib/auth-store';
 import type { Artisan, Product } from '@/lib/types';
+import { z } from 'zod';
+
+
+export const GenerateAudioFromTextInputSchema = z.object({
+  text: z.string().min(1).describe('The text to be converted to speech.'),
+});
+export type GenerateAudioFromTextInput = z.infer<typeof GenerateAudioFromTextInputSchema>;
+
+export const GenerateAudioFromTextOutputSchema = z.object({
+  audioDataUri: z.string().describe('A data URI for the audio recording of the provided text.'),
+});
+export type GenerateAudioFromTextOutput = z.infer<typeof GenerateAudioFromTextOutputSchema>;
 
 
 export async function generateArtisanStoryCardAction(

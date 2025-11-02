@@ -4,8 +4,6 @@
  * @fileOverview An AI agent for generating audio from text.
  *
  * - generateAudioFromText - A function that takes text and returns a WAV audio data URI.
- * - GenerateAudioFromTextInput - The input type for the function.
- * - GenerateAudioFromTextOutput - The return type for the function.
  */
 
 import { ai } from '@/ai/genkit';
@@ -13,15 +11,15 @@ import { z } from 'zod';
 import wav from 'wav';
 import { googleAI } from '@genkit-ai/google-genai';
 
-export const GenerateAudioFromTextInputSchema = z.object({
+const GenerateAudioFromTextInputSchema = z.object({
   text: z.string().min(1).describe('The text to be converted to speech.'),
 });
-export type GenerateAudioFromTextInput = z.infer<typeof GenerateAudioFromTextInputSchema>;
+type GenerateAudioFromTextInput = z.infer<typeof GenerateAudioFromTextInputSchema>;
 
-export const GenerateAudioFromTextOutputSchema = z.object({
+const GenerateAudioFromTextOutputSchema = z.object({
   audioDataUri: z.string().describe('A data URI for the audio recording of the provided text.'),
 });
-export type GenerateAudioFromTextOutput = z.infer<typeof GenerateAudioFromTextOutputSchema>;
+type GenerateAudioFromTextOutput = z.infer<typeof GenerateAudioFromTextOutputSchema>;
 
 export async function generateAudioFromText(input: GenerateAudioFromTextInput): Promise<GenerateAudioFromTextOutput> {
   return generateAudioFromTextFlow(input);
