@@ -94,63 +94,47 @@ export async function placeOrderAction(data: {
   items: CartItem[];
   total: number;
 }): Promise<{ success: boolean; orderId?: string; error?: string }> {
+  const userId = await getUserIdFromToken();
+
+  if (!userId) {
+    return { success: false, error: 'User not authenticated.' };
+  }
+
+  const { firestore } = initializeFirebase();
+  const ordersRef = collection(firestore, 'users', userId, 'orders');
+  const cartRef = collection(firestore, 'users', userId, 'cart');
+
+  const newOrder = {
+    userId,
+    items: data.items,
+    total: data.total,
+    status: 'Placed' as const,
+    createdAt: new Date().toISOString(),
+  };
+
   try {
-    const userId = await getUserIdFromToken();
+    const docRef = await addDoc(ordersRef, newOrder);
 
-    if (!userId) {
-      return { success: false, error: 'User not authenticated.' };
-    }
-
-    const { firestore } = initializeFirebase();
-    const ordersRef = collection(firestore, 'users', userId, 'orders');
-
-    const newOrder = {
-      userId,
-      items: data.items,
-      total: data.total,
-      status: 'Placed' as const,
-      createdAt: new Date().toISOString(),
-    };
-
-    const docRef = await addDoc(ordersRef, newOrder)
-      .catch(error => {
-        errorEmitter.emit(
-            'permission-error',
-            new FirestorePermissionError({
-                path: ordersRef.path,
-                operation: 'create',
-                requestResourceData: newOrder,
-            })
-        );
-        // Re-throw to be caught by the outer try/catch
-        throw error;
-      });
-
-    // After creating the order, clear the cart
-    const cartRef = collection(firestore, 'users', userId, 'cart');
     const cartSnapshot = await getDocs(cartRef);
     const batch = writeBatch(firestore);
     cartSnapshot.docs.forEach((cartDoc) => {
       batch.delete(doc(cartRef, cartDoc.id));
     });
     
-    // Add specific error handling for the batch commit
-    await batch.commit().catch(error => {
-        errorEmitter.emit(
-            'permission-error',
-            new FirestorePermissionError({
-                path: cartRef.path, // The path for the batch operation is the collection path
-                operation: 'delete',
-            })
-        );
-        // Re-throw to be caught by the outer try/catch
-        throw error;
-    });
+    await batch.commit();
 
     return { success: true, orderId: docRef.id };
   } catch (error: any) {
-    // The console.error is a fallback for non-permission errors
-    console.error('Error placing order:', error);
+    const operation = error.message.includes("delete") ? 'delete' : 'create';
+    const path = operation === 'delete' ? cartRef.path : ordersRef.path;
+
+    const permissionError = new FirestorePermissionError({
+        path: path,
+        operation: operation,
+        requestResourceData: operation === 'create' ? newOrder : undefined,
+    });
+    errorEmitter.emit('permission-error', permissionError);
+
     return { success: false, error: error.message || 'Failed to place order.' };
   }
 }
