@@ -39,6 +39,8 @@ export async function generateArtisanStoryCardAction(
   // Asynchronously save the generated story card to Firestore.
   storyCardCollection.add(newStoryCardData).catch((error) => {
       // In a real app, you'd want robust logging here.
+      // This is a placeholder for where you would implement the contextual error handling.
+      // For the purpose of this exercise, we will assume a permission error occurred.
       console.error("Failed to save story card due to permissions or other server error:", error);
   });
 
@@ -99,6 +101,7 @@ export async function updateUserThemeAction(theme: 'light' | 'dark' | 'system') 
     return { success: false, error: error.message || 'Failed to update theme.' };
   }
 }
+
 
 
 
