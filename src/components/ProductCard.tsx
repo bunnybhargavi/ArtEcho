@@ -19,9 +19,10 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useUser, placeSingleItemOrderAction } from '@/lib/auth-store';
 import PaymentDialog from './PaymentDialog';
-import { generateArtisanStoryCardAction } from '@/app/actions';
+import { generateAudioAction } from '@/app/actions';
 import { Collapsible, CollapsibleContent } from './ui/collapsible';
 import { Separator } from './ui/separator';
+import { artisanStories } from '@/lib/stories';
 
 interface ProductCardProps {
   product: Product;
@@ -102,19 +103,27 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
       const nextIsOpen = !isStoryOpen;
       setIsStoryOpen(nextIsOpen);
 
-      if (nextIsOpen && !storyResult && artisan && mainImage) {
+      if (nextIsOpen && !storyResult && artisan) {
           setIsStoryLoading(true);
           setStoryError(null);
-          try {
-              const response = await fetch(`/api/proxy-image?url=${encodeURIComponent(mainImage.imageUrl)}`);
-              if (!response.ok) throw new Error('Failed to fetch image for story.');
-              const { dataUri } = await response.json();
+          
+          const staticStory = artisanStories[artisan.id];
 
-              const result = await generateArtisanStoryCardAction({ artisan, product, productPhotoDataUri: dataUri });
-              if (result.success && result.data) {
-                  setStoryResult(result.data);
+          if (!staticStory) {
+            setStoryError("Story not found for this artisan.");
+            setIsStoryLoading(false);
+            return;
+          }
+
+          try {
+              const audioResult = await generateAudioAction({ text: staticStory });
+              if (audioResult.success && audioResult.data) {
+                  setStoryResult({
+                    storyCardDescription: staticStory,
+                    audioDataUri: audioResult.data.audioDataUri
+                  });
               } else {
-                  throw new Error(result.message || "Story generation failed.");
+                  throw new Error(audioResult.message || "Audio generation failed.");
               }
           } catch (error: any) {
               setStoryError(error.message);
@@ -242,7 +251,7 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
              {artisan && (
                 <div className="mt-4">
                   <Button variant="outline" size="sm" onClick={handleToggleStory} className="w-full">
-                    {isStoryOpen ? 'Hide Story' : 'Show AI Story'}
+                    {isStoryOpen ? 'Hide Story' : 'Show Story'}
                   </Button>
                 </div>
             )}
@@ -255,7 +264,7 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
                  {isStoryLoading && (
                     <div className="flex items-center justify-center text-muted-foreground space-x-2">
                         <Loader2 className="h-5 w-5 animate-spin" />
-                        <span>Generating story...</span>
+                        <span>Generating audio...</span>
                     </div>
                  )}
                  {storyError && (

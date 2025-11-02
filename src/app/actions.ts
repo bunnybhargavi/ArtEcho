@@ -13,6 +13,12 @@ import {
   type MatchArtisansToBrandOutput,
 } from '@/ai/flows/match-artisans-to-brand-flow';
 
+import {
+  generateAudioFromText,
+  type GenerateAudioFromTextInput,
+  type GenerateAudioFromTextOutput,
+} from '@/ai/flows/generate-audio-from-text';
+
 import { getFirebaseAdminApp } from '@/firebase/admin';
 import { getFirestore } from 'firebase-admin/firestore';
 import { useAuthStore } from '@/lib/auth-store';
@@ -74,6 +80,21 @@ export async function generateArtisanStoryCardAction(
     const response = { success: false, message: error.message || 'Failed to generate story card due to an unexpected server error.' };
     console.log('Returning response:', response);
     return response;
+  }
+}
+
+export async function generateAudioAction(
+  input: GenerateAudioFromTextInput
+): Promise<{ success: boolean; data?: GenerateAudioFromTextOutput; message?: string }> {
+  try {
+    if (!input.text) {
+      return { success: false, message: 'Input text is required to generate audio.' };
+    }
+    const data = await generateAudioFromText(input);
+    return { success: true, data };
+  } catch (error: any) {
+    console.error('Error generating audio:', error);
+    return { success: false, message: error.message || 'Failed to generate audio.' };
   }
 }
 
