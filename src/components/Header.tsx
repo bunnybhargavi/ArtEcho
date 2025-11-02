@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Menu, User, Search, ShoppingCart, LogOut } from 'lucide-react';
+import { Menu, User, Search, ShoppingCart, LogOut, Package } from 'lucide-react';
 import { Button } from './ui/button';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -115,6 +115,9 @@ const Header = () => {
                              <DropdownMenuItem onClick={() => router.push('/dashboard')}>
                                 Dashboard
                             </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => router.push('/dashboard/my-orders')}>
+                                My Orders
+                            </DropdownMenuItem>
                              <DropdownMenuItem>
                                 Settings
                             </DropdownMenuItem>
@@ -135,6 +138,15 @@ const Header = () => {
                 )
             )}
             
+            {isClient && user && (
+                <Button asChild variant="ghost" size="icon" className="relative hidden sm:inline-flex">
+                    <Link href="/dashboard/my-orders">
+                        <Package />
+                        <span className="sr-only">My Orders</span>
+                    </Link>
+                </Button>
+            )}
+
             {isClient && <Button asChild variant="ghost" size="icon" className="relative hidden sm:inline-flex">
               <Link href="/cart">
                 <ShoppingCart />
