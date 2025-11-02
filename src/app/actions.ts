@@ -134,10 +134,36 @@ export async function placeOrderAction(data: {
 
 
 export async function placeSingleItemOrderAction(item: CartItem): Promise<{ success: boolean; orderId?: string; error?: string }> {
-  // The user check is handled on the client before this action is called.
-  // This function now only handles the mock order creation.
-  const fakeOrderId = `fake-order-${Date.now()}`;
-  return { success: true, orderId: fakeOrderId };
+  const user = useAuthStore.getState().user;
+
+  if (!user) {
+    return { success: false, error: 'User not authenticated.' };
+  }
+  const userId = user.uid;
+  const { firestore } = initializeFirebase();
+  const ordersRef = collection(firestore, 'users', userId, 'orders');
+
+  const newOrder = {
+    userId,
+    items: [item],
+    total: item.price * item.quantity,
+    status: 'Placed' as const,
+    createdAt: new Date().toISOString(),
+  };
+
+  try {
+    const docRef = await addDoc(ordersRef, newOrder);
+    return { success: true, orderId: docRef.id };
+  } catch (error: any) {
+    const permissionError = new FirestorePermissionError({
+        path: ordersRef.path,
+        operation: 'create',
+        requestResourceData: newOrder,
+    });
+    errorEmitter.emit('permission-error', permissionError);
+
+    return { success: false, error: error.message || 'Failed to place order.' };
+  }
 }
 
 export async function updateUserThemeAction(theme: 'light' | 'dark' | 'system') {
