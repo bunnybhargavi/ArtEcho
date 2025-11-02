@@ -2,13 +2,13 @@
 'use client';
 
 import { useParams, notFound, useRouter } from 'next/navigation';
-import type { Order, TrackingEvent } from '@/lib/types';
+import type { Order } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, ArrowLeft, Home, Package } from 'lucide-react';
 import Image from 'next/image';
 import { useUser, useFirebase } from '@/firebase';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import TrackingProgressBar from '@/components/TrackingProgressBar';
@@ -31,7 +31,15 @@ export default function TrackingPage() {
     [user, firestore, orderId]
   );
 
-  const { data: order, isLoading: isOrderLoading, error } = useDoc<Order>(orderDocRef);
+  const { data: order, isLoading: isOrderLoading } = useDoc<Order>(orderDocRef);
+  
+  useEffect(() => {
+    // Redirect if user is not logged in after loading has completed
+    if (!isUserLoading && !user) {
+      router.push('/login');
+    }
+  }, [isUserLoading, user, router]);
+
 
   if (isOrderLoading || isUserLoading) {
     return (
@@ -45,14 +53,19 @@ export default function TrackingPage() {
   }
 
   if (!user) {
-    // This should ideally not be hit if routing is protected, but as a fallback:
-    router.push('/login');
+    // Return null while redirecting
     return null;
   }
   
   if (!order) {
     // This can mean the order doesn't exist or there was an error (which `useDoc` would also capture)
-    return notFound();
+    // notFound() should be called here if the order is genuinely not found after loading.
+    // We can also show a "not found" state.
+     if (!isOrderLoading) {
+      return notFound();
+    }
+    // if still loading, we already returned the loader, but as a fallback:
+    return null;
   }
 
   return (
@@ -117,30 +130,31 @@ export default function TrackingPage() {
 
 
           {/* Tracking Details Accordion */}
-          <Accordion type="single" collapsible>
-            <AccordionItem value="item-1">
-              <AccordionTrigger className="text-xl font-semibold">
-                Tracking Details
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="space-y-4 pt-4">
-                  {order.statusHistory?.map((event, index) => (
-                    <div key={index} className="grid grid-cols-[1fr_2fr] sm:grid-cols-[1fr_1fr_2fr] gap-4 text-sm">
-                      <div className="font-medium">
-                        {new Date(event.timestamp).toLocaleString('en-US', { 
-                            weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true 
-                        })}
-                        <br/>
-                        <span className="text-muted-foreground">{event.location}</span>
+          {order.statusHistory && order.statusHistory.length > 0 && (
+            <Accordion type="single" collapsible>
+              <AccordionItem value="item-1">
+                <AccordionTrigger className="text-xl font-semibold">
+                  Tracking Details
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-4 pt-4">
+                    {order.statusHistory?.map((event, index) => (
+                      <div key={index} className="grid grid-cols-[1fr_2fr] sm:grid-cols-[1fr_1fr_2fr] gap-4 text-sm">
+                        <div className="font-medium">
+                          {new Date(event.timestamp).toLocaleString('en-US', { 
+                              weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true 
+                          })}
+                          <br/>
+                          <span className="text-muted-foreground">{event.location}</span>
+                        </div>
+                        <div className="sm:col-start-3">{event.status}</div>
                       </div>
-                      <div className="sm:col-start-3">{event.status}</div>
-                    </div>
-                  ))}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          )}
         </CardContent>
         <CardFooter className="flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground">Questions about your order? <Link href="/contact" className="text-primary hover:underline">Contact us</Link>.</p>
