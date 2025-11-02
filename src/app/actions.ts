@@ -20,7 +20,7 @@ import { artisans, products } from '@/lib/data';
 
 
 export async function generateArtisanStoryCardAction(
-  input: { artisanId: string; productId: string, productPhotoDataUri: string }
+  input: GenerateArtisanStoryCardInput
 ): Promise<{ success: boolean; data?: GenerateArtisanStoryCardOutput; message?: string }> {
   try {
     // 1. Input Validation
@@ -29,10 +29,10 @@ export async function generateArtisanStoryCardAction(
       console.error('Validation Error:', errorMsg);
       return { success: false, message: errorMsg };
     }
-    
+
     const artisan = artisans.find(a => a.id === input.artisanId);
     const product = products.find(p => p.id === input.productId);
-  
+
     if (!artisan || !product) {
       const errorMsg = `Data Error: Could not find artisan with ID '${input.artisanId}' or product with ID '${input.productId}'.`;
       console.error(errorMsg);
@@ -42,21 +42,9 @@ export async function generateArtisanStoryCardAction(
     const adminApp = getFirebaseAdminApp();
     const firestore = getFirestore(adminApp);
     const storyCardCollection = firestore.collection('storyCards');
-
-    const flowInput: GenerateArtisanStoryCardInput = {
-        artisanId: input.artisanId,
-        productId: input.productId,
-        artisanName: artisan.name,
-        craft: artisan.craft,
-        location: artisan.location,
-        artisanStory: artisan.story,
-        productName: product.name,
-        productDescription: product.description,
-        productPhotoDataUri: input.productPhotoDataUri
-    };
   
     // 2. Graceful AI Call
-    const result = await generateArtisanStoryCard(flowInput);
+    const result = await generateArtisanStoryCard(input);
 
     if (!result || !result.storyCardDescription) {
         throw new Error('AI failed to generate a story description.');
@@ -64,8 +52,8 @@ export async function generateArtisanStoryCardAction(
   
     // 3. Firestore Write with feedback
     const newStoryCardData = {
-      productId: flowInput.productId,
-      artisanId: flowInput.artisanId,
+      productId: input.productId,
+      artisanId: input.artisanId,
       description: result.storyCardDescription,
       audioUrl: result.audioDataUri,
       createdAt: new Date().toISOString(),

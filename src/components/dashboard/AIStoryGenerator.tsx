@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -6,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { generateArtisanStoryCardAction } from '@/app/actions';
 import { artisans, products } from '@/lib/data';
+import Image from 'next/image';
 
 import {
   Card,
@@ -26,8 +28,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Sparkles, Volume2 } from 'lucide-react';
-import type { GenerateArtisanStoryCardOutput } from '@/ai/flows/generate-artisan-story-card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Loader2, Sparkles, Volume2, AlertTriangle, VenetianMask } from 'lucide-react';
+import type { GenerateArtisanStoryCardOutput, GenerateArtisanStoryCardInput } from '@/ai/flows/generate-artisan-story-card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 const formSchema = z.object({
@@ -38,10 +41,18 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
+interface GenerationResult {
+    success: boolean;
+    data?: GenerateArtisanStoryCardOutput;
+    message?: string;
+}
+
 export default function AIStoryGenerator() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<GenerateArtisanStoryCardOutput | null>(null);
+  const [result, setResult] = useState<GenerationResult | null>(null);
+  const [previewData, setPreviewData] = useState<{artisanName: string, craft: string, photoUrl: string} | null>(null);
+
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -54,6 +65,7 @@ export default function AIStoryGenerator() {
   const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
     setResult(null);
+    setPreviewData(null);
 
     const artisan = artisans.find(a => a.id === values.artisanId);
     const product = products.find(p => p.id === values.productId);
@@ -69,22 +81,47 @@ export default function AIStoryGenerator() {
 
     reader.onloadend = async () => {
       const productPhotoDataUri = reader.result as string;
+
+      setPreviewData({
+        artisanName: artisan.name,
+        craft: artisan.craft,
+        photoUrl: productPhotoDataUri,
+      });
+
+      const flowInput: GenerateArtisanStoryCardInput = {
+        artisanId: artisan.id,
+        productId: product.id,
+        artisanName: artisan.name,
+        craft: artisan.craft,
+        location: artisan.location,
+        artisanStory: artisan.story,
+        productName: product.name,
+        productDescription: product.description,
+        productPhotoDataUri: productPhotoDataUri,
+      };
+
       try {
-        const response = await generateArtisanStoryCardAction({
-          artisan,
-          product,
-          productPhotoDataUri,
-        });
+        const response = await generateArtisanStoryCardAction(flowInput);
         setResult(response);
-        toast({
-          title: "Story Card Generated!",
-          description: "Your new story card has been created.",
-        });
-      } catch (error) {
+        if (response.success) {
+            toast({
+              title: "Story Card Generated!",
+              description: "Your new story card has been created.",
+            });
+        } else {
+             toast({
+                variant: 'destructive',
+                title: 'Error Generating Story',
+                description: response.message || 'An unknown error occurred.',
+             });
+        }
+      } catch (error: any) {
+        const errorMessage = error.message || 'There was a problem generating the story card. Please try again.';
+        setResult({ success: false, message: errorMessage });
         toast({
           variant: 'destructive',
           title: 'Error Generating Story',
-          description: 'There was a problem generating the story card. Please try again.',
+          description: errorMessage,
         });
         console.error(error);
       } finally {
@@ -207,27 +244,48 @@ export default function AIStoryGenerator() {
               <p>Your result will be displayed here.</p>
             </div>
           )}
-          {result && (
-            <div className="space-y-6 w-full">
-              <div>
-                <h3 className="font-headline text-xl font-semibold mb-2">Story Description</h3>
-                <p className="text-foreground/80 leading-relaxed italic">
-                  "{result.storyCardDescription}"
-                </p>
-              </div>
-              <div>
-                <h3 className="font-headline text-xl font-semibold mb-2 flex items-center gap-2">
-                  <Volume2 className="w-5 h-5"/>
-                  Audio Story
-                </h3>
-                {result.audioDataUri ? (
-                  <audio controls src={result.audioDataUri} className="w-full">
-                    Your browser does not support the audio element.
-                  </audio>
-                ) : (
-                  <p className="text-muted-foreground">Audio could not be generated.</p>
-                )}
-              </div>
+          
+          {result && !result.success && (
+             <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Generation Failed</AlertTitle>
+                <AlertDescription>
+                    {result.message || "An unknown error occurred. Please try again."}
+                </AlertDescription>
+            </Alert>
+          )}
+
+          {result && result.success && result.data && previewData && (
+            <div className="w-full space-y-4 rounded-lg border p-4">
+                <div className="relative aspect-video w-full overflow-hidden rounded-md">
+                     <Image src={previewData.photoUrl} alt="Product preview" fill className="object-cover" />
+                </div>
+                <div>
+                    <h3 className="font-headline text-xl font-semibold">{previewData.artisanName}</h3>
+                    <p className="text-sm text-muted-foreground flex items-center gap-2">
+                        <VenetianMask className="h-4 w-4"/>
+                        {previewData.craft}
+                    </p>
+                </div>
+                <div>
+                    <h4 className="font-semibold text-sm">Generated Story:</h4>
+                    <p className="text-foreground/80 leading-relaxed italic text-sm">
+                        "{result.data.storyCardDescription}"
+                    </p>
+                </div>
+                <div>
+                    <h4 className="font-semibold mb-2 flex items-center gap-2 text-sm">
+                        <Volume2 className="w-4 h-4"/>
+                        Audio Story
+                    </h4>
+                    {result.data.audioDataUri ? (
+                        <audio controls src={result.data.audioDataUri} className="w-full h-10">
+                            Your browser does not support the audio element.
+                        </audio>
+                    ) : (
+                        <p className="text-muted-foreground text-sm">Audio could not be generated.</p>
+                    )}
+                </div>
             </div>
           )}
         </CardContent>
