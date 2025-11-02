@@ -84,13 +84,13 @@ export default function AIStoryGenerator() {
         setResult(response);
         toast({
           title: "Story Card Generated!",
-          description: "Your new story card has been saved.",
+          description: "Your new story card has been created.",
         });
       } catch (error) {
         toast({
           variant: 'destructive',
           title: 'Error Generating Story',
-          description: 'There was a problem generating or saving the story card. Please check for permission errors.',
+          description: 'There was a problem generating the story card. Please try again.',
         });
         console.error(error);
       } finally {
@@ -187,7 +187,7 @@ export default function AIStoryGenerator() {
                 ) : (
                   <Sparkles className="mr-2 h-4 w-4" />
                 )}
-                Generate & Save Story
+                Generate Story
               </Button>
             </CardFooter>
           </form>
