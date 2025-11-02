@@ -67,7 +67,6 @@ const generateArtisanStoryCardFlow = ai.defineFlow(
 
     // Generate audio from the story card description
     const ttsResponse = await ai.generate({
-      model: 'googleai/gemini-2.5-flash-preview-tts',
       config: {
         responseModalities: ['AUDIO'],
         speechConfig: {
