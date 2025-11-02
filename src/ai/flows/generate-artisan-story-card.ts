@@ -41,7 +41,15 @@ export async function generateArtisanStoryCard(input: GenerateArtisanStoryCardIn
 
 const storyCardPrompt = ai.definePrompt({
   name: 'storyCardPrompt',
-  input: {schema: GenerateArtisanStoryCardInputSchema},
+  input: {schema: z.object({
+    artisanName: z.string(),
+    craft: z.string(),
+    location: z.string(),
+    artisanStory: z.string(),
+    productName: z.string(),
+    productDescription: z.string(),
+    productPhotoDataUri: z.string(),
+  })},
   output: {schema: z.object({ storyCardDescription: z.string() })},
   prompt: `You are a marketing expert specializing in creating engaging story cards for artisans. Your goal is to craft a compelling narrative that connects the artisan's personal story with their product, highlighting the craft, location, and unique qualities of both.
 
@@ -65,10 +73,15 @@ const generateArtisanStoryCardFlow = ai.defineFlow(
     outputSchema: GenerateArtisanStoryCardOutputSchema,
   },
   async input => {
-    const {output} = await storyCardPrompt(input);
-    const storyCardDescription = output?.storyCardDescription ?? 'No description available.';
+    // Step 1: Generate the story description text.
+    const textGenerationResult = await storyCardPrompt(input);
+    const storyCardDescription = textGenerationResult.output?.storyCardDescription;
 
-    // Generate audio from the story card description
+    if (!storyCardDescription) {
+        throw new Error("Failed to generate a story description. The AI model returned an empty response.");
+    }
+    
+    // Step 2: Generate audio from the generated description.
     const ttsResponse = await ai.generate({
       model: 'googleai/gemini-2.5-flash-preview-tts',
       config: {
@@ -82,14 +95,16 @@ const generateArtisanStoryCardFlow = ai.defineFlow(
       prompt: storyCardDescription
     });
 
-    let audioDataUri = '';
-    if (ttsResponse.media) {
-      const audioBuffer = Buffer.from(
-        ttsResponse.media.url.substring(ttsResponse.media.url.indexOf(',') + 1),
-        'base64'
-      );
-      audioDataUri = 'data:audio/wav;base64,' + (await toWav(audioBuffer));
+    if (!ttsResponse.media?.url) {
+        throw new Error("Failed to generate audio. The text-to-speech model did not return audio data.");
     }
+    
+    // Step 3: Convert the raw PCM audio data to a WAV data URI.
+    const audioBuffer = Buffer.from(
+      ttsResponse.media.url.substring(ttsResponse.media.url.indexOf(',') + 1),
+      'base64'
+    );
+    const audioDataUri = 'data:audio/wav;base64,' + (await toWav(audioBuffer));
 
     return {
       storyCardDescription: storyCardDescription,
