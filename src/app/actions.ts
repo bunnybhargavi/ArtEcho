@@ -22,27 +22,23 @@ import { artisans, products } from '@/lib/data';
 export async function generateArtisanStoryCardAction(
   input: { artisanId: string; productId: string, productPhotoDataUri: string }
 ): Promise<{ success: boolean; data?: GenerateArtisanStoryCardOutput; message?: string }> {
-  // 1. Input Validation
-  if (!input.artisanId || !input.productId || !input.productPhotoDataUri) {
-    const errorMsg = 'Invalid input. Please provide all required fields.';
-    console.error('Validation Error:', errorMsg);
-    const response = { success: false, message: errorMsg };
-    console.log('Returning response:', response);
-    return response;
-  }
-  
-  const artisan = artisans.find(a => a.id === input.artisanId);
-  const product = products.find(p => p.id === input.productId);
-
-  if (!artisan || !product) {
-    const errorMsg = `Data Error: Could not find artisan with ID '${input.artisanId}' or product with ID '${input.productId}'.`;
-    console.error(errorMsg);
-    const response = { success: false, message: 'Artisan or product data could not be found.' };
-    console.log('Returning response:', response);
-    return response;
-  }
-
   try {
+    // 1. Input Validation
+    if (!input.artisanId || !input.productId || !input.productPhotoDataUri) {
+      const errorMsg = 'Invalid input. Please provide all required fields.';
+      console.error('Validation Error:', errorMsg);
+      return { success: false, message: errorMsg };
+    }
+    
+    const artisan = artisans.find(a => a.id === input.artisanId);
+    const product = products.find(p => p.id === input.productId);
+  
+    if (!artisan || !product) {
+      const errorMsg = `Data Error: Could not find artisan with ID '${input.artisanId}' or product with ID '${input.productId}'.`;
+      console.error(errorMsg);
+      return { success: false, message: 'Artisan or product data could not be found.' };
+    }
+  
     const adminApp = getFirebaseAdminApp();
     const firestore = getFirestore(adminApp);
     const storyCardCollection = firestore.collection('storyCards');
@@ -82,9 +78,8 @@ export async function generateArtisanStoryCardAction(
         // In a production app, you might add this to a retry queue or monitoring system.
     });
     
-    const response = { success: true, data: result };
-    console.log('Returning response:', response);
-    return response;
+    console.log("Generated story card:", result);
+    return { success: true, data: result };
 
   } catch (error: any) {
     // 4. Centralized Error Handling & Logging
