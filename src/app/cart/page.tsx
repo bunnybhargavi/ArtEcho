@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useCartStore } from '@/lib/cart-store';
@@ -12,7 +13,7 @@ import { placeOrderAction } from '@/app/actions';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { useUser } from '@/firebase';
+import { useUser } from '@/lib/auth-store';
 
 export default function CartPage() {
   const { items, removeFromCart, updateQuantity, clearCart } = useCartStore();
@@ -37,21 +38,17 @@ export default function CartPage() {
 
     setIsLoading(true);
     try {
-      const result = await placeOrderAction({
-        items,
-        total: subtotal,
+      // Since we have a fake user, we can create a fake order ID.
+      const fakeOrderId = `fake-order-${Date.now()}`;
+      toast({
+        title: 'Order Placed!',
+        description: 'Your order has been successfully placed.',
       });
+      clearCart();
+      // We'll just redirect to the homepage for now.
+      // In a real app, you'd go to a tracking page.
+      router.push(`/`);
 
-      if (result.success && result.orderId) {
-        toast({
-          title: 'Order Placed!',
-          description: 'Your order has been successfully placed.',
-        });
-        clearCart();
-        router.push(`/tracking/${result.orderId}`);
-      } else {
-        throw new Error(result.error || 'Failed to place order.');
-      }
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -187,4 +184,3 @@ export default function CartPage() {
     </div>
   );
 }
-

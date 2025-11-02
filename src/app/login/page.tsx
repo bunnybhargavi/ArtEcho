@@ -11,10 +11,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth, useUser } from '@/firebase';
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuthStore, useUser } from '@/lib/auth-store';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address.'),
@@ -23,7 +22,7 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-const GoogleIcon = (props) => (
+const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" {...props}>
       <title>Google</title>
       <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.85 3.18-1.73 4.1-1.05 1.05-2.36 1.67-4.66 1.67-3.86 0-6.99-3.14-6.99-7s3.13-7 6.99-7c2.08 0 3.61 1.09 4.49 2.02l-2.72 2.72c-.76-.75-1.73-1.17-2.91-1.17-2.52 0-4.6 2.08-4.6 4.62s2.08 4.62 4.6 4.62c2.86 0 3.97-2.16 4.13-3.28h-4.13z"/>
@@ -34,9 +33,9 @@ const GoogleIcon = (props) => (
 export default function LoginPage() {
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState<null | 'email' | 'google'>(null);
-    const auth = useAuth();
     const { user, isUserLoading } = useUser();
     const router = useRouter();
+    const { login } = useAuthStore();
 
     useEffect(() => {
         // If user is loaded and exists, redirect them.
@@ -56,45 +55,34 @@ export default function LoginPage() {
 
     const onEmailSubmit = async (values: LoginFormValues) => {
         setIsLoading('email');
-        if (!auth) {
-            toast({ variant: "destructive", title: "Login Failed", description: "Authentication service is not available." });
+        // Simulate a network request
+        setTimeout(() => {
+            const mockUser = {
+                uid: 'fake-user-id-123',
+                email: values.email,
+                displayName: values.email.split('@')[0],
+            };
+            login(mockUser);
+            toast({ title: "Login Successful", description: "Welcome back!" });
+            router.push('/');
             setIsLoading(null);
-            return;
-        }
-        // Non-blocking call
-        signInWithEmailAndPassword(auth, values.email, values.password)
-            .then(() => {
-                toast({ title: "Login Initiated", description: "You will be redirected shortly." });
-                // No navigation here, onAuthStateChanged will handle it
-            })
-            .catch((error) => {
-                toast({ variant: "destructive", title: "Login Failed", description: error.message });
-            })
-            .finally(() => {
-                setIsLoading(null);
-            });
+        }, 1000);
     };
 
     const handleGoogleSignIn = async () => {
         setIsLoading('google');
-        if (!auth) {
-            toast({ variant: "destructive", title: "Login Failed", description: "Authentication service is not available." });
+        // Simulate a network request
+        setTimeout(() => {
+            const mockUser = {
+                uid: 'fake-google-id-456',
+                email: 'user@google.com',
+                displayName: 'Google User',
+            };
+            login(mockUser);
+            toast({ title: "Google Sign-In Successful", description: "Welcome!" });
+            router.push('/');
             setIsLoading(null);
-            return;
-        }
-        const provider = new GoogleAuthProvider();
-        // Non-blocking call
-        signInWithPopup(auth, provider)
-            .then(() => {
-                toast({ title: "Google Sign-In Initiated", description: "You will be redirected shortly." });
-                 // No navigation here, onAuthStateChanged will handle it
-            })
-            .catch((error) => {
-                toast({ variant: "destructive", title: "Google Sign-In Failed", description: error.message });
-            })
-            .finally(() => {
-                setIsLoading(null);
-            });
+        }, 1000);
     };
 
     // Prevent rendering the form if we are still checking the user state or if user is already logged in

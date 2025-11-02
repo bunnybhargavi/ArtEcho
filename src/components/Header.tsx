@@ -10,8 +10,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input } from './ui/input';
 import { useCartStore } from '@/lib/cart-store';
-import { useUser, useAuth } from '@/firebase';
-import { signOut } from 'firebase/auth';
+import { useUser } from '@/lib/auth-store';
+import { useAuthStore } from '@/lib/auth-store';
 import { useToast } from '@/hooks/use-toast';
 import { ThemeToggle } from './ThemeToggle';
 
@@ -31,7 +31,7 @@ const Header = () => {
     const router = useRouter();
     const { items, initializeCart } = useCartStore();
     const { user, isUserLoading } = useUser();
-    const auth = useAuth();
+    const { logout } = useAuthStore();
     const { toast } = useToast();
 
     useEffect(() => {
@@ -49,11 +49,9 @@ const Header = () => {
     };
     
     const handleLogout = () => {
-        if (!auth) return;
-        signOut(auth).then(() => {
-            toast({ title: 'Logged Out', description: 'You have been successfully logged out.' });
-            router.push('/');
-        });
+        logout();
+        toast({ title: 'Logged Out', description: 'You have been successfully logged out.' });
+        router.push('/');
     };
 
     const cartCount = items.reduce((total, item) => total + item.quantity, 0);

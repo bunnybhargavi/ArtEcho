@@ -1,15 +1,16 @@
+
 'use client';
 
 import { useParams, notFound, useRouter } from 'next/navigation';
-import { useDoc, useMemoFirebase } from '@/firebase';
 import type { Order } from '@/lib/types';
-import { doc } from 'firebase/firestore';
-import { useFirebase } from '@/firebase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Loader2, Package, CheckCircle, Truck, Home, ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
+import { useUser } from '@/lib/auth-store';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+
 
 const statusConfig = {
   Placed: { icon: Package, text: 'Order Placed', color: 'text-blue-500' },
@@ -18,18 +19,49 @@ const statusConfig = {
   Cancelled: { icon: CheckCircle, text: 'Order Cancelled', color: 'text-red-500' },
 };
 
+// This is a fake order generator for the mock system.
+const generateFakeOrder = (orderId: string): Order => {
+    return {
+        id: orderId,
+        userId: 'fake-user-id',
+        items: [
+            {
+                productId: '1',
+                name: 'Terracotta Chai Cup Set',
+                price: 350,
+                imageUrl: 'https://cdn.vibecity.in/providers/63e609ba1095ba0012311f77/064d500a-705c-4aa3-ab67-446ebc5a5c8a_f5962e3a-6cbd-4588-8f94-6cddae2fe48a-3X.png',
+                quantity: 2,
+            }
+        ],
+        total: 700,
+        status: 'Placed',
+        createdAt: new Date().toISOString(),
+    };
+};
+
+
 export default function TrackingPage() {
   const params = useParams();
   const router = useRouter();
   const orderId = params.orderId as string;
-  const { firestore, user, isUserLoading } = useFirebase();
+  const { user, isUserLoading } = useUser();
+  const [order, setOrder] = useState<Order | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const orderRef = useMemoFirebase(() => {
-    if (!firestore || !user || !orderId) return null;
-    return doc(firestore, 'users', user.uid, 'orders', orderId);
-  }, [firestore, user, orderId]);
+  useEffect(() => {
+    if (!isUserLoading) {
+      if (user) {
+        // In a real app, you'd fetch this from Firestore.
+        // Here, we generate a fake order.
+        setOrder(generateFakeOrder(orderId));
+        setIsLoading(false);
+      } else {
+        // If no user, we can't show the order.
+        router.push('/login');
+      }
+    }
+  }, [isUserLoading, user, orderId, router]);
 
-  const { data: order, isLoading, error } = useDoc<Order>(orderRef);
 
   if (isLoading || isUserLoading) {
     return (
@@ -38,14 +70,6 @@ export default function TrackingPage() {
           <Loader2 className="w-12 h-12 animate-spin text-primary" />
           <p className="text-lg font-semibold">Loading your order details...</p>
         </div>
-      </div>
-    );
-  }
-
-  if (error) {
-     return (
-      <div className="container mx-auto py-12 px-4 flex justify-center items-center min-h-[60vh]">
-        <p className="text-destructive">Error loading order: {error.message}</p>
       </div>
     );
   }

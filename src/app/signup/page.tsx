@@ -10,10 +10,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth, useUser } from '@/firebase';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuthStore, useUser } from '@/lib/auth-store';
 
 const signupSchema = z.object({
   email: z.string().email('Invalid email address.'),
@@ -25,9 +24,9 @@ type SignupFormValues = z.infer<typeof signupSchema>;
 export default function SignupPage() {
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
-    const auth = useAuth();
     const { user, isUserLoading } = useUser();
     const router = useRouter();
+    const { login } = useAuthStore();
 
     useEffect(() => {
         if (!isUserLoading && user) {
@@ -45,23 +44,18 @@ export default function SignupPage() {
 
     const onSubmit = async (values: SignupFormValues) => {
         setIsLoading(true);
-        if (!auth) {
-            toast({ variant: "destructive", title: "Sign Up Failed", description: "Authentication service is not available." });
+        // Simulate a network request
+        setTimeout(() => {
+            const mockUser = {
+                uid: `fake-user-id-${Date.now()}`,
+                email: values.email,
+                displayName: values.email.split('@')[0],
+            };
+            login(mockUser);
+            toast({ title: "Account Created", description: "Welcome to ArtEcho!" });
+            router.push('/');
             setIsLoading(false);
-            return;
-        }
-        // Non-blocking call
-        createUserWithEmailAndPassword(auth, values.email, values.password)
-            .then(() => {
-                toast({ title: "Account Creation Initiated", description: "You will be redirected shortly." });
-                // No navigation here, onAuthStateChanged will handle it
-            })
-            .catch((error) => {
-                toast({ variant: "destructive", title: "Sign Up Failed", description: error.message });
-            })
-            .finally(() => {
-                setIsLoading(false);
-            });
+        }, 1000);
     };
     
     if (isUserLoading || user) {

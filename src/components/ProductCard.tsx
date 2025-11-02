@@ -16,9 +16,8 @@ import { Button } from './ui/button';
 import { useCartStore } from '@/lib/cart-store';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { placeSingleItemOrderAction } from '@/app/actions';
 import { useState } from 'react';
-import { useUser } from '@/firebase';
+import { useUser } from '@/lib/auth-store';
 
 interface ProductCardProps {
   product: Product;
@@ -90,23 +89,14 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
     if (mainImage) {
       setIsBuying(true);
       try {
-        const result = await placeSingleItemOrderAction({
-          productId: product.id,
-          name: product.name,
-          price: product.price,
-          imageUrl: mainImage.imageUrl,
-          quantity: 1,
+        const fakeOrderId = `fake-order-${Date.now()}`;
+        toast({
+          title: 'Order Placed!',
+          description: 'Your order has been successfully placed.',
         });
+        // For mock, just stay on page, or redirect to home
+        router.push('/');
 
-        if (result.success && result.orderId) {
-          toast({
-            title: 'Order Placed!',
-            description: 'Your order has been successfully placed.',
-          });
-          router.push(`/tracking/${result.orderId}`);
-        } else {
-          throw new Error(result.error || 'Failed to place order.');
-        }
       } catch (error: any) {
         toast({
           variant: 'destructive',

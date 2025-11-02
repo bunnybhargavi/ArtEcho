@@ -13,8 +13,7 @@ import { useCartStore } from '@/lib/cart-store';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { placeSingleItemOrderAction } from '@/app/actions';
-import { useUser } from '@/firebase';
+import { useUser } from '@/lib/auth-store';
 
 interface QuickViewModalProps {
   product: Product;
@@ -69,24 +68,13 @@ export default function QuickViewModal({ product, artisan, isOpen, onClose }: Qu
     if (image) {
       setIsBuying(true);
       try {
-        const result = await placeSingleItemOrderAction({
-          productId: product.id,
-          name: product.name,
-          price: product.price,
-          imageUrl: image.imageUrl,
-          quantity: 1,
-        });
-
-        if (result.success && result.orderId) {
-          toast({
+        const fakeOrderId = `fake-order-${Date.now()}`;
+        toast({
             title: 'Order Placed!',
             description: 'Your order has been successfully placed.',
-          });
-          onClose(); // Close modal before redirecting
-          router.push(`/tracking/${result.orderId}`);
-        } else {
-          throw new Error(result.error || 'Failed to place order.');
-        }
+        });
+        onClose(); // Close modal before redirecting
+        router.push(`/`);
       } catch (error: any) {
          toast({
           variant: 'destructive',

@@ -1,10 +1,6 @@
 
 import { create } from 'zustand';
-import { doc, getDoc, setDoc, deleteDoc, collection, getDocs, writeBatch } from 'firebase/firestore';
-import { initializeFirebase } from '@/firebase';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
-
+import { useAuthStore } from './auth-store';
 
 export interface CartItem {
   productId: string;
@@ -24,15 +20,11 @@ interface CartState {
   clearCart: () => void;
 }
 
-const getCartRef = (userId: string) => {
-    const { firestore } = initializeFirebase();
-    return collection(firestore, 'users', userId, 'cart');
-};
+const getLocalStorageKey = (userId?: string) => userId ? `cart_${userId}` : 'guestCart';
 
-
-const syncWithLocalStorage = (items: CartItem[]) => {
+const syncWithLocalStorage = (items: CartItem[], userId?: string) => {
   if (typeof window !== 'undefined') {
-    localStorage.setItem('guestCart', JSON.stringify(items));
+    localStorage.setItem(getLocalStorageKey(userId), JSON.stringify(items));
   }
 };
 
@@ -41,77 +33,56 @@ export const useCartStore = create<CartState>((set, get) => ({
   isCartInitialized: false,
 
   initializeCart: () => {
-    const { auth, firestore } = initializeFirebase();
+    if (get().isCartInitialized) return;
+
+    const { user } = useAuthStore.getState();
+    const key = getLocalStorageKey(user?.uid);
+    const cartJson = typeof window !== 'undefined' ? localStorage.getItem(key) : null;
+    const items = cartJson ? JSON.parse(cartJson) : [];
     
-    const user = auth.currentUser;
+    set({ items, isCartInitialized: true });
 
-    const loadCart = async () => {
-      if (user) {
-        const cartRef = getCartRef(user.uid);
-        try {
-          const snapshot = await getDocs(cartRef);
-          const firestoreItems = snapshot.docs.map(doc => doc.data() as CartItem);
-          
-          let finalItems = [...firestoreItems];
+    // This handles merging guest cart to user cart on login.
+    useAuthStore.subscribe((state, prevState) => {
+      const newUser = state.user;
+      const oldUser = prevState.user;
 
-          const guestCartJson = typeof window !== 'undefined' ? localStorage.getItem('guestCart') : null;
-          if (guestCartJson) {
-            const guestItems = JSON.parse(guestCartJson) as CartItem[];
-            if (guestItems.length > 0) {
-              const batch = writeBatch(firestore);
-              
-              guestItems.forEach(guestItem => {
-                const existingItemIndex = finalItems.findIndex(item => item.productId === guestItem.productId);
-                if (existingItemIndex > -1) {
-                  finalItems[existingItemIndex].quantity += guestItem.quantity;
-                  const itemRef = doc(cartRef, finalItems[existingItemIndex].productId);
-                  batch.update(itemRef, { quantity: finalItems[existingItemIndex].quantity });
+      if (newUser && !oldUser) { // User logged in
+        const guestCartJson = localStorage.getItem(getLocalStorageKey());
+        const guestItems = guestCartJson ? JSON.parse(guestCartJson) as CartItem[] : [];
+
+        if (guestItems.length > 0) {
+            const userCartJson = localStorage.getItem(getLocalStorageKey(newUser.uid));
+            const userItems = userCartJson ? JSON.parse(userCartJson) as CartItem[] : [];
+
+            const mergedItems = [...userItems];
+            guestItems.forEach(guestItem => {
+                const existingItem = mergedItems.find(item => item.productId === guestItem.productId);
+                if (existingItem) {
+                    existingItem.quantity += guestItem.quantity;
                 } else {
-                  finalItems.push(guestItem);
-                  const itemRef = doc(cartRef, guestItem.productId);
-                  batch.set(itemRef, guestItem);
+                    mergedItems.push(guestItem);
                 }
-              });
-              
-              await batch.commit().catch(error => {
-                  errorEmitter.emit(
-                      'permission-error',
-                      new FirestorePermissionError({
-                          path: cartRef.path,
-                          operation: 'write',
-                          requestResourceData: guestItems,
-                      })
-                  );
-                  throw error;
-              });
-              localStorage.removeItem('guestCart');
-            }
-          }
-          set({ items: finalItems, isCartInitialized: true });
-        } catch(error: any) {
-             errorEmitter.emit(
-                'permission-error',
-                new FirestorePermissionError({
-                    path: cartRef.path,
-                    operation: 'list',
-                })
-            );
+            });
+            
+            set({ items: mergedItems });
+            syncWithLocalStorage(mergedItems, newUser.uid);
+            localStorage.removeItem(getLocalStorageKey());
+        } else {
+             const userCartJson = localStorage.getItem(getLocalStorageKey(newUser.uid));
+             const userItems = userCartJson ? JSON.parse(userCartJson) : [];
+             set({ items: userItems });
         }
-      } else {
-        const guestCartJson = typeof window !== 'undefined' ? localStorage.getItem('guestCart') : null;
-        const items = guestCartJson ? JSON.parse(guestCartJson) : [];
-        set({ items, isCartInitialized: true });
+      } else if (!newUser && oldUser) { // User logged out
+        set({ items: [] });
+        const guestCartJson = localStorage.getItem(getLocalStorageKey());
+        const guestItems = guestCartJson ? JSON.parse(guestCartJson) : [];
+        set({ items: guestItems });
       }
-    }
-    
-    if (!get().isCartInitialized) {
-        loadCart();
-    }
+    });
   },
 
   addToCart: (itemToAdd) => {
-    const { auth } = initializeFirebase();
-    const user = auth.currentUser;
     const items = get().items;
     const existingItem = items.find(item => item.productId === itemToAdd.productId);
     const quantityToAdd = itemToAdd.quantity || 1;
@@ -127,47 +98,13 @@ export const useCartStore = create<CartState>((set, get) => ({
       newItems = [...items, { ...itemToAdd, quantity: quantityToAdd }];
     }
     set({ items: newItems });
-
-    if (user) {
-      const updatedItem = newItems.find(item => item.productId === itemToAdd.productId)!;
-      const itemDocRef = doc(getCartRef(user.uid), itemToAdd.productId);
-      setDoc(itemDocRef, updatedItem, { merge: true })
-        .catch(error => {
-            errorEmitter.emit(
-                'permission-error',
-                new FirestorePermissionError({
-                    path: itemDocRef.path,
-                    operation: 'write',
-                    requestResourceData: updatedItem,
-                })
-            );
-        });
-    } else {
-      syncWithLocalStorage(newItems);
-    }
+    syncWithLocalStorage(newItems, useAuthStore.getState().user?.uid);
   },
 
   removeFromCart: (productId) => {
-    const { auth } = initializeFirebase();
-    const user = auth.currentUser;
     const newItems = get().items.filter(item => item.productId !== productId);
     set({ items: newItems });
-
-    if (user) {
-      const itemDocRef = doc(getCartRef(user.uid), productId);
-      deleteDoc(itemDocRef)
-        .catch(error => {
-            errorEmitter.emit(
-                'permission-error',
-                new FirestorePermissionError({
-                    path: itemDocRef.path,
-                    operation: 'delete',
-                })
-            );
-        });
-    } else {
-      syncWithLocalStorage(newItems);
-    }
+    syncWithLocalStorage(newItems, useAuthStore.getState().user?.uid);
   },
 
   updateQuantity: (productId, quantity) => {
@@ -176,53 +113,15 @@ export const useCartStore = create<CartState>((set, get) => ({
       return;
     }
     
-    const { auth } = initializeFirebase();
-    const user = auth.currentUser;
     const newItems = get().items.map(item =>
       item.productId === productId ? { ...item, quantity } : item
     );
     set({ items: newItems });
-
-    if (user) {
-        const updatedItem = newItems.find(item => item.productId === productId)!;
-        const itemDocRef = doc(getCartRef(user.uid), productId);
-        setDoc(itemDocRef, updatedItem, { merge: true })
-            .catch(error => {
-                errorEmitter.emit(
-                    'permission-error',
-                    new FirestorePermissionError({
-                        path: itemDocRef.path,
-                        operation: 'update',
-                        requestResourceData: updatedItem,
-                    })
-                )
-            });
-    } else {
-      syncWithLocalStorage(newItems);
-    }
+    syncWithLocalStorage(newItems, useAuthStore.getState().user?.uid);
   },
 
   clearCart: () => {
-    const { auth, firestore } = initializeFirebase();
-    const user = auth.currentUser;
-    if (user) {
-        const cartRef = getCartRef(user.uid);
-        getDocs(cartRef).then(snapshot => {
-            const batch = writeBatch(firestore);
-            snapshot.docs.forEach(doc => batch.delete(doc.ref));
-            return batch.commit();
-        }).catch(error => {
-            errorEmitter.emit(
-                'permission-error',
-                new FirestorePermissionError({
-                    path: cartRef.path,
-                    operation: 'delete',
-                })
-            );
-        });
-    } else {
-      syncWithLocalStorage([]);
-    }
     set({ items: [] });
+    syncWithLocalStorage([], useAuthStore.getState().user?.uid);
   },
 }));
