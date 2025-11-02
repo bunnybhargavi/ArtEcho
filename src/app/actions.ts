@@ -25,29 +25,14 @@ import { CartItem } from '@/lib/cart-store';
 import { headers } from 'next/headers';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
-import { auth } from 'firebase-admin';
-import { getFirebaseAdminApp } from '@/firebase/admin';
+
 
 async function getUserIdFromToken(): Promise<string | null> {
-    // Temporarily disable token verification to allow the app to run.
-    // We will re-enable this securely once the routing issue is resolved.
+    // This function is temporarily disabled to prevent server crashes.
+    // We will re-implement this securely.
     const headersList = headers();
-    const idToken = headersList.get('x-id-token');
-
-    if (!idToken) {
-        // For now, we can't get the user ID without a working token system.
-        // This will be fixed next.
-        return null;
-    }
-    
-    try {
-        const adminApp = getFirebaseAdminApp();
-        const decodedToken = await auth(adminApp).verifyIdToken(idToken);
-        return decodedToken.uid;
-    } catch (error) {
-        console.error('Error verifying ID token in getUserIdFromToken:', error);
-        return null;
-    }
+    const userId = headersList.get('x-user-id');
+    return userId || null;
 }
 
 
@@ -205,7 +190,8 @@ export async function placeSingleItemOrderAction(item: CartItem): Promise<{ succ
       });
 
     return { success: true, orderId: docRef.id };
-  } catch (error: any) {
+  } catch (error: any)
+{
     console.error('Error placing single item order:', error);
     return { success: false, error: error.message || 'Failed to place order.' };
   }

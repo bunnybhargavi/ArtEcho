@@ -3,7 +3,6 @@ import {type NextRequest, NextResponse} from 'next/server';
 
 export async function middleware(request: NextRequest) {
   // Pass all requests through without modification.
-  // This will fix the 404 routing issue.
   return NextResponse.next();
 }
 
