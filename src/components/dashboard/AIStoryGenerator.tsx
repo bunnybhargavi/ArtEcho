@@ -30,7 +30,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Sparkles, Volume2, AlertTriangle, VenetianMask } from 'lucide-react';
-import type { GenerateArtisanStoryCardOutput, GenerateArtisanStoryCardInput } from '@/ai/flows/generate-artisan-story-card';
+import type { GenerateArtisanStoryCardOutput } from '@/ai/flows/generate-artisan-story-card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 const formSchema = z.object({
@@ -88,20 +88,19 @@ export default function AIStoryGenerator() {
         photoUrl: productPhotoDataUri,
       });
 
-      const flowInput: GenerateArtisanStoryCardInput = {
-        artisanId: artisan.id,
-        productId: product.id,
-        artisanName: artisan.name,
-        craft: artisan.craft,
-        location: artisan.location,
-        artisanStory: artisan.story,
-        productName: product.name,
-        productDescription: product.description,
-        productPhotoDataUri: productPhotoDataUri,
-      };
-
       try {
-        const response = await generateArtisanStoryCardAction(flowInput);
+        const response = await generateArtisanStoryCardAction({
+            artisanId: artisan.id,
+            productId: product.id,
+            artisanName: artisan.name,
+            craft: artisan.craft,
+            location: artisan.location,
+            artisanStory: artisan.story,
+            productName: product.name,
+            productDescription: product.description,
+            productPhotoDataUri,
+        });
+
         setResult(response);
         if (response.success) {
             toast({

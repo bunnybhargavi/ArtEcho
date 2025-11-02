@@ -16,7 +16,6 @@ import {
 import { getFirebaseAdminApp } from '@/firebase/admin';
 import { getFirestore } from 'firebase-admin/firestore';
 import { useAuthStore } from '@/lib/auth-store';
-import { artisans, products } from '@/lib/data';
 
 
 export async function generateArtisanStoryCardAction(
@@ -28,15 +27,6 @@ export async function generateArtisanStoryCardAction(
       const errorMsg = 'Invalid input. Please provide all required fields.';
       console.error('Validation Error:', errorMsg);
       return { success: false, message: errorMsg };
-    }
-
-    const artisan = artisans.find(a => a.id === input.artisanId);
-    const product = products.find(p => p.id === input.productId);
-
-    if (!artisan || !product) {
-      const errorMsg = `Data Error: Could not find artisan with ID '${input.artisanId}' or product with ID '${input.productId}'.`;
-      console.error(errorMsg);
-      return { success: false, message: 'Artisan or product data could not be found.' };
     }
   
     const adminApp = getFirebaseAdminApp();
