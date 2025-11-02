@@ -1,0 +1,13 @@
+# Netlify configuration for deploying Next.js (App Router) with the official plugin
+[build]
+  command = "npm run build"
+  publish = ".next"
+  functions = "netlify/functions"
+
+[plugins]
+  [[plugins]]
+    package = "@netlify/plugin-nextjs"
+
+# Example environment variables - do NOT commit secrets here; set them in Netlify UI instead
+# [context.production.environment]
+#   NEXT_PUBLIC_API_URL = "https://api.example.com"
