@@ -33,8 +33,10 @@ const Header = () => {
     const { user, isUserLoading } = useUser();
     const { logout } = useAuthStore();
     const { toast } = useToast();
+    const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
+        setIsClient(true);
         initializeCart();
     }, [initializeCart]);
 
@@ -88,9 +90,9 @@ const Header = () => {
               />
             </form>
 
-            <ThemeToggle />
+            {isClient && <ThemeToggle />}
 
-            {!isUserLoading && (
+            {isClient && !isUserLoading && (
                 user ? (
                     <Button onClick={handleLogout} className="hidden sm:inline-flex" variant="ghost" size="icon">
                         <LogOut />
@@ -106,7 +108,7 @@ const Header = () => {
                 )
             )}
             
-            <Button asChild variant="ghost" size="icon" className="relative hidden sm:inline-flex">
+            {isClient && <Button asChild variant="ghost" size="icon" className="relative hidden sm:inline-flex">
               <Link href="/cart">
                 <ShoppingCart />
                 <span className="sr-only">Shopping Cart</span>
@@ -114,7 +116,7 @@ const Header = () => {
                     <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-primary rounded-full">{cartCount}</span>
                 )}
               </Link>
-            </Button>
+            </Button>}
              
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                 <SheetTrigger asChild>
@@ -154,7 +156,7 @@ const Header = () => {
                         ))}
                     </nav>
                     <div className="mt-auto border-t pt-4 flex flex-col gap-2">
-                        {!isUserLoading && (
+                        {isClient && !isUserLoading && (
                              user ? (
                                 <Button onClick={() => { handleLogout(); setIsSheetOpen(false); }} className="w-full">
                                     <LogOut className="mr-2" />
@@ -169,12 +171,12 @@ const Header = () => {
                                 </Button>
                              )
                         )}
-                         <Button asChild variant="outline" className="w-full">
+                         {isClient && <Button asChild variant="outline" className="w-full">
                             <Link href="/cart" onClick={() => setIsSheetOpen(false)}>
                                 <ShoppingCart className="mr-2" />
                                 Cart {cartCount > 0 ? `(${cartCount})` : ''}
                             </Link>
-                        </Button>
+                        </Button>}
                     </div>
                 </SheetContent>
             </Sheet>
