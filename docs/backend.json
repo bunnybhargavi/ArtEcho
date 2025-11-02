@@ -138,25 +138,25 @@
           "type": "string",
           "description": "Reference to Product. (Relationship: Product 1:1 StoryCard)"
         },
+        "artisanId": {
+          "type": "string",
+          "description": "Reference to ArtisanProfile."
+        },
         "description": {
           "type": "string",
           "description": "Description generated for the product."
         },
-        "translatedDescription": {
+        "audioUrl": {
           "type": "string",
-          "description": "Translated description of the product."
-        },
-        "qrCodeUrl": {
-          "type": "string",
-          "description": "URL for the QR code for audio."
+          "description": "URL for the audio story."
         }
       },
       "required": [
         "id",
         "productId",
+        "artisanId",
         "description",
-        "translatedDescription",
-        "qrCodeUrl"
+        "audioUrl"
       ]
     },
     "ContactMessage": {

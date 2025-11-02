@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { generateArtisanStoryCardAction } from '@/app/actions';
+import { artisans, products } from '@/lib/data';
 
 import {
   Card,
@@ -28,14 +29,11 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Sparkles, Volume2 } from 'lucide-react';
 import type { GenerateArtisanStoryCardOutput } from '@/ai/flows/generate-artisan-story-card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 const formSchema = z.object({
-  artisanName: z.string().min(2, 'Artisan name is required.'),
-  craft: z.string().min(2, 'Craft type is required.'),
-  location: z.string().min(2, 'Location is required.'),
-  artisanStory: z.string().min(10, 'Artisan story must be at least 10 characters.'),
-  productName: z.string().min(2, 'Product name is required.'),
-  productDescription: z.string().min(10, 'Product description must be at least 10 characters.'),
+  artisanId: z.string().min(1, 'Artisan is required.'),
+  productId: z.string().min(1, 'Product is required.'),
   productPhoto: z.any().refine((files) => files?.length === 1, 'Product photo is required.'),
 });
 
@@ -49,18 +47,23 @@ export default function AIStoryGenerator() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      artisanName: '',
-      craft: '',
-      location: '',
-      artisanStory: '',
-      productName: '',
-      productDescription: '',
+      artisanId: '',
+      productId: '',
     },
   });
 
   const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
     setResult(null);
+
+    const artisan = artisans.find(a => a.id === values.artisanId);
+    const product = products.find(p => p.id === values.productId);
+
+    if (!artisan || !product) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Selected artisan or product not found.'});
+        setIsLoading(false);
+        return;
+    }
 
     const file = values.productPhoto[0];
     const reader = new FileReader();
@@ -69,10 +72,21 @@ export default function AIStoryGenerator() {
       const productPhotoDataUri = reader.result as string;
       try {
         const response = await generateArtisanStoryCardAction({
-          ...values,
+          artisanId: artisan.id,
+          productId: product.id,
+          artisanName: artisan.name,
+          craft: artisan.craft,
+          location: artisan.location,
+          artisanStory: artisan.story,
+          productName: product.name,
+          productDescription: product.description,
           productPhotoDataUri,
         });
         setResult(response);
+        toast({
+          title: "Story Card Generated!",
+          description: "Your new story card has been saved.",
+        });
       } catch (error) {
         toast({
           variant: 'destructive',
@@ -109,80 +123,46 @@ export default function AIStoryGenerator() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardContent className="space-y-4">
+               <FormField
+                  control={form.control}
+                  name="artisanId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Artisan</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select an artisan" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {artisans.map(artisan => (
+                            <SelectItem key={artisan.id} value={artisan.id}>{artisan.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               <FormField
                 control={form.control}
-                name="artisanName"
+                name="productId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Artisan Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Elena Rodriguez" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="craft"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Craft</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Ceramics" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="location"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Location</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Oaxaca, Mexico" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="artisanStory"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Artisan Story</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Tell your personal story..." {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="productName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Product Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Terra Cotta Mug" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="productDescription"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Product Description</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Describe your product..." {...field} />
-                    </FormControl>
+                    <FormLabel>Product</FormLabel>
+                     <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!form.watch('artisanId')}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a product" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {products.filter(p => p.artisanId === form.watch('artisanId')).map(product => (
+                            <SelectItem key={product.id} value={product.id}>{product.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -208,7 +188,7 @@ export default function AIStoryGenerator() {
                 ) : (
                   <Sparkles className="mr-2 h-4 w-4" />
                 )}
-                Generate Story
+                Generate & Save Story
               </Button>
             </CardFooter>
           </form>
@@ -262,3 +242,5 @@ export default function AIStoryGenerator() {
     </div>
   );
 }
+
+    

@@ -33,6 +33,18 @@ export async function generateArtisanStoryCardAction(
 ): Promise<GenerateArtisanStoryCardOutput> {
   try {
     const result = await generateArtisanStoryCard(input);
+    const { firestore } = initializeFirebase();
+    
+    // Save the generated story card to Firestore
+    const storyCardCollection = collection(firestore, 'storyCards');
+    await addDoc(storyCardCollection, {
+      productId: input.productId,
+      artisanId: input.artisanId,
+      description: result.storyCardDescription,
+      audioUrl: result.audioDataUri,
+      createdAt: new Date().toISOString(),
+    });
+
     return result;
   } catch (error) {
     console.error('Error in generateArtisanStoryCardAction:', error);
@@ -80,3 +92,5 @@ export async function updateUserThemeAction(theme: 'light' | 'dark' | 'system') 
     return { success: false, error: error.message || 'Failed to update theme.' };
   }
 }
+
+    

@@ -12,6 +12,8 @@ import {z} from 'zod';
 import wav from 'wav';
 
 const GenerateArtisanStoryCardInputSchema = z.object({
+  artisanId: z.string().describe("The ID of the artisan."),
+  productId: z.string().describe("The ID of the product."),
   artisanName: z.string().describe('The name of the artisan.'),
   craft: z.string().describe('The type of craft the artisan specializes in.'),
   location: z.string().describe('The location of the artisan.'),
@@ -122,3 +124,5 @@ async function toWav(
     writer.end();
   });
 }
+
+    
