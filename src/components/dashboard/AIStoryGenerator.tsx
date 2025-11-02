@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -72,8 +71,8 @@ export default function AIStoryGenerator() {
       const productPhotoDataUri = reader.result as string;
       try {
         const response = await generateArtisanStoryCardAction({
-          artisanId: artisan.id,
-          productId: product.id,
+          artisanId: values.artisanId,
+          productId: values.productId,
           artisanName: artisan.name,
           craft: artisan.craft,
           location: artisan.location,
@@ -88,8 +87,6 @@ export default function AIStoryGenerator() {
           description: "Your new story card has been saved.",
         });
       } catch (error) {
-        // The permission error is thrown globally, but we catch here
-        // to stop the loading spinner and inform the user.
         toast({
           variant: 'destructive',
           title: 'Error Generating Story',
