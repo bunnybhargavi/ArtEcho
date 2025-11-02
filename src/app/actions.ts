@@ -37,7 +37,6 @@ export async function generateArtisanStoryCardAction(
   };
   
   // Asynchronously save the generated story card to Firestore.
-  // We don't await this so the UI can update immediately.
   storyCardCollection.add(newStoryCardData).catch((error) => {
       // In a real app, you'd want robust logging here.
       console.error("Failed to save story card due to permissions or other server error:", error);
@@ -100,4 +99,5 @@ export async function updateUserThemeAction(theme: 'light' | 'dark' | 'system') 
     return { success: false, error: error.message || 'Failed to update theme.' };
   }
 }
+
 
