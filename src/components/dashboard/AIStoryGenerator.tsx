@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -248,8 +247,8 @@ export default function AIStoryGenerator() {
                   <Volume2 className="w-5 h-5"/>
                   Audio Story
                 </h3>
-                {result.audioQrCode ? (
-                  <audio controls src={result.audioQrCode} className="w-full">
+                {result.audioDataUri ? (
+                  <audio controls src={result.audioDataUri} className="w-full">
                     Your browser does not support the audio element.
                   </audio>
                 ) : (

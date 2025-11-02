@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -23,7 +22,7 @@ interface StoryCardModalProps {
 export default function StoryCardModal({ product, artisan, isOpen, onClose }: StoryCardModalProps) {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
-  const [storyResult, setStoryResult] = useState<{ storyCardDescription: string; audioQrCode: string } | null>(null);
+  const [storyResult, setStoryResult] = useState<{ storyCardDescription: string; audioDataUri: string } | null>(null);
   const image = PlaceHolderImages.find((img) => img.id === product.imageId);
 
   useEffect(() => {
@@ -124,13 +123,13 @@ export default function StoryCardModal({ product, artisan, isOpen, onClose }: St
                     <p className="text-foreground/80 leading-relaxed italic">
                         "{storyResult.storyCardDescription}"
                     </p>
-                    {storyResult.audioQrCode && (
+                    {storyResult.audioDataUri && (
                         <div>
                              <h4 className="font-headline text-lg font-semibold mb-2 flex items-center gap-2">
                                 <Volume2 className="w-5 h-5"/>
                                 Audio Story
                             </h4>
-                            <audio controls src={storyResult.audioQrCode} className="w-full">
+                            <audio controls src={storyResult.audioDataUri} className="w-full">
                                 Your browser does not support the audio element.
                             </audio>
                         </div>
@@ -165,4 +164,3 @@ export default function StoryCardModal({ product, artisan, isOpen, onClose }: St
     </Dialog>
   );
 }
-

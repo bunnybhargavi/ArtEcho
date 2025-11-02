@@ -28,7 +28,7 @@ export type GenerateArtisanStoryCardInput = z.infer<typeof GenerateArtisanStoryC
 
 const GenerateArtisanStoryCardOutputSchema = z.object({
   storyCardDescription: z.string().describe('A translated and engaging story card description for the artisan and their product.'),
-  audioQrCode: z.string().describe('A QR code that links to an audio recording of the story card description.'),
+  audioDataUri: z.string().describe('A data URI for the audio recording of the story card description.'),
 });
 export type GenerateArtisanStoryCardOutput = z.infer<typeof GenerateArtisanStoryCardOutputSchema>;
 
@@ -39,7 +39,7 @@ export async function generateArtisanStoryCard(input: GenerateArtisanStoryCardIn
 const storyCardPrompt = ai.definePrompt({
   name: 'storyCardPrompt',
   input: {schema: GenerateArtisanStoryCardInputSchema},
-  output: {schema: GenerateArtisanStoryCardOutputSchema},
+  output: {schema: z.object({ storyCardDescription: z.string() })},
   prompt: `You are a marketing expert specializing in creating engaging story cards for artisans. Your goal is to craft a compelling narrative that connects the artisan's personal story with their product, highlighting the craft, location, and unique qualities of both.
 
   Artisan Name: {{{artisanName}}}
@@ -52,7 +52,7 @@ const storyCardPrompt = ai.definePrompt({
 
   Create a translated and engaging story card description that captures the essence of the artisan and their product. This description will be used in marketing materials and should entice potential customers. The description should be no more than 150 words.
   Also, generate a short title for the story card.
-  Return the story card description and a QR code that links to an audio recording of the story card description. The audio should be in the same language as the story card description.
+  Return only the story card description.
 `,
 });
 
@@ -64,6 +64,7 @@ const generateArtisanStoryCardFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await storyCardPrompt(input);
+    const storyCardDescription = output?.storyCardDescription ?? 'No description available.';
 
     // Generate audio from the story card description
     const ttsResponse = await ai.generate({
@@ -76,24 +77,21 @@ const generateArtisanStoryCardFlow = ai.defineFlow(
           },
         },
       },
-      prompt: output?.storyCardDescription ?? 'No description available.'
+      prompt: storyCardDescription
     });
 
-    let audioQrCode = '';
+    let audioDataUri = '';
     if (ttsResponse.media) {
       const audioBuffer = Buffer.from(
         ttsResponse.media.url.substring(ttsResponse.media.url.indexOf(',') + 1),
         'base64'
       );
-      const wavDataUri = 'data:audio/wav;base64,' + (await toWav(audioBuffer));
-      // In a real application, you might generate a QR code linking to the audio.
-      // For simplicity, we'll just return the audio data URI.
-      audioQrCode = wavDataUri;
+      audioDataUri = 'data:audio/wav;base64,' + (await toWav(audioBuffer));
     }
 
     return {
-      storyCardDescription: output!.storyCardDescription,
-      audioQrCode: audioQrCode,
+      storyCardDescription: storyCardDescription,
+      audioDataUri: audioDataUri,
     };
   }
 );
