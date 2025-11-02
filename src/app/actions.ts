@@ -1,4 +1,3 @@
-
 'use server';
 
 import {
@@ -13,74 +12,43 @@ import {
   type MatchArtisansToBrandOutput,
 } from '@/ai/flows/match-artisans-to-brand-flow';
 
-import { generateAudioFromText } from '@/ai/flows/generate-audio-from-text';
+import {
+  generateAudioFromText
+} from '@/ai/flows/generate-audio-from-text';
 
+
+import { setDocumentNonBlocking, addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { getSdks } from '@/firebase';
+import { collection, doc } from 'firebase/firestore';
 import { getFirebaseAdminApp } from '@/firebase/admin';
-import { getFirestore } from 'firebase-admin/firestore';
-import { useAuthStore } from '@/lib/auth-store';
-import type { Artisan, Product, GenerateAudioFromTextInput, GenerateAudioFromTextOutput } from '@/lib/types';
+import { getAuth } from 'firebase-admin/auth';
+import type { GenerateAudioFromTextInput, GenerateAudioFromTextOutput } from '@/lib/types';
 
 
 export async function generateArtisanStoryCardAction(
   input: GenerateArtisanStoryCardInput
 ): Promise<{ success: boolean; data?: GenerateArtisanStoryCardOutput; message?: string }> {
   try {
-    // 1. Input Validation
-    if (!input.artisanId || !input.productId || !input.productPhotoDataUri) {
-      const errorMsg = 'Invalid input. Please provide all required fields.';
-      console.error('Validation Error:', errorMsg);
-      return { success: false, message: errorMsg };
-    }
-  
-    const adminApp = getFirebaseAdminApp();
-    const firestore = getFirestore(adminApp);
-    const storyCardCollection = firestore.collection('storyCards');
-  
-    // 2. Graceful AI Call
     const result = await generateArtisanStoryCard(input);
-
-    if (!result || !result.storyCardDescription) {
-        throw new Error('AI failed to generate a story description.');
-    }
-  
-    // 3. Firestore Write with feedback
-    const newStoryCardData = {
-      productId: input.productId,
-      artisanId: input.artisanId,
-      description: result.storyCardDescription,
-      audioUrl: result.audioDataUri,
-      createdAt: new Date().toISOString(),
-    };
-  
-    storyCardCollection.add(newStoryCardData).catch((error) => {
-        console.error("Firestore Write Error: Failed to save story card:", error);
-    });
-    
-    console.log("Generated story card:", result);
     return { success: true, data: result };
-
   } catch (error: any) {
-    console.error('Critical Error in generateArtisanStoryCardAction:', error);
-    const response = { success: false, message: error.message || 'Failed to generate story card due to an unexpected server error.' };
-    console.log('Returning response:', response);
-    return response;
+    console.error('Error in generateArtisanStoryCardAction:', error);
+    return { success: false, message: error.message || 'Failed to generate story card.' };
   }
 }
 
 export async function generateAudioAction(
   input: GenerateAudioFromTextInput
-): Promise<{ success: boolean; data?: GenerateAudioFromTextOutput; message?: string }> {
-  try {
-    if (!input.text) {
-      return { success: false, message: 'Input text is required to generate audio.' };
-    }
-    const data = await generateAudioFromText(input);
-    return { success: true, data };
+): Promise<{ success: boolean; data?: GenerateAudioFromTextOutput, message?: string }> {
+   try {
+    const result = await generateAudioFromText(input);
+    return { success: true, data: result };
   } catch (error: any) {
-    console.error('Error generating audio:', error);
+    console.error('Error in generateAudioAction:', error);
     return { success: false, message: error.message || 'Failed to generate audio.' };
   }
 }
+
 
 export async function matchArtisansToBrandAction(
   input: MatchArtisansToBrandInput
@@ -100,16 +68,14 @@ export async function submitContactFormAction(formData: {
   message: string;
 }) {
   try {
-    const adminApp = getFirebaseAdminApp();
-    const firestore = getFirestore(adminApp);
-    const contactMessagesCollection = firestore.collection('contactMessages');
-
-    const newMessage = {
+    const { firestore } = getSdks(null as any); // SDKs are initialized on the client
+    const contactMessagesRef = collection(firestore, 'contactMessages');
+    
+    await addDocumentNonBlocking(contactMessagesRef, {
       ...formData,
       timestamp: new Date().toISOString(),
-    };
+    });
 
-    await contactMessagesCollection.add(newMessage);
     return { success: true };
   } catch (error) {
     console.error('Error submitting contact form:', error);
@@ -117,20 +83,21 @@ export async function submitContactFormAction(formData: {
   }
 }
 
-export async function updateUserThemeAction(theme: 'light' | 'dark' | 'system') {
+export async function updateUserThemeAction(theme: 'light' | 'dark') {
   try {
-    const user = useAuthStore.getState().user;
-    if (!user) {
-      // Not an error, just means a guest is changing themes.
-      return { success: true };
-    }
-    // Mock saving the theme. In a real app, you would save this to a database.
-    console.log(`Updating theme for ${user.uid} to ${theme}`);
-    await new Promise(resolve => setTimeout(resolve, 200));
+    const app = getFirebaseAdminApp();
+    const adminAuth = getAuth(app);
+    // This is a placeholder for getting the current user's ID.
+    // In a real app, you would get this from the session.
+    const uid = (await adminAuth.listUsers()).users[0].uid;
+    const { firestore } = getSdks(null as any);
+    const userDocRef = doc(firestore, 'users', uid);
     
+    setDocumentNonBlocking(userDocRef, { theme }, { merge: true });
+
     return { success: true };
   } catch (error: any) {
-    console.error('Error updating user theme:', error);
+    console.error('Error updating theme:', error);
     return { success: false, error: error.message || 'Failed to update theme.' };
   }
 }

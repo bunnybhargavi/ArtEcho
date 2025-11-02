@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -22,7 +23,7 @@ interface StoryCardModalProps {
 export default function StoryCardModal({ product, artisan, isOpen, onClose }: StoryCardModalProps) {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
-  const [storyResult, setStoryResult] = useState<{ storyCardDescription: string; audioDataUri: string } | null>(null);
+  const [storyResult, setStoryResult] = useState<{ storyCardDescription: string; audioQrCode: string } | null>(null);
   const image = PlaceHolderImages.find((img) => img.id === product.imageId);
 
   useEffect(() => {
@@ -33,6 +34,7 @@ export default function StoryCardModal({ product, artisan, isOpen, onClose }: St
 
         const imageUrl = image?.imageUrl ?? `https://picsum.photos/seed/${product.id}/600/400`;
 
+        // Fetch the image via the server-side proxy
         try {
           const response = await fetch(`/api/proxy-image?url=${encodeURIComponent(imageUrl)}`);
           if (!response.ok) {
@@ -41,27 +43,35 @@ export default function StoryCardModal({ product, artisan, isOpen, onClose }: St
           }
           const { dataUri: productPhotoDataUri } = await response.json();
             
-          const result = await generateArtisanStoryCardAction({
-            artisan,
-            product,
-            productPhotoDataUri,
-          });
-
-          if (result.success && result.data) {
-            setStoryResult(result.data);
-          } else {
-             throw new Error(result.message || 'Story generation failed.');
+          try {
+            const result = await generateArtisanStoryCardAction({
+              artisanName: artisan.name,
+              craft: artisan.craft,
+              location: artisan.location,
+              artisanStory: artisan.story,
+              productName: product.name,
+              productDescription: product.description,
+              productPhotoDataUri,
+            });
+            setStoryResult(result);
+          } catch (error) {
+            console.error('Error generating story card:', error);
+            toast({
+              variant: 'destructive',
+              title: 'AI Story Generation Failed',
+              description: 'Could not generate the artisan story. Please try again later.',
+            });
+          } finally {
+            setIsLoading(false);
           }
-
-        } catch (error: any) {
-           console.error('Error in story generation process:', error);
+        } catch (error) {
+           console.error('Error fetching or processing image for story generation:', error);
            toast({
             variant: 'destructive',
-            title: 'AI Story Generation Failed',
-            description: error.message || 'Could not generate the artisan story. Please try again later.',
+            title: 'Image Processing Failed',
+            description: 'Could not load the product image to generate the story.',
           });
-        } finally {
-            setIsLoading(false);
+          setIsLoading(false);
         }
       };
 
@@ -114,13 +124,13 @@ export default function StoryCardModal({ product, artisan, isOpen, onClose }: St
                     <p className="text-foreground/80 leading-relaxed italic">
                         "{storyResult.storyCardDescription}"
                     </p>
-                    {storyResult.audioDataUri && (
+                    {storyResult.audioQrCode && (
                         <div>
                              <h4 className="font-headline text-lg font-semibold mb-2 flex items-center gap-2">
                                 <Volume2 className="w-5 h-5"/>
                                 Audio Story
                             </h4>
-                            <audio controls src={storyResult.audioDataUri} className="w-full">
+                            <audio controls src={storyResult.audioQrCode} className="w-full">
                                 Your browser does not support the audio element.
                             </audio>
                         </div>

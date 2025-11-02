@@ -6,8 +6,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { generateArtisanStoryCardAction } from '@/app/actions';
-import { artisans, products } from '@/lib/data';
-import Image from 'next/image';
 
 import {
   Card,
@@ -26,101 +24,61 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Sparkles, Volume2, AlertTriangle, VenetianMask } from 'lucide-react';
+import { Loader2, Sparkles, Volume2 } from 'lucide-react';
 import type { GenerateArtisanStoryCardOutput } from '@/ai/flows/generate-artisan-story-card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 const formSchema = z.object({
-  artisanId: z.string().min(1, 'Artisan is required.'),
-  productId: z.string().min(1, 'Product is required.'),
+  artisanName: z.string().min(2, 'Artisan name is required.'),
+  craft: z.string().min(2, 'Craft type is required.'),
+  location: z.string().min(2, 'Location is required.'),
+  artisanStory: z.string().min(10, 'Artisan story must be at least 10 characters.'),
+  productName: z.string().min(2, 'Product name is required.'),
+  productDescription: z.string().min(10, 'Product description must be at least 10 characters.'),
   productPhoto: z.any().refine((files) => files?.length === 1, 'Product photo is required.'),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-interface GenerationResult {
-    success: boolean;
-    data?: GenerateArtisanStoryCardOutput;
-    message?: string;
-}
-
 export default function AIStoryGenerator() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<GenerationResult | null>(null);
-  const [previewData, setPreviewData] = useState<{artisanName: string, craft: string, photoUrl: string} | null>(null);
-
+  const [result, setResult] = useState<GenerateArtisanStoryCardOutput | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      artisanId: '',
-      productId: '',
+      artisanName: '',
+      craft: '',
+      location: '',
+      artisanStory: '',
+      productName: '',
+      productDescription: '',
     },
   });
 
   const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
     setResult(null);
-    setPreviewData(null);
-
-    const artisan = artisans.find(a => a.id === values.artisanId);
-    const product = products.find(p => p.id === values.productId);
-
-    if (!artisan || !product) {
-        toast({ variant: 'destructive', title: 'Error', description: 'Selected artisan or product not found.'});
-        setIsLoading(false);
-        return;
-    }
 
     const file = values.productPhoto[0];
     const reader = new FileReader();
 
     reader.onloadend = async () => {
       const productPhotoDataUri = reader.result as string;
-
-      setPreviewData({
-        artisanName: artisan.name,
-        craft: artisan.craft,
-        photoUrl: productPhotoDataUri,
-      });
-
       try {
         const response = await generateArtisanStoryCardAction({
-            artisanId: artisan.id,
-            productId: product.id,
-            artisanName: artisan.name,
-            craft: artisan.craft,
-            location: artisan.location,
-            artisanStory: artisan.story,
-            productName: product.name,
-            productDescription: product.description,
-            productPhotoDataUri,
+          ...values,
+          productPhotoDataUri,
         });
-
         setResult(response);
-        if (response.success) {
-            toast({
-              title: "Story Card Generated!",
-              description: "Your new story card has been created.",
-            });
-        } else {
-             toast({
-                variant: 'destructive',
-                title: 'Error Generating Story',
-                description: response.message || 'An unknown error occurred.',
-             });
-        }
-      } catch (error: any) {
-        const errorMessage = error.message || 'There was a problem generating the story card. Please try again.';
-        setResult({ success: false, message: errorMessage });
+      } catch (error) {
         toast({
           variant: 'destructive',
           title: 'Error Generating Story',
-          description: errorMessage,
+          description: 'There was a problem with the AI generation. Please try again.',
         });
         console.error(error);
       } finally {
@@ -152,46 +110,80 @@ export default function AIStoryGenerator() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardContent className="space-y-4">
-               <FormField
-                  control={form.control}
-                  name="artisanId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Artisan</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select an artisan" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {artisans.map(artisan => (
-                            <SelectItem key={artisan.id} value={artisan.id}>{artisan.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
               <FormField
                 control={form.control}
-                name="productId"
+                name="artisanName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Product</FormLabel>
-                     <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!form.watch('artisanId')}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a product" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {products.filter(p => p.artisanId === form.watch('artisanId')).map(product => (
-                            <SelectItem key={product.id} value={product.id}>{product.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                    <FormLabel>Artisan Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Elena Rodriguez" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="craft"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Craft</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Ceramics" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="location"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Location</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Oaxaca, Mexico" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="artisanStory"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Artisan Story</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Tell your personal story..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="productName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Product Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Terra Cotta Mug" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="productDescription"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Product Description</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Describe your product..." {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -243,48 +235,27 @@ export default function AIStoryGenerator() {
               <p>Your result will be displayed here.</p>
             </div>
           )}
-          
-          {result && !result.success && (
-             <Alert variant="destructive">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertTitle>Generation Failed</AlertTitle>
-                <AlertDescription>
-                    {result.message || "An unknown error occurred. Please try again."}
-                </AlertDescription>
-            </Alert>
-          )}
-
-          {result && result.success && result.data && previewData && (
-            <div className="w-full space-y-4 rounded-lg border p-4">
-                <div className="relative aspect-video w-full overflow-hidden rounded-md">
-                     <Image src={previewData.photoUrl} alt="Product preview" fill className="object-cover" />
-                </div>
-                <div>
-                    <h3 className="font-headline text-xl font-semibold">{previewData.artisanName}</h3>
-                    <p className="text-sm text-muted-foreground flex items-center gap-2">
-                        <VenetianMask className="h-4 w-4"/>
-                        {previewData.craft}
-                    </p>
-                </div>
-                <div>
-                    <h4 className="font-semibold text-sm">Generated Story:</h4>
-                    <p className="text-foreground/80 leading-relaxed italic text-sm">
-                        "{result.data.storyCardDescription}"
-                    </p>
-                </div>
-                <div>
-                    <h4 className="font-semibold mb-2 flex items-center gap-2 text-sm">
-                        <Volume2 className="w-4 h-4"/>
-                        Audio Story
-                    </h4>
-                    {result.data.audioDataUri ? (
-                        <audio controls src={result.data.audioDataUri} className="w-full h-10">
-                            Your browser does not support the audio element.
-                        </audio>
-                    ) : (
-                        <p className="text-muted-foreground text-sm">Audio could not be generated.</p>
-                    )}
-                </div>
+          {result && (
+            <div className="space-y-6 w-full">
+              <div>
+                <h3 className="font-headline text-xl font-semibold mb-2">Story Description</h3>
+                <p className="text-foreground/80 leading-relaxed italic">
+                  "{result.storyCardDescription}"
+                </p>
+              </div>
+              <div>
+                <h3 className="font-headline text-xl font-semibold mb-2 flex items-center gap-2">
+                  <Volume2 className="w-5 h-5"/>
+                  Audio Story
+                </h3>
+                {result.audioQrCode ? (
+                  <audio controls src={result.audioQrCode} className="w-full">
+                    Your browser does not support the audio element.
+                  </audio>
+                ) : (
+                  <p className="text-muted-foreground">Audio could not be generated.</p>
+                )}
+              </div>
             </div>
           )}
         </CardContent>

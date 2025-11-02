@@ -111,7 +111,7 @@ service cloud.firestore {
 
       // Users can create and manage their own orders.
       match /orders/{orderId} {
-        allow read, create, update: if request.auth != null && request.auth.uid == userId;
+        allow read, write: if request.auth != null && request.auth.uid == userId;
       }
     }
   }

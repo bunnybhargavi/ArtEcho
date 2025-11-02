@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/card';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Badge } from './ui/badge';
-import { Star, ShoppingCart, Loader2, Volume2, AlertTriangle, X } from 'lucide-react';
+import { Star, ShoppingCart, Loader2, Volume2, AlertTriangle, X, Layers } from 'lucide-react';
 import { Button } from './ui/button';
 import { useCartStore, type CartItem } from '@/lib/cart-store';
 import { useToast } from '@/hooks/use-toast';
@@ -20,9 +20,10 @@ import { useState } from 'react';
 import { useUser, placeSingleItemOrderAction } from '@/lib/auth-store';
 import PaymentDialog from './PaymentDialog';
 import { generateAudioAction } from '@/app/actions';
-import { Collapsible, CollapsibleContent } from './ui/collapsible';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
 import { Separator } from './ui/separator';
 import { artisanStories } from '@/lib/stories';
+
 
 interface ProductCardProps {
   product: Product;
@@ -98,29 +99,28 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
     setIsPaymentDialogOpen(true);
   };
   
-  const handleToggleStory = async (e: React.MouseEvent<HTMLButtonElement>) => {
+ const handleToggleStory = async (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation();
       const nextIsOpen = !isStoryOpen;
       setIsStoryOpen(nextIsOpen);
 
       if (nextIsOpen && !storyResult && artisan) {
+          const storyText = artisanStories[artisan.id];
+          if (!storyText) {
+              setStoryError("Story not found for this artisan.");
+              return;
+          }
+
           setIsStoryLoading(true);
           setStoryError(null);
           
-          const staticStory = artisanStories[artisan.id];
-
-          if (!staticStory) {
-            setStoryError("Story not found for this artisan.");
-            setIsStoryLoading(false);
-            return;
-          }
-
           try {
-              const audioResult = await generateAudioAction({ text: staticStory });
+              const audioResult = await generateAudioAction({ text: storyText });
+
               if (audioResult.success && audioResult.data) {
                   setStoryResult({
-                    storyCardDescription: staticStory,
-                    audioDataUri: audioResult.data.audioDataUri
+                      storyCardDescription: storyText,
+                      audioDataUri: audioResult.data.audioDataUri,
                   });
               } else {
                   throw new Error(audioResult.message || "Audio generation failed.");
@@ -225,76 +225,85 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
               </div>
           </div>
         </CardHeader>
-        <Collapsible open={isStoryOpen} onOpenChange={setIsStoryOpen}>
-          <CardContent className="p-4 flex-grow flex flex-col">
-            <h3 className="font-headline text-lg font-semibold leading-tight">
-              {product.name}
-            </h3>
-            {artisan && (
-              <p className="text-sm text-muted-foreground mt-1">
-                by {artisan.name}
-              </p>
-            )}
-            
-            <div className="flex items-center gap-1 mt-2">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star
-                  key={i}
-                  className={`w-4 h-4 ${
-                    i < Math.floor(product.rating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'
-                  }`}
-                />
-              ))}
-              <span className="text-xs text-muted-foreground ml-1">({product.reviews})</span>
-            </div>
-            
-             {artisan && (
-                <div className="mt-4">
-                  <Button variant="outline" size="sm" onClick={handleToggleStory} className="w-full">
-                    {isStoryOpen ? 'Hide Story' : 'Show Story'}
-                  </Button>
-                </div>
-            )}
-
-
-          </CardContent>
-          <CollapsibleContent>
-             <Separator />
-             <div className="p-4 space-y-4">
-                 {isStoryLoading && (
-                    <div className="flex items-center justify-center text-muted-foreground space-x-2">
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                        <span>Generating audio...</span>
-                    </div>
-                 )}
-                 {storyError && (
-                     <div className="flex items-start text-sm text-destructive bg-destructive/10 p-3 rounded-md">
-                         <AlertTriangle className="h-4 w-4 mr-2 shrink-0 mt-0.5" />
-                         <p>Error: {storyError}</p>
-                     </div>
-                 )}
-                 {storyResult && (
-                    <div className="space-y-3">
-                         <p className="text-sm text-foreground/80 italic">"{storyResult.storyCardDescription}"</p>
-                        {storyResult.audioDataUri && (
-                             <div>
-                                 <h4 className="font-semibold mb-1 flex items-center gap-2 text-sm">
-                                    <Volume2 className="w-4 h-4"/>
-                                    Audio Story
-                                </h4>
-                                <audio controls src={storyResult.audioDataUri} className="w-full h-10">
-                                    Your browser does not support the audio element.
-                                </audio>
-                            </div>
+        <Collapsible open={isStoryOpen} onOpenChange={setIsStoryOpen} asChild>
+          <div>
+            <CardContent className="p-4 flex-grow flex flex-col">
+              <h3 className="font-headline text-lg font-semibold leading-tight">
+                {product.name}
+              </h3>
+              {artisan && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  by {artisan.name}
+                </p>
+              )}
+              
+              <div className="flex items-center gap-1 mt-2">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`w-4 h-4 ${
+                      i < Math.floor(product.rating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'
+                    }`}
+                  />
+                ))}
+                <span className="text-xs text-muted-foreground ml-1">({product.reviews})</span>
+              </div>
+              
+              {artisan && (
+                  <div className="mt-4">
+                    <CollapsibleTrigger asChild>
+                      <Button variant="outline" size="sm" onClick={handleToggleStory} className="w-full">
+                        {isStoryOpen ? (
+                            <X className="mr-2" />
+                        ) : (
+                            <Layers className="mr-2" />
                         )}
-                    </div>
-                 )}
-             </div>
-          </CollapsibleContent>
+                        {isStoryOpen ? 'Hide Story' : 'View AI Story Card'}
+                      </Button>
+                    </CollapsibleTrigger>
+                  </div>
+              )}
+
+
+            </CardContent>
+            <CollapsibleContent>
+              <Separator />
+              <div className="p-4 space-y-4">
+                  {isStoryLoading && (
+                      <div className="flex items-center justify-center text-muted-foreground space-x-2">
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                          <span>Generating audio...</span>
+                      </div>
+                  )}
+                  {storyError && (
+                      <div className="flex items-start text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+                          <AlertTriangle className="h-4 w-4 mr-2 shrink-0 mt-0.5" />
+                          <p>Error: {storyError}</p>
+                      </div>
+                  )}
+                  {storyResult && (
+                      <div className="space-y-3">
+                          <p className="text-sm text-foreground/80 italic">"{storyResult.storyCardDescription}"</p>
+                          {storyResult.audioDataUri && (
+                              <div>
+                                  <h4 className="font-semibold mb-1 flex items-center gap-2 text-sm">
+                                      <Volume2 className="w-4 h-4"/>
+                                      Audio Story
+                                  </h4>
+                                  <audio controls src={storyResult.audioDataUri} className="w-full h-10">
+                                      Your browser does not support the audio element.
+                                  </audio>
+                              </div>
+                          )}
+                      </div>
+                  )}
+              </div>
+            </CollapsibleContent>
+          </div>
         </Collapsible>
         <CardFooter className="p-4 pt-0 mt-auto">
-           <div className="flex items-baseline gap-2">
-             <Badge variant="secondary" className="font-mono text-sm">
+          <div className="flex items-baseline gap-2">
+            <Badge variant="secondary" className="font-mono text-sm">
                 Rs.{product.price}
               </Badge>
               {product.originalPrice && (
