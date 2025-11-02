@@ -37,7 +37,8 @@ async function getUserIdFromToken() {
     }
 
     try {
-        const decodedToken = await auth(getFirebaseAdminApp()).verifyIdToken(
+        const adminApp = getFirebaseAdminApp();
+        const decodedToken = await auth(adminApp).verifyIdToken(
             idToken
         );
         return decodedToken.uid;
