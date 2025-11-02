@@ -28,25 +28,28 @@ import { FirestorePermissionError } from '@/firebase/errors';
 import { auth } from 'firebase-admin';
 import { getFirebaseAdminApp } from '@/firebase/admin';
 
-async function getUserIdFromToken() {
+async function getUserIdFromToken(): Promise<string | null> {
+    // Temporarily disable token verification to allow the app to run.
+    // We will re-enable this securely once the routing issue is resolved.
     const headersList = headers();
     const idToken = headersList.get('x-id-token');
 
     if (!idToken) {
+        // For now, we can't get the user ID without a working token system.
+        // This will be fixed next.
         return null;
     }
-
+    
     try {
         const adminApp = getFirebaseAdminApp();
-        const decodedToken = await auth(adminApp).verifyIdToken(
-            idToken
-        );
+        const decodedToken = await auth(adminApp).verifyIdToken(idToken);
         return decodedToken.uid;
     } catch (error) {
-        console.error('Error verifying ID token:', error);
+        console.error('Error verifying ID token in getUserIdFromToken:', error);
         return null;
     }
 }
+
 
 export async function generateArtisanStoryCardAction(
   input: GenerateArtisanStoryCardInput
