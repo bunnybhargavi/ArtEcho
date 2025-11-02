@@ -37,8 +37,9 @@ export async function generateArtisanStoryCardAction(
       createdAt: new Date().toISOString(),
     };
   
+    // Non-blocking write
     storyCardCollection.add(newStoryCardData).catch((error) => {
-        console.error("Failed to save story card due to permissions or other server error:", error);
+        console.error("Failed to save story card:", error);
     });
   
     return result;
