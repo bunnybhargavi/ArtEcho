@@ -52,8 +52,7 @@ const storyCardPrompt = ai.definePrompt({
   Product Description: {{{productDescription}}}
   Product Photo: {{media url=productPhotoDataUri}}
 
-  Create a translated and engaging story card description that captures the essence of the artisan and their product. This description will be used in marketing materials and should entice potential customers. The description should be no more than 150 words.
-  Also, generate a short title for the story card.
+  Create an engaging story card description that captures the essence of the artisan and their product. This description will be used in marketing materials and should entice potential customers. The description should be no more than 150 words.
   Return only the story card description.
 `,
 });

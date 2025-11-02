@@ -63,15 +63,17 @@ service cloud.firestore {
     }
 
     /**
-     * @description Grants read access to anyone and restricts write access to none.
+     * @description Grants read access to anyone and allows authenticated users to create.
      * @path /storyCards/{storyCardId}
      * @allow get, list: if true;
-     * @deny create, update, delete: if false;
+     * @allow create: if request.auth != null;
+     * @deny update, delete: if false;
      * @principle Allows public listing but restricts writes to prevent unauthorized changes.
      */
     match /storyCards/{storyCardId} {
       allow get, list: if true;
-      allow create, update, delete: if false;
+      allow create: if request.auth != null;
+      allow update, delete: if false;
     }
 
     /**
