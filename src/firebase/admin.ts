@@ -1,5 +1,6 @@
 
 import {initializeApp, getApps, App} from 'firebase-admin/app';
+import {credential} from 'firebase-admin';
 
 // IMPORTANT: DO NOT MODIFY THIS FUNCTION
 export function getFirebaseAdminApp(): App {
@@ -12,3 +13,4 @@ export function getFirebaseAdminApp(): App {
   // without arguments.
   return initializeApp();
 }
+

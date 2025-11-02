@@ -12,22 +12,18 @@ import {
   type MatchArtisansToBrandInput,
   type MatchArtisansToBrandOutput,
 } from '@/ai/flows/match-artisans-to-brand-flow';
-import { initializeFirebase } from '@/firebase';
-import {
-  collection,
-  addDoc,
-} from 'firebase/firestore';
-import { CartItem } from '@/lib/cart-store';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
+
+import { getFirebaseAdminApp } from '@/firebase/admin';
+import { getFirestore } from 'firebase-admin/firestore';
 import { useAuthStore } from '@/lib/auth-store';
 
 
 export async function generateArtisanStoryCardAction(
   input: GenerateArtisanStoryCardInput
 ): Promise<GenerateArtisanStoryCardOutput> {
-  const { firestore } = initializeFirebase();
-  const storyCardCollection = collection(firestore, 'storyCards');
+  const adminApp = getFirebaseAdminApp();
+  const firestore = getFirestore(adminApp);
+  const storyCardCollection = firestore.collection('storyCards');
 
   // Generate the story first
   const result = await generateArtisanStoryCard(input);
@@ -39,22 +35,14 @@ export async function generateArtisanStoryCardAction(
     audioUrl: result.audioDataUri,
     createdAt: new Date().toISOString(),
   };
+  
+  // Asynchronously save the generated story card to Firestore.
+  // We don't await this so the UI can update immediately.
+  storyCardCollection.add(newStoryCardData).catch((error) => {
+      // In a real app, you'd want robust logging here.
+      console.error("Failed to save story card due to permissions or other server error:", error);
+  });
 
-  // Save the generated story card to Firestore without blocking
-  addDoc(storyCardCollection, newStoryCardData)
-    .catch(async (serverError) => {
-      const permissionError = new FirestorePermissionError({
-        path: storyCardCollection.path,
-        operation: 'create',
-        requestResourceData: newStoryCardData,
-      } satisfies SecurityRuleContext);
-
-      errorEmitter.emit('permission-error', permissionError);
-
-      // We still throw an error to be caught by the client-side action handler
-      // This allows the UI to know the operation failed.
-      throw new Error('Failed to save story card due to permissions.');
-    });
 
   // Return the generated content immediately for a responsive UI
   return result;
@@ -77,10 +65,22 @@ export async function submitContactFormAction(formData: {
   email: string;
   message: string;
 }) {
-  // This is a mock implementation
-  console.log('Contact form submitted:', formData);
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return { success: true };
+  try {
+    const adminApp = getFirebaseAdminApp();
+    const firestore = getFirestore(adminApp);
+    const contactMessagesCollection = firestore.collection('contactMessages');
+
+    const newMessage = {
+      ...formData,
+      timestamp: new Date().toISOString(),
+    };
+
+    await contactMessagesCollection.add(newMessage);
+    return { success: true };
+  } catch (error) {
+    console.error('Error submitting contact form:', error);
+    return { success: false, error: 'Failed to submit message.' };
+  }
 }
 
 export async function updateUserThemeAction(theme: 'light' | 'dark' | 'system') {
@@ -100,3 +100,4 @@ export async function updateUserThemeAction(theme: 'light' | 'dark' | 'system') 
     return { success: false, error: error.message || 'Failed to update theme.' };
   }
 }
+
