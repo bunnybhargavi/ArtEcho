@@ -1,3 +1,4 @@
+
 /**
  * @fileoverview Firestore Security Rules for ArtEcho application.
  *
@@ -115,5 +116,3 @@ service cloud.firestore {
     }
   }
 }
-
-    

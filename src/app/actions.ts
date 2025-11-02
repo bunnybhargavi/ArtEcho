@@ -37,7 +37,7 @@ export async function generateArtisanStoryCardAction(
     
     // Save the generated story card to Firestore
     const storyCardCollection = collection(firestore, 'storyCards');
-    await addDoc(storyCardCollection, {
+    addDoc(storyCardCollection, {
       productId: input.productId,
       artisanId: input.artisanId,
       description: result.storyCardDescription,
@@ -92,5 +92,3 @@ export async function updateUserThemeAction(theme: 'light' | 'dark' | 'system') 
     return { success: false, error: error.message || 'Failed to update theme.' };
   }
 }
-
-    
