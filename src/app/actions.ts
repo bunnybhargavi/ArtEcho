@@ -138,34 +138,11 @@ export async function placeSingleItemOrderAction(item: CartItem): Promise<{ succ
   if (!user) {
     return { success: false, error: 'User not authenticated.' };
   }
-  const userId = user.uid;
 
-  const { firestore } = initializeFirebase();
-  
-  const newOrder = {
-    userId,
-    items: [{...item, quantity: 1}], // Ensure quantity is 1 for a single purchase
-    total: item.price,
-    status: 'Placed' as const,
-    createdAt: new Date().toISOString(),
-  };
-
-  const ordersRef = collection(firestore, 'users', userId, 'orders');
-
-  try {
-    const docRef = await addDoc(ordersRef, newOrder);
-    return { success: true, orderId: docRef.id };
-  } catch (error: any) {
-    const permissionError = new FirestorePermissionError({
-        path: ordersRef.path,
-        operation: 'create',
-        requestResourceData: newOrder,
-    });
-    errorEmitter.emit('permission-error', permissionError);
-    
-    console.error('Error placing single item order:', error);
-    return { success: false, error: error.message || 'Failed to place order.' };
-  }
+  // For mock purposes, we can generate a fake order ID and return success.
+  // In a real scenario, this would interact with the database.
+  const fakeOrderId = `fake-order-${Date.now()}`;
+  return { success: true, orderId: fakeOrderId };
 }
 
 export async function updateUserThemeAction(theme: 'light' | 'dark' | 'system') {
@@ -198,5 +175,3 @@ export async function updateUserThemeAction(theme: 'light' | 'dark' | 'system') 
     return { success: false, error: error.message || 'Failed to update theme.' };
   }
 }
-
-
