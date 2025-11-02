@@ -28,14 +28,6 @@ import { FirestorePermissionError } from '@/firebase/errors';
 import { useAuthStore } from '@/lib/auth-store';
 
 
-async function getUserIdFromToken(): Promise<string | null> {
-    // This is a mock function. In a real app, you'd get this from a session.
-    // For now, we will use the state from our mock auth store.
-    const user = useAuthStore.getState().user;
-    return user?.uid || null;
-}
-
-
 export async function generateArtisanStoryCardAction(
   input: GenerateArtisanStoryCardInput
 ): Promise<GenerateArtisanStoryCardOutput> {
@@ -94,11 +86,12 @@ export async function placeOrderAction(data: {
   items: CartItem[];
   total: number;
 }): Promise<{ success: boolean; orderId?: string; error?: string }> {
-  const userId = await getUserIdFromToken();
+  const user = useAuthStore.getState().user;
 
-  if (!userId) {
+  if (!user) {
     return { success: false, error: 'User not authenticated.' };
   }
+  const userId = user.uid;
 
   const { firestore } = initializeFirebase();
   const ordersRef = collection(firestore, 'users', userId, 'orders');
@@ -125,13 +118,13 @@ export async function placeOrderAction(data: {
 
     return { success: true, orderId: docRef.id };
   } catch (error: any) {
-    const operation = error.message.includes("delete") ? 'delete' : 'create';
-    const path = operation === 'delete' ? cartRef.path : ordersRef.path;
+    const operation = 'create';
+    const path = ordersRef.path;
 
     const permissionError = new FirestorePermissionError({
         path: path,
         operation: operation,
-        requestResourceData: operation === 'create' ? newOrder : undefined,
+        requestResourceData: newOrder,
     });
     errorEmitter.emit('permission-error', permissionError);
 
@@ -141,41 +134,34 @@ export async function placeOrderAction(data: {
 
 
 export async function placeSingleItemOrderAction(item: CartItem): Promise<{ success: boolean; orderId?: string; error?: string }> {
+  const user = useAuthStore.getState().user;
+  if (!user) {
+    return { success: false, error: 'User not authenticated.' };
+  }
+  const userId = user.uid;
+
+  const { firestore } = initializeFirebase();
+  const ordersRef = collection(firestore, 'users', userId, 'orders');
+  
+  const newOrder = {
+    userId,
+    items: [{...item, quantity: 1}], // Ensure quantity is 1 for a single purchase
+    total: item.price,
+    status: 'Placed' as const,
+    createdAt: new Date().toISOString(),
+  };
+
   try {
-    const userId = await getUserIdFromToken();
-
-    if (!userId) {
-      return { success: false, error: 'User not authenticated.' };
-    }
-
-    const { firestore } = initializeFirebase();
-    const ordersRef = collection(firestore, 'users', userId, 'orders');
-    
-    const newOrder = {
-      userId,
-      items: [{...item, quantity: 1}], // Ensure quantity is 1 for a single purchase
-      total: item.price,
-      status: 'Placed' as const,
-      createdAt: new Date().toISOString(),
-    };
-
-    const docRef = await addDoc(ordersRef, newOrder)
-     .catch(error => {
-        errorEmitter.emit(
-            'permission-error',
-            new FirestorePermissionError({
-                path: ordersRef.path,
-                operation: 'create',
-                requestResourceData: newOrder,
-            })
-        );
-        // Re-throw to be caught by the outer try/catch
-        throw error;
-      });
-
+    const docRef = await addDoc(ordersRef, newOrder);
     return { success: true, orderId: docRef.id };
-  } catch (error: any)
-{
+  } catch (error: any) {
+    const permissionError = new FirestorePermissionError({
+        path: ordersRef.path,
+        operation: 'create',
+        requestResourceData: newOrder,
+    });
+    errorEmitter.emit('permission-error', permissionError);
+    
     console.error('Error placing single item order:', error);
     return { success: false, error: error.message || 'Failed to place order.' };
   }
@@ -183,12 +169,12 @@ export async function placeSingleItemOrderAction(item: CartItem): Promise<{ succ
 
 export async function updateUserThemeAction(theme: 'light' | 'dark' | 'system') {
   try {
-    const userId = await getUserIdFromToken();
-
-    if (!userId) {
+    const user = useAuthStore.getState().user;
+    if (!user) {
       // Not an error, just means a guest is changing themes.
       return { success: true };
     }
+    const userId = user.uid;
 
     const { firestore } = initializeFirebase();
     const userDocRef = doc(firestore, 'users', userId);
@@ -211,3 +197,4 @@ export async function updateUserThemeAction(theme: 'light' | 'dark' | 'system') 
     return { success: false, error: error.message || 'Failed to update theme.' };
   }
 }
+
