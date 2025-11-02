@@ -76,31 +76,30 @@ export async function submitContactFormAction(formData: {
   email: string;
   message: string;
 }) {
-  try {
-    const { firestore } = initializeFirebase();
-    const contactMessagesRef = collection(firestore, 'contactMessages');
-    const submissionData = {
-        ...formData,
-        timestamp: new Date().toISOString(),
-    };
+  const { firestore } = initializeFirebase();
+  const contactMessagesRef = collection(firestore, 'contactMessages');
+  const submissionData = {
+    ...formData,
+    timestamp: new Date().toISOString(),
+  };
 
-    addDoc(contactMessagesRef, submissionData).catch(error => {
-        errorEmitter.emit(
-            'permission-error',
-            new FirestorePermissionError({
-                path: contactMessagesRef.path,
-                operation: 'create',
-                requestResourceData: submissionData,
-            })
-        );
+  return addDoc(contactMessagesRef, submissionData)
+    .then(() => ({ success: true }))
+    .catch((error) => {
+      // This is the correct place to emit the contextual error.
+      const permissionError = new FirestorePermissionError({
+        path: contactMessagesRef.path,
+        operation: 'create',
+        requestResourceData: submissionData,
+      });
+      errorEmitter.emit('permission-error', permissionError);
+      
+      // Also return a failure state to the client.
+      console.error('Error submitting contact form:', error);
+      return { success: false, error: 'Failed to submit message.' };
     });
-
-    return { success: true };
-  } catch (error) {
-    console.error('Error submitting contact form:', error);
-    return { success: false, error: 'Failed to submit message.' };
-  }
 }
+
 
 export async function placeOrderAction(data: {
   items: CartItem[];
