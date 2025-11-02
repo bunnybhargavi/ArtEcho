@@ -95,6 +95,12 @@ const nextConfig: NextConfig = {
         hostname: 'cdn.vibecity.in',
         port: '',
         pathname: '/**',
+      },
+       {
+        protocol: 'https',
+        hostname: 'www.shutterstock.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

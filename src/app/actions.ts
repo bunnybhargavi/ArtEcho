@@ -16,14 +16,15 @@ import {
 import { getFirebaseAdminApp } from '@/firebase/admin';
 import { getFirestore } from 'firebase-admin/firestore';
 import { useAuthStore } from '@/lib/auth-store';
+import type { Artisan, Product } from '@/lib/types';
 
 
 export async function generateArtisanStoryCardAction(
-  input: GenerateArtisanStoryCardInput
+  input: { artisan: Artisan, product: Product, productPhotoDataUri: string }
 ): Promise<{ success: boolean; data?: GenerateArtisanStoryCardOutput; message?: string }> {
   try {
     // 1. Input Validation
-    if (!input.artisanId || !input.productId || !input.productPhotoDataUri) {
+    if (!input.artisan || !input.product || !input.productPhotoDataUri) {
       const errorMsg = 'Invalid input. Please provide all required fields.';
       console.error('Validation Error:', errorMsg);
       return { success: false, message: errorMsg };
@@ -33,8 +34,20 @@ export async function generateArtisanStoryCardAction(
     const firestore = getFirestore(adminApp);
     const storyCardCollection = firestore.collection('storyCards');
   
+    const flowInput: GenerateArtisanStoryCardInput = {
+        artisanId: input.artisan.id,
+        productId: input.product.id,
+        artisanName: input.artisan.name,
+        craft: input.artisan.craft,
+        location: input.artisan.location,
+        artisanStory: input.artisan.story,
+        productName: input.product.name,
+        productDescription: input.product.description,
+        productPhotoDataUri: input.productPhotoDataUri
+    };
+
     // 2. Graceful AI Call
-    const result = await generateArtisanStoryCard(input);
+    const result = await generateArtisanStoryCard(flowInput);
 
     if (!result || !result.storyCardDescription) {
         throw new Error('AI failed to generate a story description.');
@@ -42,25 +55,21 @@ export async function generateArtisanStoryCardAction(
   
     // 3. Firestore Write with feedback
     const newStoryCardData = {
-      productId: input.productId,
-      artisanId: input.artisanId,
+      productId: input.product.id,
+      artisanId: input.artisan.id,
       description: result.storyCardDescription,
       audioUrl: result.audioDataUri,
       createdAt: new Date().toISOString(),
     };
   
-    // Non-blocking write, but log potential errors
     storyCardCollection.add(newStoryCardData).catch((error) => {
         console.error("Firestore Write Error: Failed to save story card:", error);
-        // This is a background error, so we don't block the user response.
-        // In a production app, you might add this to a retry queue or monitoring system.
     });
     
     console.log("Generated story card:", result);
     return { success: true, data: result };
 
   } catch (error: any) {
-    // 4. Centralized Error Handling & Logging
     console.error('Critical Error in generateArtisanStoryCardAction:', error);
     const response = { success: false, message: error.message || 'Failed to generate story card due to an unexpected server error.' };
     console.log('Returning response:', response);

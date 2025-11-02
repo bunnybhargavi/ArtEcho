@@ -33,7 +33,6 @@ export default function StoryCardModal({ product, artisan, isOpen, onClose }: St
 
         const imageUrl = image?.imageUrl ?? `https://picsum.photos/seed/${product.id}/600/400`;
 
-        // Fetch the image via the server-side proxy
         try {
           const response = await fetch(`/api/proxy-image?url=${encodeURIComponent(imageUrl)}`);
           if (!response.ok) {
@@ -42,31 +41,27 @@ export default function StoryCardModal({ product, artisan, isOpen, onClose }: St
           }
           const { dataUri: productPhotoDataUri } = await response.json();
             
-          try {
-            const result = await generateArtisanStoryCardAction({
-              artisan,
-              product,
-              productPhotoDataUri,
-            });
-            setStoryResult(result);
-          } catch (error) {
-            console.error('Error generating story card:', error);
-            toast({
-              variant: 'destructive',
-              title: 'AI Story Generation Failed',
-              description: 'Could not generate the artisan story. Please try again later.',
-            });
-          } finally {
-            setIsLoading(false);
+          const result = await generateArtisanStoryCardAction({
+            artisan,
+            product,
+            productPhotoDataUri,
+          });
+
+          if (result.success && result.data) {
+            setStoryResult(result.data);
+          } else {
+             throw new Error(result.message || 'Story generation failed.');
           }
-        } catch (error) {
-           console.error('Error fetching or processing image for story generation:', error);
+
+        } catch (error: any) {
+           console.error('Error in story generation process:', error);
            toast({
             variant: 'destructive',
-            title: 'Image Processing Failed',
-            description: 'Could not load the product image to generate the story.',
+            title: 'AI Story Generation Failed',
+            description: error.message || 'Could not generate the artisan story. Please try again later.',
           });
-          setIsLoading(false);
+        } finally {
+            setIsLoading(false);
         }
       };
 

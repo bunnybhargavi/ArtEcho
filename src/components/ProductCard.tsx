@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/card';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Badge } from './ui/badge';
-import { Star, ShoppingCart, Loader2 } from 'lucide-react';
+import { Star, ShoppingCart, Loader2, Volume2, AlertTriangle, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { useCartStore, type CartItem } from '@/lib/cart-store';
 import { useToast } from '@/hooks/use-toast';
@@ -19,6 +19,9 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useUser, placeSingleItemOrderAction } from '@/lib/auth-store';
 import PaymentDialog from './PaymentDialog';
+import { generateArtisanStoryCardAction } from '@/app/actions';
+import { Collapsible, CollapsibleContent } from './ui/collapsible';
+import { Separator } from './ui/separator';
 
 interface ProductCardProps {
   product: Product;
@@ -44,10 +47,14 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
   const { user } = useUser();
 
+  const [isStoryOpen, setIsStoryOpen] = useState(false);
+  const [storyResult, setStoryResult] = useState<{ storyCardDescription: string; audioDataUri: string } | null>(null);
+  const [isStoryLoading, setIsStoryLoading] = useState(false);
+  const [storyError, setStoryError] = useState<string | null>(null);
+
   const discountPercent = product.originalPrice ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : 0;
 
   const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    // Prevent navigation if a button was clicked
     if ((e.target as HTMLElement).closest('button')) {
       return;
     }
@@ -89,6 +96,34 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
     }
     setIsPaymentDialogOpen(true);
   };
+  
+  const handleToggleStory = async (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation();
+      const nextIsOpen = !isStoryOpen;
+      setIsStoryOpen(nextIsOpen);
+
+      if (nextIsOpen && !storyResult && artisan && mainImage) {
+          setIsStoryLoading(true);
+          setStoryError(null);
+          try {
+              const response = await fetch(`/api/proxy-image?url=${encodeURIComponent(mainImage.imageUrl)}`);
+              if (!response.ok) throw new Error('Failed to fetch image for story.');
+              const { dataUri } = await response.json();
+
+              const result = await generateArtisanStoryCardAction({ artisan, product, productPhotoDataUri: dataUri });
+              if (result.success && result.data) {
+                  setStoryResult(result.data);
+              } else {
+                  throw new Error(result.message || "Story generation failed.");
+              }
+          } catch (error: any) {
+              setStoryError(error.message);
+          } finally {
+              setIsStoryLoading(false);
+          }
+      }
+  };
+
 
   const confirmOrder = async () => {
     if (mainImage && product) {
@@ -181,30 +216,74 @@ export function ProductCard({ product, artisan, onImageClick, className }: Produ
               </div>
           </div>
         </CardHeader>
-        <CardContent className="p-4 flex-grow flex flex-col">
-          <h3 className="font-headline text-lg font-semibold leading-tight">
-            {product.name}
-          </h3>
-          {artisan && (
-            <p className="text-sm text-muted-foreground mt-1">
-              by {artisan.name}
-            </p>
-          )}
-          
-          <div className="flex items-center gap-1 mt-2">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Star
-                key={i}
-                className={`w-4 h-4 ${
-                  i < Math.floor(product.rating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'
-                }`}
-              />
-            ))}
-            <span className="text-xs text-muted-foreground ml-1">({product.reviews})</span>
-          </div>
+        <Collapsible open={isStoryOpen} onOpenChange={setIsStoryOpen}>
+          <CardContent className="p-4 flex-grow flex flex-col">
+            <h3 className="font-headline text-lg font-semibold leading-tight">
+              {product.name}
+            </h3>
+            {artisan && (
+              <p className="text-sm text-muted-foreground mt-1">
+                by {artisan.name}
+              </p>
+            )}
+            
+            <div className="flex items-center gap-1 mt-2">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Star
+                  key={i}
+                  className={`w-4 h-4 ${
+                    i < Math.floor(product.rating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'
+                  }`}
+                />
+              ))}
+              <span className="text-xs text-muted-foreground ml-1">({product.reviews})</span>
+            </div>
+            
+             {artisan && (
+                <div className="mt-4">
+                  <Button variant="outline" size="sm" onClick={handleToggleStory} className="w-full">
+                    {isStoryOpen ? 'Hide Story' : 'Show AI Story'}
+                  </Button>
+                </div>
+            )}
 
-        </CardContent>
-        <CardFooter className="p-4 pt-0">
+
+          </CardContent>
+          <CollapsibleContent>
+             <Separator />
+             <div className="p-4 space-y-4">
+                 {isStoryLoading && (
+                    <div className="flex items-center justify-center text-muted-foreground space-x-2">
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        <span>Generating story...</span>
+                    </div>
+                 )}
+                 {storyError && (
+                     <div className="flex items-start text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+                         <AlertTriangle className="h-4 w-4 mr-2 shrink-0 mt-0.5" />
+                         <p>Error: {storyError}</p>
+                     </div>
+                 )}
+                 {storyResult && (
+                    <div className="space-y-3">
+                         <p className="text-sm text-foreground/80 italic">"{storyResult.storyCardDescription}"</p>
+                        {storyResult.audioDataUri && (
+                             <div>
+                                 <h4 className="font-semibold mb-1 flex items-center gap-2 text-sm">
+                                    <Volume2 className="w-4 h-4"/>
+                                    Audio Story
+                                </h4>
+                                <audio controls src={storyResult.audioDataUri} className="w-full h-10">
+                                    Your browser does not support the audio element.
+                                </audio>
+                            </div>
+                        )}
+                    </div>
+                 )}
+             </div>
+          </CollapsibleContent>
+        </Collapsible>
+        <CardFooter className="p-4 pt-0 mt-auto">
            <div className="flex items-baseline gap-2">
              <Badge variant="secondary" className="font-mono text-sm">
                 Rs.{product.price}
