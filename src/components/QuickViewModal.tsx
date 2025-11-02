@@ -13,8 +13,7 @@ import { useCartStore, type CartItem } from '@/lib/cart-store';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useUser } from '@/lib/auth-store';
-import { placeSingleItemOrderAction } from '@/app/actions';
+import { useUser, placeSingleItemOrderAction } from '@/lib/auth-store';
 import PaymentDialog from './PaymentDialog';
 
 interface QuickViewModalProps {

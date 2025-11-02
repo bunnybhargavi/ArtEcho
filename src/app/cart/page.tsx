@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { ShoppingCart, X, Plus, Minus, Tag, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { placeOrderAction } from '@/app/actions';
+import { placeOrderAction } from '@/lib/auth-store';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';

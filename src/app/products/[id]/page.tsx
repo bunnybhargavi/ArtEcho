@@ -14,9 +14,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import StoryCardModal from '@/components/dashboard/StoryCardModal';
 import { useCartStore } from '@/lib/cart-store';
 import { useToast } from '@/hooks/use-toast';
-import { useUser } from '@/lib/auth-store';
+import { useUser, placeSingleItemOrderAction } from '@/lib/auth-store';
 import { customerReviews } from '@/lib/reviews';
-import { placeSingleItemOrderAction } from '@/app/actions';
 import type { CartItem } from '@/lib/cart-store';
 import PaymentDialog from '@/components/PaymentDialog';
 

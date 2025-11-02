@@ -9,9 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { useFirebase, useUser } from '@/firebase';
-import { collection } from 'firebase/firestore';
-import { useCollection, useMemoFirebase } from '@/firebase';
+import { useUser } from '@/lib/auth-store';
 import type { Order } from '@/lib/types';
 import { Loader2, Package, AlertCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -19,24 +17,28 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
+import { useEffect, useState } from 'react';
+import { useAuthStore } from '@/lib/auth-store';
+
 
 export default function OrderHistory() {
   const { user, isUserLoading } = useUser();
-  const { firestore } = useFirebase();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [areOrdersLoading, setAreOrdersLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-  const ordersQuery = useMemoFirebase(
-    () =>
-      user && firestore
-        ? collection(firestore, 'users', user.uid, 'orders')
-        : null,
-    [user, firestore]
-  );
+  useEffect(() => {
+    if (user) {
+        // This is a mock implementation since we don't have a real DB connection here.
+        // In a real app, this would be a Firestore query.
+        const mockOrders = useAuthStore.getState().mockUsers.find(u => u.uid === user.uid)?.orders || [];
+        setOrders(mockOrders);
+        setAreOrdersLoading(false);
+    } else if (!isUserLoading) {
+        setAreOrdersLoading(false);
+    }
+  }, [user, isUserLoading]);
 
-  const {
-    data: orders,
-    isLoading: areOrdersLoading,
-    error,
-  } = useCollection<Order>(ordersQuery);
 
   const sortedOrders = orders
     ? [...orders].sort(

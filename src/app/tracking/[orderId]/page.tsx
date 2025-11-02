@@ -7,13 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Loader2, ArrowLeft, Home, Package } from 'lucide-react';
 import Image from 'next/image';
-import { useUser, useFirebase } from '@/firebase';
-import { useEffect } from 'react';
+import { useUser } from '@/lib/auth-store';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import TrackingProgressBar from '@/components/TrackingProgressBar';
-import { useDoc, useMemoFirebase } from '@/firebase';
-import { doc } from 'firebase/firestore';
 import { Separator } from '@/components/ui/separator';
 
 
@@ -24,21 +22,26 @@ export default function TrackingPage() {
   const router = useRouter();
   const orderId = params.orderId as string;
   const { user, isUserLoading } = useUser();
-  const { firestore } = useFirebase();
+  const [order, setOrder] = useState<Order | null>(null);
+  const [isOrderLoading, setIsOrderLoading] = useState(true);
 
-  const orderDocRef = useMemoFirebase(
-    () => (user && firestore && orderId ? doc(firestore, 'users', user.uid, 'orders', orderId) : null),
-    [user, firestore, orderId]
-  );
-
-  const { data: order, isLoading: isOrderLoading } = useDoc<Order>(orderDocRef);
-  
   useEffect(() => {
-    // Redirect if user is not logged in after loading has completed
     if (!isUserLoading && !user) {
       router.push('/login');
     }
   }, [isUserLoading, user, router]);
+
+  useEffect(() => {
+    if(user && orderId) {
+        const foundOrder = user.orders?.find(o => o.id === orderId);
+        if(foundOrder) {
+            setOrder(foundOrder);
+        }
+        setIsOrderLoading(false);
+    } else if (!isUserLoading) {
+      setIsOrderLoading(false);
+    }
+  }, [user, orderId, isUserLoading]);
 
 
   if (isOrderLoading || isUserLoading) {
@@ -51,20 +54,13 @@ export default function TrackingPage() {
       </div>
     );
   }
-
-  if (!user) {
-    // Return null while redirecting
-    return null;
-  }
   
-  if (!order) {
-    // This can mean the order doesn't exist or there was an error (which `useDoc` would also capture)
-    // notFound() should be called here if the order is genuinely not found after loading.
-    // We can also show a "not found" state.
-     if (!isOrderLoading) {
-      return notFound();
-    }
-    // if still loading, we already returned the loader, but as a fallback:
+  if (!order && !isOrderLoading) {
+    return notFound();
+  }
+
+  if (!user || !order) {
+    // Return null while redirecting or if order not found for user
     return null;
   }
 
