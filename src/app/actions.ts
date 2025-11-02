@@ -21,26 +21,32 @@ import { useAuthStore } from '@/lib/auth-store';
 export async function generateArtisanStoryCardAction(
   input: GenerateArtisanStoryCardInput
 ): Promise<GenerateArtisanStoryCardOutput> {
-  const adminApp = getFirebaseAdminApp();
-  const firestore = getFirestore(adminApp);
-  const storyCardCollection = firestore.collection('storyCards');
+  try {
+    const adminApp = getFirebaseAdminApp();
+    const firestore = getFirestore(adminApp);
+    const storyCardCollection = firestore.collection('storyCards');
+  
+    // Generate the story first
+    const result = await generateArtisanStoryCard(input);
+  
+    const newStoryCardData = {
+      productId: input.productId,
+      artisanId: input.artisanId,
+      description: result.storyCardDescription,
+      audioUrl: result.audioDataUri,
+      createdAt: new Date().toISOString(),
+    };
+  
+    storyCardCollection.add(newStoryCardData).catch((error) => {
+        console.error("Failed to save story card due to permissions or other server error:", error);
+    });
+  
+    return result;
 
-  // Generate the story first
-  const result = await generateArtisanStoryCard(input);
-
-  const newStoryCardData = {
-    productId: input.productId,
-    artisanId: input.artisanId,
-    description: result.storyCardDescription,
-    audioUrl: result.audioDataUri,
-    createdAt: new Date().toISOString(),
-  };
-
-  storyCardCollection.add(newStoryCardData).catch((error) => {
-      console.error("Failed to save story card due to permissions or other server error:", error);
-  });
-
-  return result;
+  } catch (error) {
+    console.error('Error in generateArtisanStoryCardAction:', error);
+    throw new Error('Failed to generate story card.');
+  }
 }
 
 export async function matchArtisansToBrandAction(
