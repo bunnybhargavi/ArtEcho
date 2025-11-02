@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { products, artisans } from '@/lib/data';
 import { ProductCard } from '@/components/ProductCard';
 import QuickViewModal from '@/components/QuickViewModal';
@@ -10,12 +10,39 @@ import ProductFilters from '@/components/ProductFilters';
 import { useSearchParams } from 'next/navigation';
 import { Separator } from '@/components/ui/separator';
 
+export interface Filters {
+  category: string;
+  price: number;
+  styles: string[];
+  material: string;
+  location: string;
+  newArrivals: boolean;
+  searchTerm: string;
+}
+
+const initialFilters: Filters = {
+  category: 'all',
+  price: 500,
+  styles: [],
+  material: '',
+  location: '',
+  newArrivals: false,
+  searchTerm: '',
+};
+
 export default function ProductsPage() {
   const searchParams = useSearchParams();
   const initialSearch = searchParams.get('q') || '';
   
   const [selectedProduct, setSelectedProduct] = useState<{ product: Product, artisan?: Artisan } | null>(null);
-  const [searchTerm, setSearchTerm] = useState(initialSearch);
+  const [activeFilters, setActiveFilters] = useState<Filters>({
+    ...initialFilters,
+    searchTerm: initialSearch,
+  });
+
+  useEffect(() => {
+    setActiveFilters(prev => ({...prev, searchTerm: initialSearch}));
+  }, [initialSearch]);
 
   const handleProductClick = (product: Product, artisan?: Artisan) => {
     setSelectedProduct({ product, artisan });
@@ -26,12 +53,25 @@ export default function ProductsPage() {
   };
   
   const filteredProducts = useMemo(() => {
-    return products.filter(product => 
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-  }, [searchTerm]);
+    return products.filter(product => {
+      // Search Term
+      const searchTermMatch = activeFilters.searchTerm ? (
+        product.name.toLowerCase().includes(activeFilters.searchTerm.toLowerCase()) ||
+        product.description.toLowerCase().includes(activeFilters.searchTerm.toLowerCase()) ||
+        product.tags.some(tag => tag.toLowerCase().includes(activeFilters.searchTerm.toLowerCase()))
+      ) : true;
+
+      // Price
+      const priceMatch = product.price <= activeFilters.price;
+      
+      // New Arrivals Badge
+      const newArrivalsMatch = activeFilters.newArrivals ? product.badge === 'New' || product.badge === 'New Arrival' : true;
+
+      // TODO: Implement other filters like category, style, material, location
+      
+      return searchTermMatch && priceMatch && newArrivalsMatch;
+    });
+  }, [activeFilters]);
 
   return (
     <div className="container mx-auto py-12 px-4">
@@ -46,13 +86,18 @@ export default function ProductsPage() {
 
       <div className="grid lg:grid-cols-[280px_1fr] gap-8">
         <aside className="hidden lg:block">
-            <ProductFilters />
+            <ProductFilters 
+              onFilterChange={setActiveFilters}
+              initialFilters={{...initialFilters, searchTerm: initialSearch}}
+            />
         </aside>
 
         <main>
-           {/* Mobile filters could go here in an Accordion/Sheet */}
            <div className="lg:hidden mb-6">
-              <ProductFilters />
+              <ProductFilters 
+                onFilterChange={setActiveFilters}
+                initialFilters={{...initialFilters, searchTerm: initialSearch}}
+              />
            </div>
            
            <Separator className="mb-8" />

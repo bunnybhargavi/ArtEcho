@@ -1,7 +1,8 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import type { Filters } from '@/app/products/page';
 import {
   Accordion,
   AccordionContent,
@@ -27,8 +28,34 @@ const materials = ['Wood', 'Glass', 'Clay', 'Metal', 'Fabric', 'Paper'];
 const styles = ['Modern', 'Rustic', 'Minimalist', 'Traditional', 'Boho'];
 const locations = ['Oaxaca, Mexico', 'Kyoto, Japan', 'Marrakech, Morocco', 'Waterford, Ireland'];
 
-export default function ProductFilters() {
-  const [price, setPrice] = useState(50);
+interface ProductFiltersProps {
+  onFilterChange: (filters: Filters) => void;
+  initialFilters: Filters;
+}
+
+export default function ProductFilters({ onFilterChange, initialFilters }: ProductFiltersProps) {
+  const [currentFilters, setCurrentFilters] = useState<Filters>(initialFilters);
+
+  useEffect(() => {
+    setCurrentFilters(initialFilters);
+  }, [initialFilters]);
+
+  const handlePriceChange = (value: number[]) => {
+    setCurrentFilters(prev => ({...prev, price: value[0]}));
+  };
+
+  const handleNewArrivalsChange = (checked: boolean) => {
+    setCurrentFilters(prev => ({...prev, newArrivals: checked}));
+  }
+
+  const handleApply = () => {
+    onFilterChange(currentFilters);
+  }
+
+  const handleClear = () => {
+    setCurrentFilters(initialFilters);
+    onFilterChange(initialFilters);
+  }
 
   return (
     <Card className="p-4 lg:p-0 lg:border-none lg:shadow-none">
@@ -63,14 +90,14 @@ export default function ProductFilters() {
             <AccordionTrigger className="font-semibold">Price Range</AccordionTrigger>
             <AccordionContent className="pt-4 space-y-4">
                 <Slider 
-                  value={[price]} 
-                  onValueChange={(value) => setPrice(value[0])}
-                  max={500} 
-                  step={10} 
+                  value={[currentFilters.price]} 
+                  onValueChange={handlePriceChange}
+                  max={5000} 
+                  step={100} 
                 />
                 <div className="flex justify-between text-sm text-muted-foreground">
                     <span>Rs.0</span>
-                    <span>Rs.{price}</span>
+                    <span>Rs.{currentFilters.price}</span>
                 </div>
             </AccordionContent>
         </AccordionItem>
@@ -123,16 +150,20 @@ export default function ProductFilters() {
             <AccordionTrigger className="font-semibold">Other</AccordionTrigger>
             <AccordionContent className="space-y-4 pt-4">
                 <div className="flex items-center justify-between rounded-lg border p-3">
-                    <Label htmlFor="new-arrivals" className="font-normal">New Arrivals</Label>
-                    <Switch id="new-arrivals" />
+                    <Label htmlFor="new-arrivals" className="font-normal">New Arrivals only</Label>
+                    <Switch 
+                      id="new-arrivals" 
+                      checked={currentFilters.newArrivals}
+                      onCheckedChange={handleNewArrivalsChange}
+                    />
                 </div>
             </AccordionContent>
         </AccordionItem>
     </Accordion>
 
     <div className="mt-6 flex flex-col gap-2">
-        <Button>Apply Filters</Button>
-        <Button variant="ghost">Clear Filters</Button>
+        <Button onClick={handleApply}>Apply Filters</Button>
+        <Button variant="ghost" onClick={handleClear}>Clear Filters</Button>
     </div>
     </Card>
   );
