@@ -5,72 +5,35 @@ import { useParams, notFound, useRouter } from 'next/navigation';
 import type { Order, TrackingEvent } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowLeft, Home, ChevronDown, ChevronUp } from 'lucide-react';
+import { Loader2, ArrowLeft, Home, Package } from 'lucide-react';
 import Image from 'next/image';
-import { useUser } from '@/lib/auth-store';
+import { useUser, useFirebase } from '@/firebase';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import TrackingProgressBar from '@/components/TrackingProgressBar';
+import { useDoc, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
+import { Separator } from '@/components/ui/separator';
 
 
 const allStatuses = ['Placed', 'Shipped', 'On the way', 'Out for delivery', 'Delivered'] as const;
-
-// This is a fake order generator for the mock system.
-const generateFakeOrder = (orderId: string): Order => {
-    const now = new Date();
-    const expectedDeliveryDate = new Date(now);
-    expectedDeliveryDate.setDate(now.getDate() + 5); // 5 days from now
-
-    const trackingHistory: TrackingEvent[] = [
-        { status: 'Order placed and confirmed.', location: 'Hyderabad, IN', timestamp: now.toISOString() },
-    ];
-
-    return {
-        id: orderId,
-        userId: 'fake-user-id',
-        items: [
-            {
-                productId: '1',
-                name: 'Terracotta Chai Cup Set',
-                price: 350,
-                imageUrl: 'https://cdn.vibecity.in/providers/63e609ba1095ba0012311f77/064d500a-705c-4aa3-ab67-446ebc5a5c8a_f5962e3a-6cbd-4588-8f94-6cddae2fe48a-3X.png',
-                quantity: 2,
-            }
-        ],
-        total: 700,
-        status: 'Placed',
-        createdAt: now.toISOString(),
-        expectedDelivery: expectedDeliveryDate.toISOString(),
-        statusHistory: trackingHistory,
-    };
-};
-
 
 export default function TrackingPage() {
   const params = useParams();
   const router = useRouter();
   const orderId = params.orderId as string;
   const { user, isUserLoading } = useUser();
-  const [order, setOrder] = useState<Order | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { firestore } = useFirebase();
 
-  useEffect(() => {
-    if (!isUserLoading) {
-      if (user) {
-        // In a real app, you'd fetch this from Firestore.
-        // Here, we generate a fake order.
-        setOrder(generateFakeOrder(orderId));
-        setIsLoading(false);
-      } else {
-        // If no user, we can't show the order.
-        router.push('/login');
-      }
-    }
-  }, [isUserLoading, user, orderId, router]);
+  const orderDocRef = useMemoFirebase(
+    () => (user && firestore && orderId ? doc(firestore, 'users', user.uid, 'orders', orderId) : null),
+    [user, firestore, orderId]
+  );
 
+  const { data: order, isLoading: isOrderLoading, error } = useDoc<Order>(orderDocRef);
 
-  if (isLoading || isUserLoading) {
+  if (isOrderLoading || isUserLoading) {
     return (
       <div className="container mx-auto py-12 px-4 flex justify-center items-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-4 text-muted-foreground">
@@ -81,7 +44,14 @@ export default function TrackingPage() {
     );
   }
 
+  if (!user) {
+    // This should ideally not be hit if routing is protected, but as a fallback:
+    router.push('/login');
+    return null;
+  }
+  
   if (!order) {
+    // This can mean the order doesn't exist or there was an error (which `useDoc` would also capture)
     return notFound();
   }
 
@@ -108,16 +78,46 @@ export default function TrackingPage() {
                         }
                     </div>
                     <div className="text-right text-sm text-muted-foreground">
-                        <p>Your order has been placed and is preparing for shipment.</p>
-                        <p>(Updated just now)</p>
+                        <p>Order ID: <span className="font-mono">{order.id}</span></p>
+                        <p>Placed on: {new Date(order.createdAt).toLocaleDateString()}</p>
                     </div>
                 </div>
 
                 <TrackingProgressBar currentStatus={order.status} statuses={allStatuses} />
             </div>
+            
+            {/* Order Items */}
+            <Accordion type="single" collapsible defaultValue='item-1'>
+                <AccordionItem value="item-1">
+                    <AccordionTrigger className="text-xl font-semibold">
+                        Order Summary
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-4">
+                        <div className="space-y-4">
+                            {order.items.map(item => (
+                                <div key={item.productId} className="flex gap-4 items-center">
+                                    <div className="relative h-16 w-16 rounded-md overflow-hidden shrink-0">
+                                        <Image src={item.imageUrl} alt={item.name} fill className="object-cover" />
+                                    </div>
+                                    <div className="flex-grow">
+                                        <p className="font-semibold">{item.name}</p>
+                                        <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
+                                    </div>
+                                    <p className="font-medium">Rs.{item.price * item.quantity}</p>
+                                </div>
+                            ))}
+                        </div>
+                        <Separator className="my-4"/>
+                        <div className="text-right font-bold text-lg">
+                            Total: Rs.{order.total}
+                        </div>
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
+
 
           {/* Tracking Details Accordion */}
-          <Accordion type="single" collapsible defaultValue='item-1'>
+          <Accordion type="single" collapsible>
             <AccordionItem value="item-1">
               <AccordionTrigger className="text-xl font-semibold">
                 Tracking Details
