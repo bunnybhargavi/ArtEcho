@@ -43,24 +43,7 @@ ArtEcho is built with a modern, full-stack technology set designed for performan
 ---
 
 ## 🌐 Live Demo
-Check out the live version here: [InternLink Live Demo](https://inquisitive-lollipop-d5ae22.netlify.app/)
+Check out the live version here: [ArtEcho Live Demo](https://inquisitive-lollipop-d5ae22.netlify.app/)
 
 
 This project was made with the help of Firebase Studio.
-
-## Deploying to Netlify
-
-Follow these steps to deploy ArtEcho to Netlify using the official Next.js plugin.
-
-1. Create a new site on Netlify and connect your GitHub repository.
-2. In the Netlify site settings, under "Build & deploy":
-	- Build command: `npm run build`
-	- Publish directory: `.next`
-3. Add environment variables required by your app in Site settings > Build & deploy > Environment > Environment variables. Common variables used by Firebase or any third-party services might include:
-	- (Set any Firebase env vars or API keys your project requires)
-4. Install the Netlify Next.js plugin (the `netlify.toml` in the repo already enables it). Netlify will read `netlify.toml` on deploy.
-5. Optionally set the Node version in Netlify to match `.nvmrc` (Node 20) or add an `ENGINES` field in `package.json`.
-
-Notes:
-- This repository includes a sample `netlify.toml` and `.nvmrc` (Node 20). The project uses Next.js 15 which relies on the Netlify Next.js plugin to properly handle App Router and server components.
-- Keep secrets out of the repo. Use Netlify's environment variables panel for all API keys.
